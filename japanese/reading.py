@@ -126,7 +126,7 @@ class MecabController(object):
                     out.append("%s %s[%s]%s" % (
                         reading[:placeL], kanji[placeL:-placeR],
                         reading[placeL:-placeR], reading[-placeR:]))
-        fin = ""
+        fin = u""
         for c, s in enumerate(out):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
                 s += " "
