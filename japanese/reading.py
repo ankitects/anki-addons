@@ -224,6 +224,7 @@ if canLoad:
             showInfo("Please install anki-reading.exe")
             QDesktopServices.openUrl(QUrl(
                 "http://ichi2.net/anki/wiki/JapaneseSupport"))
+        raise
 
 # Tests
 ##########################################################################
