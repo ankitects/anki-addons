@@ -13,7 +13,7 @@ from anki.hooks import addHook
 # disable to use kakasi only
 USE_MECAB=True
 # look for mecab&kakasi in the folder anki is being run from
-WIN32_READING_DIR=os.path.dirname(sys.argv[0])
+WIN32_READING_DIR=os.path.dirname(os.path.abspath(sys.argv[0]))
 
 modelTag = "Japanese"
 srcField = "Expression"
