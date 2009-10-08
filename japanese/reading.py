@@ -67,7 +67,8 @@ class MecabController(object):
             try:
                 self.mecab = subprocess.Popen(
                     mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, startupinfo=si)
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=si)
             except OSError:
                 raise Exception(_("Please install mecab"))
 
@@ -161,7 +162,8 @@ class KakasiController(object):
             try:
                 self.kakasi = subprocess.Popen(
                     kakasiCmd, bufsize=-1, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, startupinfo=si)
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    startupinfo=si)
             except OSError:
                 raise Exception(_("Please install kakasi"))
 
