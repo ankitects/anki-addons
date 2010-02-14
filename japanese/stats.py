@@ -12,8 +12,8 @@ from anki.hooks import addHook
 from anki.utils import ids2str
 from ankiqt import mw
 
-# Only look in Expression field and Kanji field (Heisig decks)
-KANJI_FIELDS = ["Expression","Kanji"]
+# Look for fields with kanji in them
+KANJI_FIELDS = ["Expression","Kanji",u"漢字"]
 
 def isKanji(unichar):
     try:
