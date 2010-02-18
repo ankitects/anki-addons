@@ -9,10 +9,15 @@ import re
 from anki.utils import hexifyID
 from anki.hooks import addHook
 
-NO_KANJI_IN_QUESTION = True
 MODELTAG = "Japanese"
 READING = "Reading"
 EXPRESSION = "Expression"
+
+# The following setting changes the behaviour of %(Reading)s in the question.
+# If set to 1, hide the kanji and show only the reading
+# If set to 2, show both the kanji and reading
+# If set to 3, show the kanji and show the reading in a tooltip
+READING_IN_QUESTION = 1
 
 def getReading(card):
     if not MODELTAG in card.fact.model.tags:
@@ -30,13 +35,13 @@ def filterQuestion(txt, card, transform='question'):
     reading = getReading(card)
     if not reading:
         return txt
-    if NO_KANJI_IN_QUESTION and transform == 'question':
-        transform = removeKanji
+    if READING_IN_QUESTION == 1 and transform == 'question':
+        fn = removeKanji
     else:
-        transform = rubify
+        fn = lambda x: rubify(x, transform)
     # replace
     def repl(match):
-        return reading + transform(match.group(1)) + "</span>"
+        return reading + fn(match.group(1)) + "</span>"
     txt = re.sub("%s(.*?)</span>" % reading, repl, txt)
     return txt
 
@@ -48,10 +53,15 @@ def removeKanji(txt):
     txt = txt.replace(" ", "")
     return txt
 
-def rubify(txt):
-    txt = re.sub("([^ >]+?)\[(.+?)\]",
-                 '<span class="ezRuby" title="\\2">\\1</span>',
-                 txt)
+def rubify(txt, type):
+    if type == "question" and READING_IN_QUESTION == 3:
+        txt = re.sub("([^ >]+?)\[(.+?)\]",
+                     '<span title="\\2">\\1</span>',
+                     txt)
+    else:
+        txt = re.sub("([^ >]+?)\[(.+?)\]",
+                     '<span class="ezRuby" title="\\2">\\1</span>',
+                     txt)
     txt = re.sub("> +", ">", txt)
     txt = re.sub(" +<", "<", txt)
     return txt
