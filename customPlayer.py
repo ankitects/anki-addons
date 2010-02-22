@@ -14,9 +14,9 @@
 
 ##########################################################################
 
-# change 'mplayer' to the player you want
-externalPlayer = ["mplayer", "-really-quiet"]
-#externalPlayer = ["customPlayer"]
+# change 'customPlayer' to the player you want
+#externalPlayer = ["mplayer", "-really-quiet"]
+externalPlayer = ["customPlayer"]
 
 ##########################################################################
 
