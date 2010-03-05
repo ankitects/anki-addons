@@ -56,7 +56,7 @@ def removeKanji(txt):
 def rubify(txt, type):
     if type == "question" and READING_IN_QUESTION == 3:
         txt = re.sub("([^ >]+?)\[(.+?)\]",
-                     '<span title="\\2">\\1</span>',
+                     '<span class=tip>\\1<span>\\2</span></span>',
                      txt)
     else:
         txt = re.sub("([^ >]+?)\[(.+?)\]",
@@ -99,6 +99,33 @@ html>/* */body .ezRuby:hover{
 
 html>/* */body .ezRuby:hover:before{
   background-color: #FFCC66;
+}
+
+
+.tip {
+	position: relative;
+}
+
+.tip:hover {
+	background: #77f;
+	color: #fff;
+}
+
+.tip span {
+	display: none;
+	position: absolute;
+	top: 40px;
+	left: -20px;
+	padding: 5px;
+	z-index: 100;
+	background: #000;
+	color: #fff;
+        font-size: 1em;
+        width: 200px;
+}
+
+span:hover.tip span {
+	display: block;
 }
 """
     return styles
