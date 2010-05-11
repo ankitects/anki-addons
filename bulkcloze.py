@@ -3,7 +3,8 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 # Automatically generate cloze deletions for all the cards in a deck. By
-# default it generates a cloze from fields 1 and 3.
+# default it generates a cloze from fields 1->2 and 3->4. To change this,
+# adjust the FIELDS below
 #
 
 from PyQt4.QtCore import *
@@ -13,7 +14,10 @@ from ankiqt import ui
 from anki.hooks import addHook
 import re
 
+# generate 1->2 and 3->4
 FIELDS = (1,3)
+# example: generate 2->3
+#FIELDS = (2,)
 
 def onCloze(browser):
     browser.onFirstCard()
