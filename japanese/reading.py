@@ -216,7 +216,8 @@ if canLoad:
     try:
         kakasi = KakasiController()
         mecab = MecabController()
-        mecab.ensureOpen()
+        if USE_MECAB:
+            mecab.ensureOpen()
         addHook('fact.focusLost', onFocusLost)
     except Exception:
         if sys.platform.startswith("win32"):
