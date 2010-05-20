@@ -89,7 +89,7 @@ def onClozeRepl(self):
                 clozeColour, exp)
     new = re.sub(re1, repl, s)
     if haveLatex:
-        old = re.sub(re2, "\\\\textbf{\\1}", s)
+        old = re.sub(re2, "\\\\bf{}\\1\\\\rm{}", s)
     else:
         old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
                      % clozeColour, s)
