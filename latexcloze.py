@@ -2,13 +2,16 @@
 # Copyright: Damien Elmes <anki@ichi2.net>
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
-# Fixes cloze generation in LaTeX
+# Fixes cloze generation in LaTeX. This code is a hack. :-)
 #
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from ankiqt import ui
+from anki.utils import tidyHTML
 import re
+
+clozeColour = "#0000ff"
 
 def onClozeRepl(self):
     src = self.focusedEdit()
@@ -77,28 +80,34 @@ def onClozeRepl(self):
             parent=self.parent)
         return
     # create
-    s = html
-    def repl(match):
-        exp = ""
-        if match.group(2):
-            exp = match.group(2)
+    ses = tidyHTML(html).split("<br>")
+    news = []
+    olds = []
+    for s in ses:
+        haveLatex = ("latex" in s or "{$}" in s or "{$$}" in s)
+        def repl(match):
+            exp = ""
+            if match.group(2):
+                exp = match.group(2)
+            if haveLatex:
+                return "\\textbf{[...%s]}" % (exp)
+            else:
+                return '<font color="%s"><b>[...%s]</b></font>' % (
+                    clozeColour, exp)
+        new = re.sub(re1, repl, s)
         if haveLatex:
-            return "\\textbf{[...%s]}" % (exp)
+            old = re.sub(re2, "{\\\\bf{}\\1\\\\rm{}}", s)
         else:
-            return '<font color="%s"><b>[...%s]</b></font>' % (
-                clozeColour, exp)
-    new = re.sub(re1, repl, s)
-    if haveLatex:
-        old = re.sub(re2, "\\\\bf{}\\1\\\\rm{}", s)
-    else:
-        old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
-                     % clozeColour, s)
-    reg = "\{(/?(latex|\$|\$\$))\}"
-    repl = "[\\1]"
-    new = re.sub(reg, repl, new)
-    old = re.sub(reg, repl, old)
-    src.setHtml(new)
-    dst.setHtml(old)
+            old = re.sub(re2, '<font color="%s"><b>\\1</b></font>'
+                         % clozeColour, s)
+        reg = "\{(/?(latex|\$|\$\$))\}"
+        repl = "[\\1]"
+        new = re.sub(reg, repl, new)
+        old = re.sub(reg, repl, old)
+        news.append(new)
+        olds.append(old)
+    src.setHtml("<br>".join(news))
+    dst.setHtml("<br>".join(olds))
     self.lastCloze = (oldSrc, unicode(src.toHtml()),
                       unicode(dst.toHtml()))
     self.saveFields()
