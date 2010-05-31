@@ -29,13 +29,16 @@ def newMediaDir(self,_old,create=False):
 
         if create == None:
             return dir
-        elif not os.path.exists(dir) and create:
-            try:
-                os.mkdir(dir)
-                # change to the current dir
-                os.chdir(dir)
-            except OSError:
-                # permission denied
+        elif not os.path.exists(dir):
+            if create:
+                try:
+                    os.mkdir(dir)
+                    # change to the current dir
+                    os.chdir(dir)
+                except OSError:
+                    # permission denied
+                    return None
+            else:
                 return None
         return dir
 
