@@ -10,20 +10,27 @@ import time
 from anki.utils import genID
 from anki import latex as latexOrig
 from anki.utils import canonifyTags
+from anki.hooks import wrap
 
 def imgLink(deck, latex, build=True):
     "Parse LATEX and return a HTML image representing the output."
     latex = latexOrig.mungeLatex(latex)
     (ok, img) = latexOrig.imageForLatex(deck, latex, build)
-    deck.s.statement("""
-insert or replace into media values
-(:id, :fn, 0, :t, '', 'latex')""",
-                     id=genID(),
-                     fn=img,
-                     t=time.time())
+    if ok:
+        deck.s.statement("""
+    insert or replace into media values
+    (:id, :fn, 0, :t, '', 'latex')""",
+                         id=genID(),
+                         fn=img,
+                         t=time.time())
     if ok:
         return '<img src="%s">' % img
     else:
         return img
 
+def clearDB(deck):
+    deck.flushMod()
+    deck.s.execute("delete from media where description = 'latex'")
+
 latexOrig.imgLink = imgLink
+latexOrig.cacheAllLatexImages = wrap(latexOrig.cacheAllLatexImages, clearDB, "before")
