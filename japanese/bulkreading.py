@@ -12,6 +12,9 @@ from japanese.reading import mecab, USE_MECAB
 from anki.facts import Fact
 from ankiqt import mw
 
+srcFields = ('sentence-expression','vocab-expression') # works with n pairs
+dstFields = ('sentence-furigana','vocab-furigana')
+
 # Bulk updates
 ##########################################################################
 
@@ -22,7 +25,8 @@ def regenerateReadings(factIds):
                             value=c)
         fact = mw.deck.s.query(Fact).get(id)
         try:
-            fact['Reading'] = mecab.reading(fact['Expression'])
+            for i in range(len(srcFields)):
+                fact[dstFields[i]] = mecab.reading(fact[srcFields[i]])
         except:
             pass
     mw.deck.refresh()

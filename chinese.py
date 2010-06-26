@@ -14,8 +14,8 @@ from anki.db import *
 
 cantoneseTag = "Cantonese"
 mandarinTag = "Mandarin"
-srcField = "Expression"
-dstField = "Reading"
+srcFields = ('sentence-expression','vocab-expression') # works with n pairs
+dstFields = ('sentence-reading','vocab-reading')
 
 # Models
 ##########################################################################
@@ -168,7 +168,7 @@ class ChineseGenerator(object):
 unihan = ChineseGenerator()
 
 def onFocusLost(fact, field):
-    if field.name != srcField:
+    if field.name not in srcFields:
         return
     if findTag(cantoneseTag, fact.model.tags):
         type = "cantonese"
@@ -176,6 +176,10 @@ def onFocusLost(fact, field):
         type = "mandarin"
     else:
         return
+
+    idx = srcFields.index(field.name)
+    dstField = dstFields[idx]
+
     try:
         if fact[dstField]:
             return

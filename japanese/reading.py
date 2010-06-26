@@ -16,8 +16,8 @@ USE_MECAB=True
 WIN32_READING_DIR=os.path.dirname(os.path.abspath(sys.argv[0]))
 
 modelTag = "Japanese"
-srcField = "Expression"
-dstField = "Reading"
+srcFields = ('sentence-expression','vocab-expression') # works with n pairs
+dstFields = ('sentence-furigana','vocab-furigana')
 
 if USE_MECAB:
     kakasiCmd = ["kakasi", "-isjis", "-osjis", "-u", "-JH", "-KH"]
@@ -181,10 +181,14 @@ class KakasiController(object):
 def onFocusLost(fact, field):
     if not kakasi:
         return
-    if field.name != srcField:
+    if field.name not in srcFields:
         return
     if not findTag(modelTag, fact.model.tags):
         return
+
+    idx = srcFields.index(field.name)
+    dstField = dstFields[idx]
+
     try:
         if fact[dstField]:
             return
