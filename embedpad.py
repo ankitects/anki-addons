@@ -544,7 +544,7 @@ WebCanvas.prototype._initListeners = function() {
         // advance if this browser will send touch or mouse events.
         // If we generate both touch and mouse events, the canvas gets confused
         // on iPhone/iTouch with the "revert stroke" command
-        if (navigator.userAgent.toLowerCase().indexOf('iphone')!=-1) {
+        if (navigator.userAgent.toLowerCase().indexOf('iphone')!=-1 || navigator.userAgent.toLowerCase().indexOf('ipad')!=-1) {
             // iPhone/iTouch events
             this.canvas.addEventListener("touchstart",
                                         callback(this, this._onButtonPressed),
