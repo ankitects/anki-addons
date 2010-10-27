@@ -37,7 +37,10 @@ def escapeText(text):
 
 if sys.platform == "win32":
     si = subprocess.STARTUPINFO()
-    si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    try:
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    except:
+        si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 else:
     si = None
 
