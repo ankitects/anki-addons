@@ -16,8 +16,8 @@ USE_MECAB=True
 WIN32_READING_DIR=os.path.dirname(os.path.abspath(sys.argv[0]))
 
 modelTag = "Japanese"
-srcFields = ('Expression') # works with n pairs
-dstFields = ('Reading')
+srcFields = ('Expression',) # works with n pairs
+dstFields = ('Reading',)
 
 if USE_MECAB:
     kakasiCmd = ["kakasi", "-isjis", "-osjis", "-u", "-JH", "-KH"]

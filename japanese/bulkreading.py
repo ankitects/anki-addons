@@ -29,7 +29,11 @@ def regenerateReadings(factIds):
                 fact[dstFields[i]] = mecab.reading(fact[srcFields[i]])
         except:
             pass
-    mw.deck.refresh()
+    try:
+        mw.deck.refreshReadings()
+    except:
+        # old style
+        mw.deck.refresh()
     mw.deck.updateCardQACacheFromIds(factIds, type="facts")
     mw.deck.finishProgress()
 
