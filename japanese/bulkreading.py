@@ -12,8 +12,8 @@ from japanese.reading import mecab, USE_MECAB
 from anki.facts import Fact
 from ankiqt import mw
 
-srcFields = ('Expression') # works with n pairs
-dstFields = ('Reading')
+srcFields = ('Expression',) # works with n pairs
+dstFields = ('Reading',)
 
 # Bulk updates
 ##########################################################################
@@ -30,7 +30,7 @@ def regenerateReadings(factIds):
         except:
             pass
     try:
-        mw.deck.refreshReadings()
+        mw.deck.refreshSession()
     except:
         # old style
         mw.deck.refresh()
