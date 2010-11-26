@@ -230,7 +230,7 @@ if canLoad:
         if sys.platform.startswith("win32"):
             from PyQt4.QtGui import QDesktopServices
             from PyQt4.QtCore import QUrl
-            from ui.utils import showInfo
+            from ankiqt.ui.utils import showInfo
             showInfo("Please install anki-reading.exe")
             QDesktopServices.openUrl(QUrl(
                 "http://ichi2.net/anki/wiki/JapaneseSupport"))
