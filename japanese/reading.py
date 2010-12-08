@@ -219,12 +219,16 @@ if sys.platform.startswith("darwin"):
 
 kakasi = None
 mecab = None
+tool = None
 if canLoad:
     try:
         kakasi = KakasiController()
         mecab = MecabController()
         if USE_MECAB:
             mecab.ensureOpen()
+            tool = mecab
+        else:
+            tool = kakasi
         addHook('fact.focusLost', onFocusLost)
     except Exception:
         if sys.platform.startswith("win32"):
@@ -235,6 +239,48 @@ if canLoad:
             QDesktopServices.openUrl(QUrl(
                 "http://ichi2.net/anki/wiki/JapaneseSupport"))
         raise
+
+# Ctrl+g shortcut, based on Samson's regenerate reading field plugin
+##########################################################################
+
+def genReading(self):
+    # make sure current text is saved
+    self.saveFieldsNow()
+    # find the first src field available
+    reading = None
+    for f in srcFields:
+        try:
+            reading = tool.reading(self.fact[f])
+            break
+        except:
+            continue
+    if not reading:
+        return
+    # save it in the first dst field available
+    for f in dstFields:
+        try:
+            self.fact[f] = reading
+            self.fact.setModified(textChanged=True)
+            self.deck.setModified()
+            self.loadFields()
+            break
+        except:
+            continue
+
+def newSetupFields(self):
+    s = QShortcut(QKeySequence(_("Ctrl+g")), self.parent)
+    s.connect(s, SIGNAL("activated()"), lambda self=self: genReading(self))
+
+from ankiqt.ui import facteditor as fe
+from ankiqt import mw
+from anki.hooks import wrap
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+
+fe.FactEditor.setupFields = wrap(fe.FactEditor.setupFields, newSetupFields,
+        "after")
+s = QShortcut(QKeySequence(_("Ctrl+g")), mw.editor.parent)
+s.connect(s, SIGNAL("activated()"), lambda self=mw.editor: genReading(self))
 
 # Tests
 ##########################################################################
