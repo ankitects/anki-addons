@@ -260,7 +260,7 @@ def genReading(self):
     for f in dstFields:
         try:
             self.fact[f] = reading
-            self.fact.setModified(textChanged=True)
+            self.fact.setModified(textChanged=True, deck=self.deck)
             self.deck.setModified()
             self.loadFields()
             break
