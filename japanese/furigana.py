@@ -13,6 +13,10 @@ MODELTAG = "Japanese"
 READING = "Reading"
 EXPRESSION = "Expression"
 
+# If set to true, the plugin will look for any furigana on the card, instead
+# of just looking in the reading field.
+FURI_OUTSIDE_READING = True
+
 # The following setting changes the behaviour of %(Reading)s in the question.
 # If set to 1, hide the kanji and show only the reading
 # If set to 2, show both the kanji and reading
@@ -32,25 +36,31 @@ def getReading(card):
     return '<span class="fm%s">' % hexifyID(read[0])
 
 def filterQuestion(txt, card, transform='question'):
-    reading = getReading(card)
-    if not reading:
-        return txt
     if READING_IN_QUESTION == 1 and transform == 'question':
         fn = removeKanji
     else:
         fn = lambda x: rubify(x, transform)
+    if not FURI_OUTSIDE_READING:
+        reading = getReading(card)
+        if not reading:
+            return txt
     # replace
     def repl(match):
         return reading + fn(match.group(1)) + "</span>"
-    txt = re.sub("%s(.*?)</span>" % reading, repl, txt)
+    if FURI_OUTSIDE_READING:
+        txt = fn(txt)
+    else:
+        txt = re.sub("%s(.*?)</span>" % reading, repl, txt)
     return txt
 
 def filterAnswer(txt, card):
     return filterQuestion(txt, card, transform="answer")
 
 def removeKanji(txt):
-    txt = re.sub("([^ >]+?)\[(.+?)\]", "\\2", txt)
-    txt = txt.replace(" ", "")
+    def repl(match):
+        txt = match.group(2)
+        return txt.replace(" ", "")
+    txt = re.sub("([^ >]+?)\[(.+?)\]", repl, txt)
     return txt
 
 def rubify(txt, type):
