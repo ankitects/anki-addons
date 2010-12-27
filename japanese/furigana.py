@@ -24,8 +24,6 @@ FURI_OUTSIDE_READING = True
 READING_IN_QUESTION = 1
 
 def getReading(card):
-    if not MODELTAG in card.fact.model.tags:
-        return
     if not "[" in card.fact.get(READING, ""):
         return
     # get the reading field
@@ -40,6 +38,8 @@ def filterQuestion(txt, card, transform='question'):
         fn = removeKanji
     else:
         fn = lambda x: rubify(x, transform)
+    if not MODELTAG in card.fact.model.tags:
+        return txt
     if not FURI_OUTSIDE_READING:
         reading = getReading(card)
         if not reading:
