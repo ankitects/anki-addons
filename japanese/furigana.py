@@ -72,8 +72,6 @@ def rubify(txt, type):
         txt = re.sub("([^ >]+?)\[(.+?)\]",
                      '<span class="ezRuby" title="\\2">\\1</span>',
                      txt)
-    txt = re.sub("> +", ">", txt)
-    txt = re.sub(" +<", "<", txt)
     return txt
 
 def addCss(styles, card):
