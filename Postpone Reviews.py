@@ -15,17 +15,19 @@ import sys
 from anki.cards import cardsTable
 import time
 
-# hard coded to cause minimum damage
-revCardOrder = "revCardsDue"
-
 def postpone():
     i = QInputDialog.getInteger(mw, _("Postpone"),
                                 _("Number of days to spread repetitions over:"),
                                 2, 1)
     if i[1] and i[0] > 1:
         mw.deck.s.flush()
-        q = mw.deck.s.all(
-            "select id, interval, due from %s where reps > 0" % revCardOrder)
+        d = mw.deck
+        q = d.s.all(
+            d.cardLimit(
+            "revActive", "revInactive", """
+select c.id, interval, combinedDue from cards c where
+type = 1 and combinedDue < :lim order by priority desc, combinedDue
+"""), lim=d.dueCutoff)
         size = len(q) / i[0] + 1
         days = 0
         count = -1
@@ -38,19 +40,19 @@ def postpone():
                 days += 1
             seconds = 86400 * days
             # determine the current delay
-            delay = now - item.due
+            delay = now - item.combinedDue
             cards.append({'id': item[0],
                           'interval': item[1] + days + (delay / 86400.0),
                           'due': now + seconds})
         # apply changes
-        mw.deck.s.execute("""
+        d.s.execute("""
 update cards set
 interval = :interval,
-due = :due,
-combinedDue = max(:due, spaceUntil),
+combinedDue = :due,
 isDue = 0
 where id = :id""", cards)
         # rebuild
+        d.flushMod()
         mw.reset()
 
 def init():
