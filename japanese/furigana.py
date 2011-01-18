@@ -60,16 +60,16 @@ def removeKanji(txt):
     def repl(match):
         txt = match.group(2)
         return txt.replace(" ", "")
-    txt = re.sub("([^ >]+?)\[(.+?)\]", repl, txt)
+    txt = re.sub("([^ >]+?)\[(.+?)\] ?", repl, txt)
     return txt
 
 def rubify(txt, type):
     if type == "question" and READING_IN_QUESTION == 3:
-        txt = re.sub("([^ >]+?)\[(.+?)\]",
+        txt = re.sub("([^ >]+?)\[(.+?)\] ?",
                      '<span class=tip>\\1<span>\\2</span></span>',
                      txt)
     else:
-        txt = re.sub("([^ >]+?)\[(.+?)\]",
+        txt = re.sub("([^ >]+?)\[(.+?)\] ?",
                      '<span class="ezRuby" title="\\2">\\1</span>',
                      txt)
     return txt
