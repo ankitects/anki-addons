@@ -56,9 +56,20 @@ def filterQuestion(txt, card, transform='question'):
 def filterAnswer(txt, card):
     return filterQuestion(txt, card, transform="answer")
 
+def replNoSound(new):
+    def repl(m):
+        return match.group(int(m.group(1)))
+    def fn(match):
+        if match.group(2).startswith("sound:"):
+            return match.group(0)
+        return new.replace("\\1", match.group(1)).replace("\\2", match.group(2))
+    return fn
+
 def removeKanji(txt):
     def repl(match):
         txt = match.group(2)
+        if txt.startswith("sound:"):
+            return match.group(0)
         return txt.replace(" ", "")
     txt = re.sub(" ?([^ >]+?)\[(.+?)\]", repl, txt)
     return txt
@@ -66,11 +77,11 @@ def removeKanji(txt):
 def rubify(txt, type):
     if type == "question" and READING_IN_QUESTION == 3:
         txt = re.sub(" ?([^ >]+?)\[(.+?)\]",
-                     '<span class=tip>\\1<span>\\2</span></span>',
+                     replNoSound('<span class=tip>\\1<span>\\2</span></span>'),
                      txt)
     else:
         txt = re.sub(" ?([^ >]+?)\[(.+?)\]",
-                     '<span class="ezRuby" title="\\2">\\1</span>',
+                     replNoSound('<span class="ezRuby" title="\\2">\\1</span>'),
                      txt)
     return txt
 
