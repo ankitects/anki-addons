@@ -265,6 +265,7 @@ function setupCanvas () {
     clear.appendChild(document.createTextNode("Clear"));
     clear.setAttribute("href", "#");
     clear.onclick = function () { document.webcanvas.clear(); };
+    clear.ontouchstart = function () { window.event.stopPropagation();}
     holder.appendChild(clear);
 }
 
