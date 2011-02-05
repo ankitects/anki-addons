@@ -175,7 +175,6 @@ WebCanvas.prototype._initListeners = function() {
 }
 
 WebCanvas.prototype._onButtonPressed = function(event) {
-
     window.event.stopPropagation();
     // this can occur with an iPhone/iTouch when we try to drag two fingers
     // on the canvas, causing a second smaller canvas to appear
@@ -200,7 +199,7 @@ WebCanvas.prototype._onMove = function(event) {
 }
 
 WebCanvas.prototype._onButtonReleased = function(event) {
-
+    window.event.stopPropagation();
     if (this.buttonPressed) {
         this.buttonPressed = false;
     }
