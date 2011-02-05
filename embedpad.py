@@ -176,6 +176,7 @@ WebCanvas.prototype._initListeners = function() {
 
 WebCanvas.prototype._onButtonPressed = function(event) {
 
+    window.event.stopPropagation();
     // this can occur with an iPhone/iTouch when we try to drag two fingers
     // on the canvas, causing a second smaller canvas to appear
     if (this.buttonPressed) return;
