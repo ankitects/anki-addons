@@ -19,6 +19,18 @@
 # You cannot redraw you strokes, undo single strokes and so an.  I
 # think it is much more responsive now.
 #
+# changed by Damien 2011-02-05:
+#
+# - work around serious webkit memory leaks, so using this won't cause lowmem
+# crashes after 60-100 cards anymore
+# - resize to 90% of width and 40% of screen size and remove retina
+# display-specific code
+# - don't setup new handlers each time a deck is opened, which lead to slower
+# and slower performance
+# - add a margin to the clear link to make it difficult to accidentally show
+# the answer
+# - support the iPad as well
+#
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -41,7 +53,7 @@ def onEdit():
 
 # Setup menu entries
 menu1 = QAction(mw)
-menu1.setText("Embed Simple Scratchpad")
+menu1.setText("Embed Scratchpad")
 mw.connect(menu1, SIGNAL("triggered()"), onEdit)
 mw.mainWin.menuTools.addSeparator()
 mw.mainWin.menuTools.addAction(menu1)
@@ -50,21 +62,17 @@ mw.mainWin.menuTools.addAction(menu1)
 # 3rd party code below
 #
 CSS = """
-#ianki_webcanvas {
+canvas {
     border: 2px solid black;
-    width: 250;
-    height: 250;
 }
-.canvas_links {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    font-size: 1.6em;
+.cvlink {
+    padding: 0.3em 1em;
+    border: 1px solid #000;
+    background: #aaa;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #000;
 }
-.canvas_links a {
-    color: #0000FF;
-}
-
 """
 
 JS = r'''
@@ -82,23 +90,16 @@ WebCanvas = function(canvas) {
 
     this.buttonPressed = false;
 
+    this.adjustSize();
+    this._initListeners();
+}
+
+WebCanvas.prototype.adjustSize = function() {
     this.w = 1.0*this.canvas.getAttribute('width');
     this.h = 1.0*this.canvas.getAttribute('height');
 
     this.lw = 2 // linewidth
     this.scale = 1;
-
-    if(window.devicePixelRatio == 2) {  // double size for iPhone4
-         this.w     *= 2;
-         this.h     *= 2;
-         this.lw    *= 2;
-         this.scale *= 2; 
-         this.canvas.setAttribute('width',  this.w);
-         this.canvas.setAttribute('height', this.h);
-         this.ctx.scale(2, 2);
-    }
-
-    this._initListeners();
 }
 
 WebCanvas.prototype._withHandwritingLine = function() {
@@ -152,7 +153,8 @@ WebCanvas.prototype._initListeners = function() {
         // advance if this browser will send touch or mouse events.
         // If we generate both touch and mouse events, the canvas gets confused
         // on iPhone/iTouch with the "revert stroke" command
-        if (navigator.userAgent.toLowerCase().indexOf('iphone')!=-1) {
+        if (navigator.userAgent.toLowerCase().indexOf('iphone')!=-1 ||
+            navigator.userAgent.toLowerCase().indexOf('ipad')!=-1) {
             // iPhone/iTouch events
             this.canvas.addEventListener("touchstart",  callback(this, this._onButtonPressed),  false);
             this.canvas.addEventListener("touchend",    callback(this, this._onButtonReleased), false);
@@ -235,34 +237,38 @@ WebCanvas.prototype.clear = function() {
     this._drawAxis();
 }
 
-
-
 /* ankimobile.js */
-function add_canvas (id) {
-    var parent_element = document.getElementById(id);
-    if (!parent_element) {
+function setupCanvas () {
+    var cv;
+    // create a reusable canvas to avoid webkit leaks
+    if (!document.webcanvas) {
+        cv = document.createElement("canvas");
+        document.webcanvas = new WebCanvas(cv);
+    } else {
+        cv = document.webcanvas.canvas;
+    }
+    cv.setAttribute("width", window.innerWidth * 0.9);
+    cv.setAttribute("height", window.innerHeight * 0.4);
+    document.webcanvas.adjustSize();
+    document.webcanvas.clear();
+    // put the canvas in the holder
+    var holder = document.getElementById("canvas");
+    if (!holder) {
         return;
     }
-
-    parent_element.innerHTML = '<canvas id="ianki_webcanvas" width=250 height=250></canvas><div id="cl" class="canvas_links"><a href="#" onclick="document.webcanvas.clear();">clear</a></div>';
-
-    /* stop bubbling the click events up to AnkiMobile's tap handlers */
-// this is not needed for the canvas as there one should not click, but draw
-//    parent_element.onclick = function () {window.event.stopPropagation();};
-// but it is needed for the links
-    var cl = document.getElementById("cl");
-    if (cl) cl.onclick = function () {window.event.stopPropagation();};
-
-
-    document.webcanvas = null;
-    var canvas = document.getElementById("ianki_webcanvas");
-    if (canvas.getContext) {
-        document.webcanvas = new WebCanvas(canvas);
-        document.webcanvas.clear();
-    }
+    holder.appendChild(cv);
+    // and the clear link
+    holder.appendChild(document.createElement("br"));
+    var clear = document.createElement("a");
+    clear.className = "cvlink";
+    clear.appendChild(document.createTextNode("Clear"));
+    clear.setAttribute("href", "#");
+    clear.onclick = function () { document.webcanvas.clear(); };
+    holder.appendChild(clear);
 }
 
-Ti.App.addEventListener("showQuestion1", function () { add_canvas("canvas") })
-Ti.App.addEventListener("showQuestion2", function () { add_canvas("canvas") })
-
+if (!document.webcanvas) {
+    Ti.App.addEventListener("showQuestion1", setupCanvas);
+    Ti.App.addEventListener("showQuestion2", setupCanvas);
+}
 '''
