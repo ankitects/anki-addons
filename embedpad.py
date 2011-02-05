@@ -263,8 +263,7 @@ function setupCanvas () {
     clear.className = "cvlink";
     clear.appendChild(document.createTextNode("Clear"));
     clear.setAttribute("href", "#");
-    clear.onclick = function () { document.webcanvas.clear(); };
-    clear.ontouchstart = function () { window.event.stopPropagation();}
+    clear.ontouchstart = function () { document.webcanvas.clear(); window.event.stopPropagation();}
     holder.appendChild(clear);
 }
 
