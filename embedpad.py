@@ -31,6 +31,14 @@
 # the answer
 # - support the iPad as well
 #
+# 2011-02-09:
+#
+# - patch from HS to improve appearance or retina display and display as a
+# square
+# - modified by Damien to default to the old rectangle which fits on the
+# screen in both orientations and isn't biased towards kanji. If you want a
+# square display, search for (0) and change it to (1)
+#
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -100,6 +108,16 @@ WebCanvas.prototype.adjustSize = function() {
 
     this.lw = 2 // linewidth
     this.scale = 1;
+
+    if( window.devicePixelRatio == 2 ) {  // double size for iPhone4
+         this.w     *= 2;
+         this.h     *= 2;
+         this.lw    *= 2;
+         this.scale *= 2;
+         this.canvas.setAttribute('width',  this.w);
+         this.canvas.setAttribute('height', this.h);
+         this.ctx.scale(2, 2);
+    }
 }
 
 WebCanvas.prototype._withHandwritingLine = function() {
@@ -247,8 +265,20 @@ function setupCanvas () {
     } else {
         cv = document.webcanvas.canvas;
     }
-    cv.setAttribute("width", window.innerWidth * 0.9);
-    cv.setAttribute("height", window.innerHeight * 0.4);
+    var w = window.innerWidth;
+    var h = window.innerHeight;
+    if (0) {
+        // square
+        h = w = Math.min(w,h) * 0.8;
+    } else {
+        // rectangle
+        w *= 0.9;
+        h *= 0.4;
+    }
+    cv.setAttribute("width" , w);
+    cv.setAttribute("height", h);
+    cv.style.width = w;             // set CSS width  (important for Retina display)
+    cv.style.height = h;            // set CSS height (important for Retina display)
     document.webcanvas.adjustSize();
     document.webcanvas.clear();
     // put the canvas in the holder
