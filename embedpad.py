@@ -39,6 +39,11 @@
 # screen in both orientations and isn't biased towards kanji. If you want a
 # square display, search for (0) and change it to (1)
 #
+# 2011-02-16:
+#
+# - patch from Shawn to remove code for IE and mouse support since this is iOS
+# specific
+#
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -88,13 +93,6 @@ JS = r'''
 WebCanvas = function(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d");
-
-    if (document.all) {
-        /* For Internet Explorer */
-        this.canvas.unselectable = "on";
-        this.canvas.onselectstart = function() { return false };
-        this.canvas.style.cursor = "default";
-    }
 
     this.buttonPressed = false;
 
@@ -160,36 +158,14 @@ WebCanvas.prototype._initListeners = function() {
         }
     }
 
-    if (this.canvas.attachEvent) {
-        this.canvas.attachEvent("onmousemove",      callback(this, this._onMove));
-        this.canvas.attachEvent("onmousedown",      callback(this, this._onButtonPressed));
-        this.canvas.attachEvent("onmouseup",        callback(this, this._onButtonReleased));
-        this.canvas.attachEvent("onmouseout",       callback(this, this._onButtonReleased));
-    }
-    else if (this.canvas.addEventListener) {
-        // Browser sniffing is evil, but I can't figure out a good way to ask in
-        // advance if this browser will send touch or mouse events.
-        // If we generate both touch and mouse events, the canvas gets confused
-        // on iPhone/iTouch with the "revert stroke" command
-        if (navigator.userAgent.toLowerCase().indexOf('iphone')!=-1 ||
-            navigator.userAgent.toLowerCase().indexOf('ipad')!=-1) {
-            // iPhone/iTouch events
-            this.canvas.addEventListener("touchstart",  callback(this, this._onButtonPressed),  false);
-            this.canvas.addEventListener("touchend",    callback(this, this._onButtonReleased), false);
-            this.canvas.addEventListener("touchcancel", callback(this, this._onButtonReleased), false);
-            this.canvas.addEventListener("touchmove",   callback(this, this._onMove),           false);
+    // iPhone/iTouch events
+    this.canvas.addEventListener("touchstart",  callback(this, this._onButtonPressed),  false);
+    this.canvas.addEventListener("touchend",    callback(this, this._onButtonReleased), false);
+    this.canvas.addEventListener("touchcancel", callback(this, this._onButtonReleased), false);
+    this.canvas.addEventListener("touchmove",   callback(this, this._onMove),           false);
 
-            // Disable page scrolling via dragging inside the canvas
-            this.canvas.addEventListener("touchmove", function(e){e.preventDefault();}, false);
-        }
-        else {
-            this.canvas.addEventListener("mousemove",  callback(this, this._onMove),           false);
-            this.canvas.addEventListener("mousedown",  callback(this, this._onButtonPressed),  false);
-            this.canvas.addEventListener("mouseup",    callback(this, this._onButtonReleased), false);
-            this.canvas.addEventListener("mouseout",   callback(this, this._onButtonReleased), false);
-        }
-    }
-    else alert("Your browser does not support interaction.");
+    // Disable page scrolling via dragging inside the canvas
+    this.canvas.addEventListener("touchmove", function(e){e.preventDefault();}, false);
 }
 
 WebCanvas.prototype._onButtonPressed = function(event) {
@@ -226,18 +202,9 @@ WebCanvas.prototype._onButtonReleased = function(event) {
 WebCanvas.prototype._getRelativePosition = function(event) {
     var t = this.canvas;
 
-    var x, y;
-    // targetTouches is iPhone/iTouch-specific; it's a list of finger drags
-    if (event.targetTouches) {
-       var e = event.targetTouches[0];
-
-       x = e.pageX;
-       y = e.pageY;
-    }
-    else {
-        x = event.clientX + (window.pageXOffset || 0);
-        y = event.clientY + (window.pageYOffset || 0);
-    }
+    var e = event.targetTouches[0];
+    var x = e.pageX;
+    var y = e.pageY;
 
     do
         x -= t.offsetLeft + parseInt(t.style.borderLeftWidth || 0),
