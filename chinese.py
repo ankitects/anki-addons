@@ -181,7 +181,7 @@ def onFocusLost(fact, field):
     dstField = dstFields[idx]
 
     try:
-        if fact[dstField]:
+        if fact[dstField] and fact[dstField] != "<br />":
             return
     except:
         return
