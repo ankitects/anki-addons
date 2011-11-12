@@ -135,7 +135,7 @@ class MecabController(object):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
                 s += " "
             fin += s
-        return fin.strip()
+        return fin.strip().replace("< br>", "<br>")
 
 # Kakasi
 ##########################################################################
