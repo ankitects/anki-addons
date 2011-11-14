@@ -14,8 +14,8 @@ from anki.db import *
 
 cantoneseTag = "Cantonese"
 mandarinTag = "Mandarin"
-srcFields = ('Expression') # works with n pairs
-dstFields = ('Reading')
+srcFields = ('Expression',) # works with n pairs
+dstFields = ('Reading',)
 
 # Models
 ##########################################################################
