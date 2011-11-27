@@ -6,5 +6,6 @@
 # which causes bugs. This plugin disables updating.
 #
 
-from ankiqt.ui import status
-status.updateCount = lambda: True
+import sys
+from ankiqt import mw
+mw.statusView.countTimer.stop()
