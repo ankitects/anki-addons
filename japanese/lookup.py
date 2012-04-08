@@ -5,28 +5,28 @@
 # Dictionary lookup support.
 #
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
 import urllib, re
 from anki.hooks import addHook
-from ankiqt import mw
-from ankiqt import ui
+from aqt import mw
+from aqt.qt import *
+from aqt.utils import showInfo
 
 class Lookup(object):
 
-    def __init__(self, main):
-        self.main = main
+    def __init__(self):
+        pass
 
     def selection(self, function):
         "Get the selected text and look it up with FUNCTION."
-        text = unicode(self.main.mainWin.mainText.selectedText())
-        text = text.strip()
-        if "\n" in text:
-            ui.utils.showInfo(_("Can't look up a selection with a newline."))
-            return
+        # lazily acquire selection by copying it into clipboard
+        mw.web.triggerPageAction(QWebPage.Copy)
+        text = mw.app.clipboard().mimeData().text()
         text = text.strip()
         if not text:
-            ui.utils.showInfo(_("Empty selection."))
+            showInfo(_("Empty selection."))
+            return
+        if "\n" in text:
+            showInfo(_("Can't look up a selection with a newline."))
             return
         function(text)
 
@@ -78,21 +78,23 @@ class Lookup(object):
 
 def initLookup():
     if not getattr(mw, "lookup", None):
-        mw.lookup = Lookup(mw)
+        mw.lookup = Lookup()
 
-def onLookupExpression():
-    initLookup()
+def _field(name):
     try:
-        mw.lookup.alc(mw.currentCard.fact['Expression'])
-    except KeyError:
-        ui.utils.showInfo(_("No expression in current card."))
+        return mw.reviewer.card.note()[name]
+    except:
+        return
+
+def onLookupExpression(name="Expression"):
+    initLookup()
+    txt = _field(name)
+    if not txt:
+        return showInfo("No %s in current note." % name)
+    mw.lookup.alc(txt)
 
 def onLookupMeaning():
-    initLookup()
-    try:
-        mw.lookup.alc(mw.currentCard.fact['Meaning'])
-    except KeyError:
-        ui.utils.showInfo(_("No meaning in current card."))
+    onLookupExpression("Meaning")
 
 def onLookupEdictSelection():
     initLookup()
@@ -107,10 +109,11 @@ def onLookupAlcSelection():
     mw.lookup.selection(mw.lookup.alc)
 
 def createMenu():
-    ml = QMenu(mw.mainWin.menubar)
+    ml = QMenu()
     ml.setTitle("Lookup")
-    mw.mainWin.menuTools.addAction(ml.menuAction())
-    mw.mainWin.menuLookup = ml
+    mw.form.menuTools.addAction(ml.menuAction())
+    # make it easier for other plugins to add to the menu
+    mw.form.menuLookup = ml
     # add actions
     a = QAction(mw)
     a.setText("...expression on alc")
@@ -139,13 +142,13 @@ def createMenu():
     ml.addAction(a)
     mw.connect(a, SIGNAL("triggered()"), onLookupEdictKanjiSelection)
 
-def disableMenu():
-    mw.mainWin.menuLookup.setEnabled(False)
+# def disableMenu():
+#     mw.mainWin.menuLookup.setEnabled(False)
 
-def enableMenu():
-    mw.mainWin.menuLookup.setEnabled(True)
+# def enableMenu():
+#     mw.mainWin.menuLookup.setEnabled(True)
 
-addHook('disableCardMenuItems', disableMenu)
-addHook('enableCardMenuItems', enableMenu)
+# addHook('disableCardMenuItems', disableMenu)
+# addHook('enableCardMenuItems', enableMenu)
 
 createMenu()

@@ -4,6 +4,6 @@
 
 import japanese.model
 import japanese.reading
-#import japanese.lookup
+import japanese.lookup
 import japanese.stats
 #import japanese.bulkreading
