@@ -7,23 +7,14 @@
 #
 
 import sys, os, platform, re, subprocess
-from anki.utils import findTag, stripHTML
+from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 
-# disable to use kakasi only
-USE_MECAB=True
-# look for mecab&kakasi in the folder anki is being run from
-WIN32_READING_DIR=os.path.dirname(os.path.abspath(sys.argv[0]))
-
-modelTag = "Japanese"
 srcFields = ['Expression']
 dstFields = ['Reading']
 
-if USE_MECAB:
-    kakasiCmd = ["kakasi", "-isjis", "-osjis", "-u", "-JH", "-KH"]
-else:
-    kakasiCmd = ["kakasi", "-isjis", "-osjis", "-u", "-JH", "-p"]
-mecabCmd = ["mecab", '--node-format=%m[%f[7]] ', '--eos-format=\n',
+kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
+mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
 
 def escapeText(text):
@@ -47,33 +38,38 @@ else:
 # Mecab
 ##########################################################################
 
+def mungeForWin(popen):
+    if isWin:
+        popen = [os.path.normpath(x) for x in popen]
+        popen[0] += ".exe"
+    return popen
+
 class MecabController(object):
 
     def __init__(self):
         self.mecab = None
 
     def setup(self):
-        if sys.platform == "win32":
-            dir = WIN32_READING_DIR
-            os.environ['PATH'] += (";%s\\mecab\\bin" % dir)
-            os.environ['MECABRC'] = ("%s\\mecab\\etc\\mecabrc" % dir)
-        elif sys.platform.startswith("darwin"):
-            dir = os.path.dirname(os.path.abspath(__file__))
-            os.environ['PATH'] += ":" + dir + "/osx/mecab/bin"
-            os.environ['MECABRC'] = dir + "/osx/mecab/etc/mecabrc"
-            os.environ['DYLD_LIBRARY_PATH'] = dir + "/osx/mecab/bin"
-            os.chmod(dir + "/osx/mecab/bin/mecab", 0755)
+        base = "../../addons/japanese/support/"
+        if isWin or isMac:
+            self.mecabCmd = mungeForWin(
+                [base + "mecab"] + mecabArgs + [
+                    '-d', base, '-r', base + "mecabrc"])
+            os.environ['DYLD_LIBRARY_PATH'] = base
+        else:
+            # assume it's in the path
+            self.mecabCmd = ["mecab"] + mecabArgs
 
     def ensureOpen(self):
         if not self.mecab:
             self.setup()
             try:
                 self.mecab = subprocess.Popen(
-                    mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
+                    self.mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                     startupinfo=si)
             except OSError:
-                raise Exception(_("Please install mecab"))
+                raise Exception("Please install mecab")
 
     def reading(self, expr):
         self.ensureOpen()
@@ -146,29 +142,26 @@ class KakasiController(object):
         self.kakasi = None
 
     def setup(self):
-        if sys.platform == "win32":
-            dir = WIN32_READING_DIR
-            os.environ['PATH'] += (";%s\\kakasi\\bin" % dir)
-            os.environ['ITAIJIDICT'] = ("%s\\kakasi\dic\\itaijidict" %
-                                        dir)
-            os.environ['KANWADICT'] = ("%s\\kakasi\\dic\\kanwadict" % dir)
-        elif sys.platform.startswith("darwin"):
-            dir = os.path.dirname(os.path.abspath(__file__))
-            os.environ['PATH'] += ":" + dir + "/osx/kakasi"
-            os.environ['ITAIJIDICT'] = dir + "/osx/kakasi/itaijidict"
-            os.environ['KANWADICT'] = dir + "/osx/kakasi/kanwadict"
-            os.chmod(dir + "/osx/kakasi/kakasi", 0755)
+        base = "../../addons/japanese/support/"
+        if isWin or isMac:
+            self.kakasiCmd = mungeForWin(
+                [base + "kakasi"] + kakasiArgs)
+            os.environ['ITAIJIDICT'] = base + "itaijidict"
+            os.environ['KANWADICT'] = base + "kanwadict"
+        else:
+            # assume it's in the path
+            self.kakasiCmd = ["kakasi"] + kakasiArgs
 
     def ensureOpen(self):
         if not self.kakasi:
             self.setup()
             try:
                 self.kakasi = subprocess.Popen(
-                    kakasiCmd, bufsize=-1, stdin=subprocess.PIPE,
+                    self.kakasiCmd, bufsize=-1, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                     startupinfo=si)
             except OSError:
-                raise Exception(_("Please install kakasi"))
+                raise Exception("Please install kakasi")
 
     def reading(self, expr):
         self.ensureOpen()
@@ -178,109 +171,55 @@ class KakasiController(object):
         res = unicode(self.kakasi.stdout.readline().rstrip('\r\n'), "sjis")
         return res
 
-# Fact hook
+# Focus lost hook
 ##########################################################################
 
-def onFocusLost(fact, field):
-    if not kakasi:
-        return
-    if field.name not in srcFields:
-        return
-    if not findTag(modelTag, fact.model.tags):
-        return
-
-    idx = srcFields.index(field.name)
-    dstField = dstFields[idx]
-
+def onFocusLost(flag, n, fidx):
+    global mecab
+    from aqt import mw
+    if not mecab:
+        return flag
+    src = None
+    dst = None
+    # japanese model?
+    if "japanese" not in n.model()['name'].lower():
+        return flag
+    # have src and dst fields?
+    for c, name in enumerate(mw.col.models.fieldNames(n.model())):
+        for f in srcFields:
+            if name == f:
+                src = f
+                srcIdx = c
+        for f in dstFields:
+            if name == f:
+                dst = f
+    if not src or not dst:
+        return flag
+    # dst field already filled?
+    if n[dst]:
+        return flag
+    # event coming from src field?
+    if fidx != srcIdx:
+        return flag
+    # grab source text
+    srcTxt = mw.col.media.strip(n[src])
+    if not srcTxt:
+        return flag
+    # update field
     try:
-        if fact[dstField]:
-            return
-    except:
-        return
-    origText = re.sub("\[sound:.+?\]", "", field.value)
-    if USE_MECAB:
-        tmp = mecab.reading(origText)
-        fact[dstField] = tmp
-    else:
-        tmp = kakasi.reading(origText)
-        if tmp != origText:
-            fact[dstField] = tmp
-
-canLoad = True
-if sys.platform.startswith("darwin"):
-    while 1:
-        try:
-            proc = platform.processor()
-        except IOError:
-            proc = None
-        if proc:
-            canLoad = proc != "powerpc"
-            break
-
-kakasi = None
-mecab = None
-tool = None
-if canLoad:
-    try:
-        kakasi = KakasiController()
-        mecab = MecabController()
-        if USE_MECAB:
-            mecab.ensureOpen()
-            tool = mecab
-        else:
-            tool = kakasi
-        addHook('fact.focusLost', onFocusLost)
-    except Exception:
-        if sys.platform.startswith("win32"):
-            from PyQt4.QtGui import QDesktopServices
-            from PyQt4.QtCore import QUrl
-            from ankiqt.ui.utils import showInfo
-            showInfo("Please install anki-reading.exe")
-            QDesktopServices.openUrl(QUrl(
-                "http://ichi2.net/anki/wiki/JapaneseSupport"))
+        n[dst] = mecab.reading(srcTxt)
+    except Exception, e:
+        mecab = None
         raise
+    return True
 
-# Ctrl+g shortcut, based on Samson's regenerate reading field plugin
+# Init
 ##########################################################################
 
-def genReading(self):
-    # make sure current text is saved
-    self.saveFieldsNow()
-    # find the first src field available
-    reading = None
-    for f in srcFields:
-        try:
-            reading = tool.reading(self.fact[f])
-            break
-        except:
-            continue
-    if not reading:
-        return
-    # save it in the first dst field available
-    for f in dstFields:
-        try:
-            self.fact[f] = reading
-            self.fact.setModified(textChanged=True, deck=self.deck)
-            self.deck.setModified()
-            self.loadFields()
-            break
-        except:
-            continue
+kakasi = KakasiController()
+mecab = MecabController()
 
-def newSetupFields(self):
-    s = QShortcut(QKeySequence(_("Ctrl+g")), self.parent)
-    s.connect(s, SIGNAL("activated()"), lambda self=self: genReading(self))
-
-from ankiqt.ui import facteditor as fe
-from ankiqt import mw
-from anki.hooks import wrap
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
-fe.FactEditor.setupFields = wrap(fe.FactEditor.setupFields, newSetupFields,
-        "after")
-s = QShortcut(QKeySequence(_("Ctrl+g")), mw.editor.parent)
-s.connect(s, SIGNAL("activated()"), lambda self=mw.editor: genReading(self))
+addHook('editFocusLost', onFocusLost)
 
 # Tests
 ##########################################################################

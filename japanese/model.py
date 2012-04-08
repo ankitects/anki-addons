@@ -5,35 +5,32 @@
 # Standard Japanese model.
 #
 
-from anki.models import Model, CardModel, FieldModel
 import anki.stdmodels
 
-def JapaneseModel():
-    m = Model(_("Japanese"))
-    # expression
-    f = FieldModel(u'Expression', True, True)
-    font = u"Mincho"
-    f.quizFontSize = 50
-    f.quizFontFamily = font
-    f.editFontFamily = font
-    m.addFieldModel(f)
-    # meaning
-    m.addFieldModel(FieldModel(u'Meaning', False, False))
-    # reading
-    f = FieldModel(u'Reading', False, False)
-    font = u"Arial"
-    f.quizFontSize = 50
-    f.quizFontFamily = font
-    f.editFontFamily = font
-    m.addFieldModel(f)
-    m.addCardModel(CardModel(u"Recognition",
-                   u"%(Expression)s",
-                   u"%(Reading)s<br>%(Meaning)s"))
-    m.addCardModel(CardModel(u"Recall",
-                             u"%(Meaning)s",
-                             u"%(Reading)s",
-                             active=False))
-    m.tags = u"Japanese"
+def addJapaneseModel(col):
+    mm = col.models
+    m = mm.new(_("Japanese"))
+    fm = mm.newField(_("Expression"))
+    mm.addField(m, fm)
+    fm = mm.newField(_("Meaning"))
+    mm.addField(m, fm)
+    fm = mm.newField(_("Reading"))
+    mm.addField(m, fm)
+    t = mm.newTemplate(_("Recognition"))
+    # css
+    t['css'] += u"""\
+.jp { font-size: 30px }
+.win .jp { font-family: "MS Mincho", "ＭＳ 明朝"; }
+.mac .jp { font-family: "Hiragino Mincho Pro", "ヒラギノ明朝 Pro"; }
+.linux .jp { font-family: "Kochi Mincho", "東風明朝"; }
+.mobile .jp { font-family: "Hiragino Mincho ProN"; }"""
+    # recognition card
+    t['qfmt'] = "<span class=jp> {{Expression}} </span>"
+    t['afmt'] = t['qfmt'] + """\n\n<hr id=answer>\n\n\
+<span class=jp> {{furigana:Reading}} </span><br>\n\
+{{Meaning}}"""
+    mm.addTemplate(m, t)
+    mm.add(m)
     return m
 
-anki.stdmodels.models['Japanese'] = JapaneseModel
+anki.stdmodels.models.append((_("Japanese"), addJapaneseModel))
