@@ -38,10 +38,12 @@ else:
 # Mecab
 ##########################################################################
 
-def mungeForWin(popen):
+def mungeForPlatform(popen):
     if isWin:
         popen = [os.path.normpath(x) for x in popen]
         popen[0] += ".exe"
+    elif not isMac:
+        popen[0] += ".lin"
     return popen
 
 class MecabController(object):
@@ -51,14 +53,10 @@ class MecabController(object):
 
     def setup(self):
         base = "../../addons/japanese/support/"
-        if isWin or isMac:
-            self.mecabCmd = mungeForWin(
-                [base + "mecab"] + mecabArgs + [
-                    '-d', base, '-r', base + "mecabrc"])
-            os.environ['DYLD_LIBRARY_PATH'] = base
-        else:
-            # assume it's in the path
-            self.mecabCmd = ["mecab"] + mecabArgs
+        self.mecabCmd = mungeForPlatform(
+            [base + "mecab"] + mecabArgs + [
+                '-d', base, '-r', base + "mecabrc"])
+        os.environ['DYLD_LIBRARY_PATH'] = base
 
     def ensureOpen(self):
         if not self.mecab:
@@ -143,14 +141,10 @@ class KakasiController(object):
 
     def setup(self):
         base = "../../addons/japanese/support/"
-        if isWin or isMac:
-            self.kakasiCmd = mungeForWin(
-                [base + "kakasi"] + kakasiArgs)
-            os.environ['ITAIJIDICT'] = base + "itaijidict"
-            os.environ['KANWADICT'] = base + "kanwadict"
-        else:
-            # assume it's in the path
-            self.kakasiCmd = ["kakasi"] + kakasiArgs
+        self.kakasiCmd = mungeForPlatform(
+            [base + "kakasi"] + kakasiArgs)
+        os.environ['ITAIJIDICT'] = base + "itaijidict"
+        os.environ['KANWADICT'] = base + "kanwadict"
 
     def ensureOpen(self):
         if not self.kakasi:
