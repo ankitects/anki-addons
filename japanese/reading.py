@@ -57,6 +57,8 @@ class MecabController(object):
             [base + "mecab"] + mecabArgs + [
                 '-d', base, '-r', base + "mecabrc"])
         os.environ['DYLD_LIBRARY_PATH'] = base
+        if not isWin:
+            os.chmod(self.mecabCmd[0], 0755)
 
     def ensureOpen(self):
         if not self.mecab:
@@ -145,6 +147,8 @@ class KakasiController(object):
             [base + "kakasi"] + kakasiArgs)
         os.environ['ITAIJIDICT'] = base + "itaijidict"
         os.environ['KANWADICT'] = base + "kanwadict"
+        if not isWin:
+            os.chmod(self.kakasiCmd[0], 0755)
 
     def ensureOpen(self):
         if not self.kakasi:
