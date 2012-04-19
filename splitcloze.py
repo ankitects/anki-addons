@@ -6,7 +6,7 @@
 # field is the cloze field.
 #
 
-import re
+import re, copy
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -40,7 +40,7 @@ def _splitClozes():
         # create a new model
         m2 = mw.col.models.copy(m)
         # add the non-cloze templates
-        m2['tmpls'] = tmpls
+        m2['tmpls'] = copy.deepcopy(tmpls)
         mw.col.models._updateTemplOrds(m2)
         mw.col.models.save(m2)
         mw.col.models.setCurrent(m2)
