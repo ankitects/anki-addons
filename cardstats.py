@@ -28,7 +28,7 @@ class CardStats(object):
         dock.setFeatures(QDockWidget.DockWidgetClosable)
         dock.setWidget(w)
         if mw.width() < 600:
-            mw.resize(QSize(600, self.height()))
+            mw.resize(QSize(600, mw.height()))
         mw.addDockWidget(Qt.RightDockWidgetArea, dock)
         return dock
 
