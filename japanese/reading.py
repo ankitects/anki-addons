@@ -57,6 +57,7 @@ class MecabController(object):
             [base + "mecab"] + mecabArgs + [
                 '-d', base, '-r', base + "mecabrc"])
         os.environ['DYLD_LIBRARY_PATH'] = base
+        os.environ['LD_LIBRARY_PATH'] = base
         if not isWin:
             os.chmod(self.mecabCmd[0], 0755)
 
