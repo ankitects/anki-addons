@@ -9,7 +9,7 @@ from aqt.utils import showInfo
 
 def fix():
     mw.col.modSchema()
-    mw.col.execute(
+    mw.col.db.execute(
         "update cards set odue = 0 where (type = 1 or queue = 2) and not odid")
     showInfo("Fixed. If you get errors after running this, please let me know.")
 

@@ -18,7 +18,7 @@ def addJapaneseModel(col):
     mm.addField(m, fm)
     t = mm.newTemplate(_("Recognition"))
     # css
-    t['css'] += u"""\
+    m['css'] += u"""\
 .jp { font-size: 30px }
 .win .jp { font-family: "MS Mincho", "ＭＳ 明朝"; }
 .mac .jp { font-family: "Hiragino Mincho Pro", "ヒラギノ明朝 Pro"; }
