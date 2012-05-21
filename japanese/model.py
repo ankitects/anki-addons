@@ -26,7 +26,7 @@ def addJapaneseModel(col):
 .mobile .jp { font-family: "Hiragino Mincho ProN"; }"""
     # recognition card
     t['qfmt'] = "<span class=jp> {{Expression}} </span>"
-    t['afmt'] = t['qfmt'] + """\n\n<hr id=answer>\n\n\
+    t['afmt'] = """{{FrontSide}}\n\n<hr id=answer>\n\n\
 <span class=jp> {{furigana:Reading}} </span><br>\n\
 {{Meaning}}"""
     mm.addTemplate(m, t)
