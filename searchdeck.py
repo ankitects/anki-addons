@@ -19,7 +19,7 @@ def onSearch(self, reset=True):
     if "is:current" in txt:
         return
     if not txt.strip():
-        return
+        return self.form.searchEdit.lineEdit().setText("deck:*")
     self.form.searchEdit.lineEdit().setText("deck:current " + txt)
 
 Browser.onSearch = wrap(Browser.onSearch, onSearch, "before")
