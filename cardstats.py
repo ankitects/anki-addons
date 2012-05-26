@@ -6,7 +6,6 @@
 # Activate from the tools menu.
 #
 
-from aqt.utils import fontForPlatform
 from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
@@ -70,19 +69,17 @@ class CardStats(object):
         r = self.mw.reviewer
         d = self.mw.col
         if r.card:
-            txt += _("<h1>Current</h1>")
+            txt += _("<h3>Current</h3>")
             txt += d.cardStats(r.card)
         lc = r.lastCard()
         if lc:
-            txt += _("<h1>Last</h1>")
+            txt += _("<h3>Last</h3>")
             txt += d.cardStats(lc)
         if not txt:
             txt = _("No current card or last card.")
         self.web.setHtml("""
 <html><head>
-<style>table { font-size: 12px; } h1 { font-size: 14px; }
-body { font-family: "%s"; } </style>
-</head><body><center>%s</center></body></html>"""% (fontForPlatform(), txt))
+</head><body><center>%s</center></body></html>"""% txt)
 
 _cs = CardStats(mw)
 
