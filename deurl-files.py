@@ -30,7 +30,7 @@ def fix():
     # sound fields
     nids = mw.col.db.list(
         "select distinct(nid) from cards where id in "+
-        ids2str(mw.col.findCards("[sound: \%")))
+        ids2str(mw.col.findCards("[sound \%")))
     def repl(match):
         old = match.group(2)
         if "%" not in old:
