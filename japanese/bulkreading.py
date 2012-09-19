@@ -8,49 +8,58 @@
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.hooks import addHook
-from japanese.reading import mecab, USE_MECAB
-from anki.facts import Fact
-from ankiqt import mw
-
-srcFields = ('Expression',) # works with n pairs
-dstFields = ('Reading',)
+from japanese.reading import mecab, srcFields, dstFields
+from aqt import mw
 
 # Bulk updates
 ##########################################################################
 
-def regenerateReadings(factIds):
-    mw.deck.startProgress(max=len(factIds))
-    for c, id in enumerate(factIds):
-        mw.deck.updateProgress(label="Generating readings...",
-                            value=c)
-        fact = mw.deck.s.query(Fact).get(id)
+def regenerateReadings(nids):
+    global mecab
+    mw.checkpoint("Bulk-add Readings")
+    mw.progress.start()
+    for nid in nids:
+        note = mw.col.getNote(nid)
+        if "japanese" not in note.model()['name'].lower():
+            continue
+        src = None
+        for fld in srcFields:
+            if fld in note:
+                src = fld
+                break
+        if not src:
+            # no src field
+            continue
+        dst = None
+        for fld in dstFields:
+            if fld in note:
+                dst = fld
+                break
+        if not dst:
+            # no dst field
+            continue
+        if note[dst]:
+            # already contains data, skip
+            continue
+        srcTxt = mw.col.media.strip(note[src])
+        if not srcTxt.strip():
+            continue
         try:
-            for i in range(len(srcFields)):
-                fact[dstFields[i]] = mecab.reading(fact[srcFields[i]])
-        except:
-            pass
-    try:
-        mw.deck.refreshSession()
-    except:
-        # old style
-        mw.deck.refresh()
-    mw.deck.updateCardQACacheFromIds(factIds, type="facts")
-    mw.deck.finishProgress()
+            note[dst] = mecab.reading(srcTxt)
+        except Exception, e:
+            mecab = None
+            raise
+        note.flush()
+    mw.progress.finish()
+    mw.reset()
 
-def setupMenu(editor):
-    a = QAction("Regenerate Readings", editor)
-    editor.connect(a, SIGNAL("triggered()"), lambda e=editor: onRegenerate(e))
-    editor.dialog.menuActions.addSeparator()
-    editor.dialog.menuActions.addAction(a)
+def setupMenu(browser):
+    a = QAction("Bulk-add Readings", browser)
+    browser.connect(a, SIGNAL("triggered()"), lambda e=browser: onRegenerate(e))
+    browser.form.menuEdit.addSeparator()
+    browser.form.menuEdit.addAction(a)
 
-def onRegenerate(editor):
-    n = "Regenerate Readings"
-    editor.parent.setProgressParent(editor)
-    editor.deck.setUndoStart(n)
-    regenerateReadings(editor.selectedFacts())
-    editor.deck.setUndoEnd(n)
-    editor.parent.setProgressParent(None)
-    editor.updateSearch()
+def onRegenerate(browser):
+    regenerateReadings(browser.selectedNotes())
 
-if USE_MECAB:
-    addHook("editor.setupMenus", setupMenu)
+addHook("browser.setupMenus", setupMenu)
