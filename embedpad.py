@@ -39,32 +39,42 @@
 # screen in both orientations and isn't biased towards kanji. If you want a
 # square display, search for (0) and change it to (1)
 #
+# 2011-02-16:
+#
+# - patch from Shawn to remove code for IE and mouse support since this is iOS
+# specific
+#
+# 2012-10-01:
+#
+# - update for Anki 2.0
+#
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from ankiqt import mw, ui
+from aqt.qt import *
+from aqt import mw
+from aqt.utils import showInfo
 import os,re
 
 def onEdit():
-    mw.deck.setVar("mobileJS", JS)
-    mw.deck.setVar("mobileCSS", CSS)
-    mw.deck.setModified()
-    if not mw.currentCard:
-        ui.utils.showInfo("Please run this when a card is shown")
+    if not mw.reviewer.card:
+        return showInfo("Please run this when a card is shown")
+    m = mw.reviewer.card.model()
+    t = mw.reviewer.card.template()
+    if "canvas" in t['qfmt']:
         return
-    if not "canvas" in mw.currentCard.cardModel.qformat:
-        mw.currentCard.cardModel.qformat += '\n<br><div id="canvas"></div>'
-        mw.deck.updateCardsFromModel(mw.currentCard.fact.model)
-    mw.syncDeck()
-    ui.utils.showInfo("Updated deck sent to server. "+
-                      "Sync on AnkiMobile to finish.")
+    mw.checkpoint("Embed Scratchpad")
+    t['qfmt'] += '\n<br><div id="canvas"></div>' + "\n<script>%s</script>" % JS
+    m['css'] += CSS
+    mw.col.models.save(m)
+    mw.col.setMod()
+    mw.reset()
+    showInfo("Scratchpad embedded.")
 
 # Setup menu entries
 menu1 = QAction(mw)
 menu1.setText("Embed Scratchpad")
 mw.connect(menu1, SIGNAL("triggered()"), onEdit)
-mw.mainWin.menuTools.addSeparator()
-mw.mainWin.menuTools.addAction(menu1)
+mw.form.menuTools.addSeparator()
+mw.form.menuTools.addAction(menu1)
 
 #
 # 3rd party code below
@@ -298,7 +308,6 @@ function setupCanvas () {
 }
 
 if (!document.webcanvas) {
-    Ti.App.addEventListener("showQuestion1", setupCanvas);
-    Ti.App.addEventListener("showQuestion2", setupCanvas);
+    setupCanvas();
 }
 '''
