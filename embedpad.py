@@ -118,16 +118,6 @@ WebCanvas.prototype.adjustSize = function() {
 
     this.lw = 2 // linewidth
     this.scale = 1;
-
-    if( window.devicePixelRatio == 2 ) {  // double size for iPhone4
-         this.w     *= 2;
-         this.h     *= 2;
-         this.lw    *= 2;
-         this.scale *= 2;
-         this.canvas.setAttribute('width',  this.w);
-         this.canvas.setAttribute('height', this.h);
-         this.ctx.scale(2, 2);
-    }
 }
 
 WebCanvas.prototype._withHandwritingLine = function() {
