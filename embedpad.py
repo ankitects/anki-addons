@@ -267,9 +267,9 @@ function setupCanvas () {
     }
     var w = window.innerWidth;
     var h = window.innerHeight;
-    if (0) {
+    if (1) {
         // square
-        h = w = Math.min(w,h) * 0.8;
+        h = w = Math.min(w,h) * 0.7;
     } else {
         // rectangle
         w *= 0.9;
