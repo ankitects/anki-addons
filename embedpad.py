@@ -297,7 +297,5 @@ function setupCanvas () {
     holder.appendChild(clear);
 }
 
-if (!document.webcanvas) {
-    setupCanvas();
-}
+setupCanvas();
 '''
