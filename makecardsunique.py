@@ -35,6 +35,6 @@ def run():
     showInfo("Done.")
 
 a = QAction(mw)
-a.setText("Fix IDs")
+a.setText("Make Cards Unique")
 mw.mainWin.menuTools.addAction(a)
 mw.connect(a, SIGNAL("triggered()"), run)
