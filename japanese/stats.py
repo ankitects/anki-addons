@@ -5,11 +5,14 @@
 
 import unicodedata
 from anki.hooks import addHook
-from anki.utils import ids2str
+from anki.utils import ids2str, splitFields
 from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
+
+# look for kanji in these fields
+srcFields = ["Expression", "Kanji"]
 
 def isKanji(unichar):
     try:
@@ -20,8 +23,12 @@ def isKanji(unichar):
 
 class KanjiStats(object):
 
-    def __init__(self, col):
+    def __init__(self, col, wholeCollection):
         self.col = col
+        if wholeCollection:
+            self.lim = ""
+        else:
+            self.lim = " and c.did in %s" % ids2str(self.col.decks.active())
         self._gradeHash = dict()
         for (name, chars), grade in zip(self.kanjiGrades,
                                         xrange(len(self.kanjiGrades))):
@@ -48,15 +55,22 @@ class KanjiStats(object):
     def genKanjiSets(self):
         self.kanjiSets = [set([]) for g in self.kanjiGrades]
         chars = set()
-        self.mids = []
         for m in self.col.models.all():
-            if "japanese" in m['name'].lower():
-                self.mids.append(m['id'])
-                for row in self.col.db.execute("""
+            if "japanese" not in m['name'].lower():
+                continue
+            idxs = []
+            for c, name in enumerate(self.col.models.fieldNames(m)):
+                for f in srcFields:
+                    if name == f:
+                        idxs.append(c)
+            for row in self.col.db.execute("""
 select flds from notes where id in (
 select n.id from cards c, notes n
-where c.nid = n.id and mid = ? and c.queue > 0) """, m['id']):
-                    chars.update(row[0])
+where c.nid = n.id and mid = ? and c.queue > 0
+%s) """ % self.lim, m['id']):
+                flds = splitFields(row[0])
+                for idx in idxs:
+                    chars.update(flds[idx])
         for c in chars:
             if isKanji(c):
                 self.kanjiSets[self.kanjiGrade(c)].add(c)
@@ -65,8 +79,8 @@ where c.nid = n.id and mid = ? and c.queue > 0) """, m['id']):
         self.genKanjiSets()
         counts = [(name, len(found), len(all)) \
                   for (name, all), found in zip(self.kanjiGrades, self.kanjiSets)]
-        out = (_("<h1>Kanji statistics</h1>The seen cards in this collection "
-                 "contain:") +
+        out = ((_("<h1>Kanji statistics</h1>The seen cards in this %s "
+                 "contain:") % (self.lim and "deck" or "collection")) +
                "<ul>" +
                # total kanji
                _("<li>%d total unique kanji.</li>") %
@@ -150,7 +164,8 @@ where c.nid = n.id and mid = ? and c.queue > 0) """, m['id']):
         ]
 
 def genKanjiStats():
-    s = KanjiStats(mw.col)
+    wholeCollection = mw.state == "deckBrowser"
+    s = KanjiStats(mw.col, wholeCollection)
     rep = s.report()
     rep += s.seenReport()
     rep += s.missingReport()
