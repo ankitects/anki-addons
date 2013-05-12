@@ -3,7 +3,8 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 # Exports the cards in the current deck to a HTML file, so they can be
-# printed. Card styling is not included.
+# printed. Card styling is not included. Cards are printed in sort field
+# order.
 
 import re, urllib
 from aqt.qt import *
@@ -11,13 +12,21 @@ from anki.utils import isWin
 from anki.hooks import runHook, addHook
 from aqt.utils import getBase, openLink
 from aqt import mw
+from anki.utils import ids2str
 
 CARDS_PER_ROW = 3
 
+def sortFieldOrderCids(did):
+    dids = [did]
+    for name, id in mw.col.decks.children(did):
+        dids.append(id)
+    return mw.col.db.list("""
+select c.id from cards c, notes n where did in %s
+and c.nid = n.id order by n.sfld""" % ids2str(dids))
+
 def onPrint():
     path = os.path.join(mw.pm.profileFolder(), "print.html")
-    cids = mw.col.decks.cids(mw.col.decks.selected(), children=True)
-    ids = sorted(cids)
+    ids = sortFieldOrderCids(mw.col.decks.selected())
     def esc(s):
         # strip off the repeated question in answer if exists
         #s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
