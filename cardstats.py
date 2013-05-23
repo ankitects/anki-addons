@@ -21,7 +21,11 @@ class CardStats(object):
         addHook("reviewCleanup", self.hide)
 
     def _addDockable(self, title, w):
-        dock = QDockWidget(title, mw)
+        class DockableWithClose(QDockWidget):
+            def closeEvent(self, evt):
+                self.emit(SIGNAL("closed"))
+                QDockWidget.closeEvent(self, evt)
+        dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
         dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
         dock.setFeatures(QDockWidget.DockWidgetClosable)
@@ -41,8 +45,8 @@ class CardStats(object):
                     return QSize(200, 100)
             self.web = ThinAnkiWebView()
             self.shown = self._addDockable(_("Card Info"), self.web)
-            self.shown.connect(self.shown, SIGNAL("visibilityChanged(bool)"),
-                               self._visChange)
+            self.shown.connect(self.shown, SIGNAL("closed"),
+                               self._onClosed)
         self._update()
 
     def hide(self):
@@ -57,10 +61,9 @@ class CardStats(object):
         else:
             self.show()
 
-    def _visChange(self, vis):
-        if not vis:
-            # schedule removal for after evt has finished
-            self.mw.progress.timer(100, self.hide, False)
+    def _onClosed(self):
+        # schedule removal for after evt has finished
+        self.mw.progress.timer(100, self.hide, False)
 
     def _update(self):
         if not self.shown:
