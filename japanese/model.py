@@ -9,7 +9,7 @@ import anki.stdmodels
 
 def addJapaneseModel(col):
     mm = col.models
-    m = mm.new(_("Japanese"))
+    m = mm.new(_("Japanese (recognition)"))
     fm = mm.newField(_("Expression"))
     mm.addField(m, fm)
     fm = mm.newField(_("Meaning"))
@@ -25,12 +25,39 @@ def addJapaneseModel(col):
 .linux .jp { font-family: "Kochi Mincho", "東風明朝"; }
 .mobile .jp { font-family: "Hiragino Mincho ProN"; }"""
     # recognition card
-    t['qfmt'] = "<span class=jp> {{Expression}} </span>"
+    t['qfmt'] = "<div class=jp> {{Expression}} </div>"
     t['afmt'] = """{{FrontSide}}\n\n<hr id=answer>\n\n\
-<span class=jp> {{furigana:Reading}} </span><br>\n\
+<div class=jp> {{furigana:Reading}} </div><br>\n\
 {{Meaning}}"""
     mm.addTemplate(m, t)
     mm.add(m)
     return m
 
-anki.stdmodels.models.append((_("Japanese"), addJapaneseModel))
+def addDoubleJapaneseModel(col):
+    mm = col.models
+    m = addJapaneseModel(col)
+    m['name'] = "Japanese (recognition&recall)"
+    rev = mm.newTemplate(_("Recall"))
+    rev['qfmt'] = "{{Meaning}}"
+    rev['afmt'] = """{{FrontSide}}
+
+<hr id=answer>
+
+<div class=jp> {{Expression}} </div>
+<div class=jp> {{furigana:Reading}} </div>"""
+    mm.addTemplate(m, rev)
+    return m
+
+def addOptionalJapaneseModel(col):
+    mm = col.models
+    m = addDoubleJapaneseModel(col)
+    m['name'] = "Japanese (optional recall)"
+    rev = m['tmpls'][1]
+    rev['qfmt'] = "{{#Add Recall}}\n"+rev['qfmt']+"\n{{/Add Recall}}"
+    fm = mm.newField("Add Recall")
+    mm.addField(m, fm)
+    return m
+
+anki.stdmodels.models.append((_("Japanese (recognition)"), addJapaneseModel))
+anki.stdmodels.models.append((_("Japanese (recognition&recall)"), addDoubleJapaneseModel))
+anki.stdmodels.models.append((_("Japanese (optional recall)"), addOptionalJapaneseModel))
