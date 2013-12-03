@@ -10,7 +10,7 @@ import sys, os, platform, re, subprocess
 from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 
-srcFields = ['Expression']
+srcFields = ['Expression', 'Text']
 dstFields = ['Reading']
 
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
