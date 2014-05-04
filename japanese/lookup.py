@@ -49,6 +49,24 @@ class Lookup(object):
         qurl.setEncodedUrl(url)
         QDesktopServices.openUrl(qurl)
 
+    def jishoKanji(self, text):
+        self.jisho(text, True)
+
+    def jisho(self, text, kanji=False):
+        "Look up TEXT with jisho."
+        if kanji:
+            baseUrl="http://jisho.org/kanji/details/"
+        else:
+            baseUrl="http://jisho.org/words?"
+            if self.isJapaneseText(text):
+                baseUrl+="jap="
+            else:
+                baseUrl+="eng="
+        url = baseUrl + urllib.quote(text.encode("utf-8"))
+        qurl = QUrl()
+        qurl.setEncodedUrl(url)
+        QDesktopServices.openUrl(qurl)
+
     def alc(self, text):
         "Look up TEXT with ALC."
         newText = urllib.quote(text.encode("utf-8"))
@@ -104,6 +122,14 @@ def onLookupEdictKanjiSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.edictKanji)
 
+def onLookupJishoSelection():
+    initLookup()
+    mw.lookup.selection(mw.lookup.jisho)
+
+def onLookupJishoKanjiSelection():
+    initLookup()
+    mw.lookup.selection(mw.lookup.jishoKanji)
+
 def onLookupAlcSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.alc)
@@ -141,6 +167,17 @@ def createMenu():
     a.setShortcut("Ctrl+5")
     ml.addAction(a)
     mw.connect(a, SIGNAL("triggered()"), onLookupEdictKanjiSelection)
+    ml.addSeparator()
+    a = QAction(mw)
+    a.setText("...word selection on jisho")
+    a.setShortcut("Ctrl+6")
+    ml.addAction(a)
+    mw.connect(a, SIGNAL("triggered()"), onLookupJishoSelection)
+    a = QAction(mw)
+    a.setText("...kanji selection on jisho")
+    a.setShortcut("Ctrl+7")
+    ml.addAction(a)
+    mw.connect(a, SIGNAL("triggered()"), onLookupJishoKanjiSelection)
 
 # def disableMenu():
 #     mw.mainWin.menuLookup.setEnabled(False)
