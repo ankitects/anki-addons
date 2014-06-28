@@ -9,6 +9,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from anki.hooks import addHook
 from japanese.reading import mecab, srcFields, dstFields
+from notetypes import isActiveNoteType
 from aqt import mw
 
 # Bulk updates
@@ -20,20 +21,24 @@ def regenerateReadings(nids):
     mw.progress.start()
     for nid in nids:
         note = mw.col.getNote(nid)
-        if "japanese" not in note.model()['name'].lower():
+        # Amend notetypes.py to add your note types
+        _noteName = note.model()['name'].lower()
+        if not isActiveNoteType(_noteName):
             continue
+
         src = None
-        for fld in srcFields:
-            if fld in note:
-                src = fld
+        for field in srcFields:
+            if field in note:
+                src = field
                 break
         if not src:
             # no src field
             continue
+        # dst is the destination field for the Readings
         dst = None
-        for fld in dstFields:
-            if fld in note:
-                dst = fld
+        for field in dstFields:
+            if field in note:
+                dst = field
                 break
         if not dst:
             # no dst field

@@ -10,9 +10,12 @@ from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
+from notetypes import SOURCE_FIELDS, isActiveNoteType
+
 
 # look for kanji in these fields
-srcFields = ["Expression", "Kanji"]
+# Look at notetypes.py to changes this setting
+srcFields = SOURCE_FIELDS
 
 def isKanji(unichar):
     try:
@@ -56,8 +59,10 @@ class KanjiStats(object):
         self.kanjiSets = [set([]) for g in self.kanjiGrades]
         chars = set()
         for m in self.col.models.all():
-            if "japanese" not in m['name'].lower():
+            _noteName = m['name'].lower()
+            if not isActiveNoteType(_noteName):
                 continue
+
             idxs = []
             for c, name in enumerate(self.col.models.fieldNames(m)):
                 for f in srcFields:
