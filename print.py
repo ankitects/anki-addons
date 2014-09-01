@@ -41,7 +41,9 @@ def onPrint():
         return prefix + unicode(
             urllib.quote(path.encode("utf-8")), "utf-8")
     buf = open(path, "w")
-    buf.write("<html>" + getBase(mw.col).encode("utf8") + "<body>")
+    buf.write("<html><head>" +
+              '<meta charset="utf-8">'
+              + getBase(mw.col).encode("utf8") + "</head><body>")
     buf.write("""<style>
 img { max-width: 100%; }
 tr { page-break-after:auto; }
