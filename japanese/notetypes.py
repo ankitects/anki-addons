@@ -34,7 +34,7 @@ def isActiveNoteType(noteName):
     _result = False
     if not EFFECT_ALL_NOTES:
         for _note in NOTE_TYPES:
-            if noteName in _note:
+            if _note in noteName:
                 _result = True
     else:
         _result = True
