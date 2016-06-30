@@ -22,8 +22,9 @@ class CardStats(object):
 
     def _addDockable(self, title, w):
         class DockableWithClose(QDockWidget):
+            closed = pyqtSignal()
             def closeEvent(self, evt):
-                self.emit(SIGNAL("closed"))
+                self.closed.emit()
                 QDockWidget.closeEvent(self, evt)
         dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
@@ -45,8 +46,7 @@ class CardStats(object):
                     return QSize(200, 100)
             self.web = ThinAnkiWebView()
             self.shown = self._addDockable(_("Card Info"), self.web)
-            self.shown.connect(self.shown, SIGNAL("closed"),
-                               self._onClosed)
+            self.shown.closed.connect(self._onClosed)
         self._update()
 
     def hide(self):
@@ -94,4 +94,4 @@ action.setText("Card Stats")
 action.setCheckable(True)
 action.setShortcut(QKeySequence("Shift+C"))
 mw.form.menuTools.addAction(action)
-mw.connect(action, SIGNAL("toggled(bool)"), cardStats)
+action.toggled.connect(cardStats)
