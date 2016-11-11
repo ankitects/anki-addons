@@ -16,7 +16,7 @@
 
 # change 'customPlayer' to the player you want
 #externalPlayer = ["mplayer", "-really-quiet"]
-externalPlayer = ["customPlayer"]
+externalPlayer = ["KMPlayer"]
 
 ##########################################################################
 
@@ -34,7 +34,7 @@ class QueueMonitor(threading.Thread):
                 path = queue.pop(0)
                 try:
                     s.retryWait(subprocess.Popen(
-                        externalPlayer + [path], startupinfo=s.si))
+                        externalPlayer + ["C:\Program Files (x86)\The KMPlayer\KMPlayer.exe"], startupinfo=s.si))
                 except OSError:
                     raise Exception("Audio player not found")
             else:
