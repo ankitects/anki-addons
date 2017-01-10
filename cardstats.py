@@ -80,9 +80,17 @@ class CardStats(object):
             txt += d.cardStats(lc)
         if not txt:
             txt = _("No current card or last card.")
+        style = self._style()
         self.web.setHtml("""
 <html><head>
-</head><body><center>%s</center></body></html>"""% txt)
+</head><style>%s</style>
+<body><center>%s</center></body></html>"""% (style, txt))
+
+    def _style(self):
+        from anki import version
+        if version.startswith("2.0."):
+            return ""
+        return "td { font-size: 80%; }"
 
 _cs = CardStats(mw)
 
@@ -92,6 +100,6 @@ def cardStats(on):
 action = QAction(mw)
 action.setText("Card Stats")
 action.setCheckable(True)
-action.setShortcut(QKeySequence("Shift+C"))
+action.setShortcut(QKeySequence("Ctrl+Alt+C"))
 mw.form.menuTools.addAction(action)
 action.toggled.connect(cardStats)
