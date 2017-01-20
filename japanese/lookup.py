@@ -39,7 +39,7 @@ class Lookup(object):
             x="M"
         else:
             x="U"
-        baseUrl="http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1M" + x
+        baseUrl="http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
         if self.isJapaneseText(text):
             baseUrl += "J"
         else:
