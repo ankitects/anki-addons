@@ -70,7 +70,7 @@ class MecabController(object):
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                     startupinfo=si)
             except OSError:
-                raise Exception("Please ensure your Linux system has 32 bit binary support.")
+                raise Exception("Please ensure your Linux system has 64 bit binary support.")
 
     def reading(self, expr):
         self.ensureOpen()
