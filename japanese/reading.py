@@ -59,7 +59,7 @@ class MecabController(object):
         os.environ['DYLD_LIBRARY_PATH'] = base
         os.environ['LD_LIBRARY_PATH'] = base
         if not isWin:
-            os.chmod(self.mecabCmd[0], 0755)
+            os.chmod(self.mecabCmd[0], 0o755)
 
     def ensureOpen(self):
         if not self.mecab:
@@ -75,9 +75,9 @@ class MecabController(object):
     def reading(self, expr):
         self.ensureOpen()
         expr = escapeText(expr)
-        self.mecab.stdin.write(expr.encode("euc-jp", "ignore")+'\n')
+        self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
         self.mecab.stdin.flush()
-        expr = unicode(self.mecab.stdout.readline().rstrip('\r\n'), "euc-jp")
+        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp')
         out = []
         for node in expr.split(" "):
             if not node:
@@ -149,7 +149,7 @@ class KakasiController(object):
         os.environ['ITAIJIDICT'] = base + "itaijidict"
         os.environ['KANWADICT'] = base + "kanwadict"
         if not isWin:
-            os.chmod(self.kakasiCmd[0], 0755)
+            os.chmod(self.kakasiCmd[0], 0o755)
 
     def ensureOpen(self):
         if not self.kakasi:
@@ -165,9 +165,9 @@ class KakasiController(object):
     def reading(self, expr):
         self.ensureOpen()
         expr = escapeText(expr)
-        self.kakasi.stdin.write(expr.encode("sjis", "ignore")+'\n')
+        self.kakasi.stdin.write(expr.encode("sjis", "ignore") + b'\n')
         self.kakasi.stdin.flush()
-        res = unicode(self.kakasi.stdout.readline().rstrip('\r\n'), "sjis")
+        res = self.kakasi.stdout.readline().rstrip(b'\r\n').decode("sjis")
         return res
 
 # Focus lost hook
@@ -207,7 +207,7 @@ def onFocusLost(flag, n, fidx):
     # update field
     try:
         n[dst] = mecab.reading(srcTxt)
-    except Exception, e:
+    except Exception as e:
         mecab = None
         raise
     return True
@@ -225,14 +225,14 @@ addHook('editFocusLost', onFocusLost)
 
 if __name__ == "__main__":
     expr = u"カリン、自分でまいた種は自分で刈り取れ"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))
     expr = u"昨日、林檎を2個買った。"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))
     expr = u"真莉、大好きだよん＾＾"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))
     expr = u"彼２０００万も使った。"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))
     expr = u"彼二千三百六十円も使った。"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))
     expr = u"千葉"
-    print mecab.reading(expr).encode("utf-8")
+    print(mecab.reading(expr).encode("utf-8"))

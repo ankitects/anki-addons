@@ -5,11 +5,10 @@
 # Bulk update of readings.
 #
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 from anki.hooks import addHook
 from japanese.reading import mecab, srcFields, dstFields
-from notetypes import isActiveNoteType
+from .notetypes import isActiveNoteType
 from aqt import mw
 
 # Bulk updates
@@ -51,7 +50,7 @@ def regenerateReadings(nids):
             continue
         try:
             note[dst] = mecab.reading(srcTxt)
-        except Exception, e:
+        except Exception as e:
             mecab = None
             raise
         note.flush()
@@ -60,7 +59,7 @@ def regenerateReadings(nids):
 
 def setupMenu(browser):
     a = QAction("Bulk-add Readings", browser)
-    browser.connect(a, SIGNAL("triggered()"), lambda e=browser: onRegenerate(e))
+    a.triggered.connect(lambda: onRegenerate(browser))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
 
