@@ -5,11 +5,21 @@
 # Dictionary lookup support.
 #
 
-import urllib, re
+import re
 from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
+
+# Backwards compatibility
+try:
+    from urllib import quote  # Python 2.X
+except ImportError:
+    from urllib.parse import quote  # Python 3+
+try:
+    setUrl = QUrl.setEncodedUrl # Python 2.X
+except AttributeError:
+    setUrl = QUrl.setUrl # Python 3+
 
 class Lookup(object):
 
@@ -18,9 +28,7 @@ class Lookup(object):
 
     def selection(self, function):
         "Get the selected text and look it up with FUNCTION."
-        # lazily acquire selection by copying it into clipboard
-        mw.web.triggerPageAction(QWebPage.Copy)
-        text = mw.app.clipboard().mimeData().text()
+        text = mw.web.selectedText()
         text = text.strip()
         if not text:
             showInfo(_("Empty selection."))
@@ -44,9 +52,9 @@ class Lookup(object):
             baseUrl += "J"
         else:
             baseUrl += "E"
-        url = baseUrl + urllib.quote(text.encode("utf-8"))
+        url = baseUrl + quote(text.encode("utf-8"))
         qurl = QUrl()
-        qurl.setEncodedUrl(url)
+        setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
     def jishoKanji(self, text):
@@ -62,20 +70,20 @@ class Lookup(object):
                 baseUrl+="jap="
             else:
                 baseUrl+="eng="
-        url = baseUrl + urllib.quote(text.encode("utf-8"))
+        url = baseUrl + quote(text.encode("utf-8"))
         qurl = QUrl()
-        qurl.setEncodedUrl(url)
+        setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
     def alc(self, text):
         "Look up TEXT with ALC."
-        newText = urllib.quote(text.encode("utf-8"))
+        newText = quote(text.encode("utf-8"))
         url = (
             "http://eow.alc.co.jp/" +
             newText +
             "/UTF-8/?ref=sa")
         qurl = QUrl()
-        qurl.setEncodedUrl(url)
+        setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
     def isJapaneseText(self, text):
@@ -145,39 +153,40 @@ def createMenu():
     a.setText("...expression on alc")
     a.setShortcut("Ctrl+1")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupExpression)
+    # Call from lambda to preserve default argument
+    a.triggered.connect(lambda: onLookupExpression()) 
     a = QAction(mw)
     a.setText("...meaning on alc")
     a.setShortcut("Ctrl+2")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupMeaning)
+    a.triggered.connect(onLookupMeaning)
     a = QAction(mw)
     a.setText("...selection on alc")
     a.setShortcut("Ctrl+3")
     ml.addAction(a)
     ml.addSeparator()
-    mw.connect(a, SIGNAL("triggered()"), onLookupAlcSelection)
+    a.triggered.connect(onLookupAlcSelection)
     a = QAction(mw)
     a.setText("...word selection on edict")
     a.setShortcut("Ctrl+4")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupEdictSelection)
+    a.triggered.connect(onLookupEdictSelection)
     a = QAction(mw)
     a.setText("...kanji selection on edict")
     a.setShortcut("Ctrl+5")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupEdictKanjiSelection)
+    a.triggered.connect(onLookupEdictKanjiSelection)
     ml.addSeparator()
     a = QAction(mw)
     a.setText("...word selection on jisho")
     a.setShortcut("Ctrl+6")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupJishoSelection)
+    a.triggered.connect(onLookupJishoSelection)
     a = QAction(mw)
     a.setText("...kanji selection on jisho")
     a.setShortcut("Ctrl+7")
     ml.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onLookupJishoKanjiSelection)
+    a.triggered.connect(onLookupJishoKanjiSelection)
 
 # def disableMenu():
 #     mw.mainWin.menuLookup.setEnabled(False)

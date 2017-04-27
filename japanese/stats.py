@@ -10,8 +10,17 @@ from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
-from notetypes import SOURCE_FIELDS, isActiveNoteType
+from .notetypes import SOURCE_FIELDS, isActiveNoteType
 
+# Backwards compatibility
+try:
+    UNICODE_EXISTS = bool(type(unicode)) # Python 2.X
+except NameError:
+    unicode = lambda *s: str(s) # Python 3+
+try:
+    range = xrange # Python 2.X
+except NameError:
+    pass # Python 3+
 
 # look for kanji in these fields
 # Look at notetypes.py to changes this setting
@@ -34,7 +43,7 @@ class KanjiStats(object):
             self.lim = " and c.did in %s" % ids2str(self.col.decks.active())
         self._gradeHash = dict()
         for (name, chars), grade in zip(self.kanjiGrades,
-                                        xrange(len(self.kanjiGrades))):
+                                        range(len(self.kanjiGrades))):
             for c in chars:
                 self._gradeHash[c] = grade
 
@@ -182,13 +191,13 @@ def onKanjiStats():
     rep = genKanjiStats()
     d = QDialog(mw)
     l = QVBoxLayout()
-    l.setMargin(0)
+    l.setContentsMargins(0,0,0,0)
     w = AnkiWebView()
     l.addWidget(w)
     w.stdHtml(rep)
     bb = QDialogButtonBox(QDialogButtonBox.Close)
     l.addWidget(bb)
-    bb.connect(bb, SIGNAL("rejected()"), d, SLOT("reject()"))
+    bb.rejected.connect(d.reject)
     d.setLayout(l)
     d.resize(500, 400)
     restoreGeom(d, "kanjistats")
@@ -200,6 +209,6 @@ def createMenu():
     a = QAction(mw)
     a.setText("Kanji Stats")
     mw.form.menuTools.addAction(a)
-    mw.connect(a, SIGNAL("triggered()"), onKanjiStats)
+    a.triggered.connect(onKanjiStats)
 
 createMenu()
