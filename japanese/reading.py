@@ -6,12 +6,13 @@
 # See http://ichi2.net/anki/wiki/JapaneseSupport
 #
 
-import sys, os, platform, re, subprocess
+import sys, os, platform, re, subprocess, aqt.utils
 from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 
 srcFields = ['Expression']
 dstFields = ['Reading']
+furiganaFieldSuffix = u" (furigana)"
 
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
@@ -184,21 +185,21 @@ def onFocusLost(flag, n, fidx):
     if "japanese" not in n.model()['name'].lower():
         return flag
     # have src and dst fields?
-    for c, name in enumerate(mw.col.models.fieldNames(n.model())):
-        for f in srcFields:
-            if name == f:
-                src = f
-                srcIdx = c
-        for f in dstFields:
-            if name == f:
-                dst = f
+    fields = mw.col.models.fieldNames(n.model())
+    src = fields[fidx]
+    # Retro compatibility
+    if src in srcFields:
+        srcIdx = srcFields.index(src)
+        dst = dstFields[srcIdx]
+    else:
+        dst = src + furiganaFieldSuffix
     if not src or not dst:
+        return flag
+    # dst field exists?
+    if dst not in n:
         return flag
     # dst field already filled?
     if n[dst]:
-        return flag
-    # event coming from src field?
-    if fidx != srcIdx:
         return flag
     # grab source text
     srcTxt = mw.col.media.strip(n[src])
