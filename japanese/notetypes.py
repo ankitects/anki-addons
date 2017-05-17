@@ -14,7 +14,7 @@ to share your deck.
 """
 
 # If sets to True the plugin will work for ALL note types.
-EFFECT_ALL_NOTES = False
+AFFECT_ALL_NOTES = False
 
 # The note type(s) that the plugin will act upon. This is case insensitive. Add your own note types here, for
 # example: NOTE_TYPES = ["japanese", "subs"]
@@ -24,21 +24,18 @@ NOTE_TYPES = ["japanese"]
 # Looks for Kanji in these fields. Replaces source fields in stats.py line 15
 SOURCE_FIELDS = ["Expression", "Kanji"]
 
-
 def isActiveNoteType(noteName):
     """
     Should bulk readings be added to the note type chosen?
     :param note: The selected card's note type
     :return: True if we should add readings to the notes
     """
-    _result = False
-    if not EFFECT_ALL_NOTES:
-        for _note in NOTE_TYPES:
-            if _note in noteName:
-                _result = True
-    else:
-        _result = True
+    if AFFECT_ALL_NOTES:
+        return True
 
-    return _result
+    noteName = noteName.lower()
+    for allowedString in NOTE_TYPES:
+        if allowedString in noteName:
+            return True
 
-
+    return False
