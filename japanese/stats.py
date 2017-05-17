@@ -10,7 +10,7 @@ from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
-from .notetypes import SOURCE_FIELDS, isActiveNoteType
+from .notetypes import SOURCE_FIELDS, isJapaneseNoteType
 
 # Backwards compatibility
 try:
@@ -69,7 +69,7 @@ class KanjiStats(object):
         chars = set()
         for m in self.col.models.all():
             _noteName = m['name'].lower()
-            if not isActiveNoteType(_noteName):
+            if not isJapaneseNoteType(_noteName):
                 continue
 
             idxs = []

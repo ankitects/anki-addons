@@ -24,7 +24,7 @@ NOTE_TYPES = ["japanese"]
 # Looks for Kanji in these fields. Replaces source fields in stats.py line 15
 SOURCE_FIELDS = ["Expression", "Kanji"]
 
-def isActiveNoteType(noteName):
+def isJapaneseNoteType(noteName):
     """
     Should bulk readings be added to the note type chosen?
     :param note: The selected card's note type

@@ -8,7 +8,7 @@
 from aqt.qt import *
 from anki.hooks import addHook
 from japanese.reading import mecab, srcFields, dstFields
-from .notetypes import isActiveNoteType
+from .notetypes import isJapaneseNoteType
 from aqt import mw
 
 # Bulk updates
@@ -22,7 +22,7 @@ def regenerateReadings(nids):
         note = mw.col.getNote(nid)
         # Amend notetypes.py to add your note types
         _noteName = note.model()['name'].lower()
-        if not isActiveNoteType(_noteName):
+        if not isJapaneseNoteType(_noteName):
             continue
 
         src = None

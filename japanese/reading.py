@@ -9,6 +9,7 @@
 import sys, os, platform, re, subprocess, aqt.utils
 from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
+from .notetypes import isJapaneseNoteType
 
 srcFields = ['Expression']
 dstFields = ['Reading']
@@ -182,7 +183,7 @@ def onFocusLost(flag, n, fidx):
     src = None
     dst = None
     # japanese model?
-    if "japanese" not in n.model()['name'].lower():
+    if not isJapaneseNoteType(n.model()['name']):
         return flag
     # have src and dst fields?
     fields = mw.col.models.fieldNames(n.model())
