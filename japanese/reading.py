@@ -11,7 +11,7 @@ from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
 
-srcFields = ['Expression']
+srcFields = ['Expression', 'Text']
 dstFields = ['Reading']
 furiganaFieldSuffix = u" (furigana)"
 
