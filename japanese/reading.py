@@ -7,7 +7,7 @@
 #
 
 import sys, os, platform, re, subprocess, aqt.utils
-from anki.utils import stripHTML, isWin, isMac
+from anki.utils import stripHTML, entsToTxt, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
 
@@ -18,6 +18,39 @@ furiganaFieldSuffix = u" (furigana)"
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
+
+def combineStrings(HTML_string, furigana_string):
+	format_position = 0
+	furigana_position = 0
+	combined_string = ''
+	HTML_string = entsToTxt(HTML_string)
+	HTML_string = HTML_string.replace(u'\uff5e', "~")
+	while furigana_position < len(furigana_string) and format_position < len(HTML_string):
+		if HTML_string[format_position] == furigana_string[furigana_position]:
+			combined_string +=HTML_string[format_position]
+			furigana_position += 1
+			format_position += 1
+		elif furigana_string[furigana_position] == '[':
+			while not furigana_string[furigana_position] == ']':
+				combined_string += furigana_string[furigana_position]
+				furigana_position += 1
+			combined_string += furigana_string[furigana_position]
+			furigana_position += 1
+		elif furigana_string[furigana_position] == ' ':
+			combined_string +=' '
+			furigana_position+= 1
+		elif HTML_string[format_position] == ' ':
+			combined_string += ' '
+			format_position += 1
+		elif not HTML_string[format_position] == furigana_string[furigana_position]:
+			while not HTML_string[format_position] == furigana_string[furigana_position]:
+				combined_string += HTML_string[format_position]
+				format_position += 1
+		else:
+			break
+	if furigana_position < len(furigana_string):
+		combined_string += furigana_string[furigana_position:]
+return combined_string
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
@@ -76,6 +109,7 @@ class MecabController(object):
 
     def reading(self, expr):
         self.ensureOpen()
+        original_expression = expr
         expr = escapeText(expr)
         self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
         self.mecab.stdin.flush()
@@ -134,7 +168,7 @@ class MecabController(object):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
                 s += " "
             fin += s
-        return fin.strip().replace("< br>", "<br>")
+        return combineStrings(original_expression, fin.strip().replace("< br>", "<br>"))
 
 # Kakasi
 ##########################################################################
