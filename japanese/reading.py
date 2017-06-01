@@ -19,7 +19,7 @@ kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
 
-def combineStrings(HTML_string, furigana_string):
+def mergeHTMLFurigana(HTML_string, furigana_string):
 	format_position = 0
 	furigana_position = 0
 	combined_string = ''
@@ -27,15 +27,18 @@ def combineStrings(HTML_string, furigana_string):
 	HTML_string = HTML_string.replace(u'\uff5e', "~")
 	while furigana_position < len(furigana_string) and format_position < len(HTML_string):
 		if HTML_string[format_position] == furigana_string[furigana_position]:
-			combined_string +=HTML_string[format_position]
-			furigana_position += 1
-			format_position += 1
+			character_lookahead_pos = 1
+			while furigana_position + character_lookahead_pos < len(furigana_string) and format_position + character_lookahead_pos < len(HTML_string) and HTML_string[format_position + character_lookahead_pos] == furigana_string[furigana_position + character_lookahead_pos]:
+				character_lookahead_pos += 1
+			combined_string +=HTML_string[format_position:format_position + character_lookahead_pos]
+			furigana_position += character_lookahead_pos
+			format_position += character_lookahead_pos
 		elif furigana_string[furigana_position] == '[':
-			while not furigana_string[furigana_position] == ']':
-				combined_string += furigana_string[furigana_position]
-				furigana_position += 1
-			combined_string += furigana_string[furigana_position]
-			furigana_position += 1
+			character_lookahead_pos = furigana_position + 1
+			while not furigana_string[character_lookahead_pos] == ']':
+				character_lookahead_pos += 1
+			combined_string += furigana_string[furigana_position:character_lookahead_pos+1]
+			furigana_position = character_lookahead_pos + 1
 		elif furigana_string[furigana_position] == ' ':
 			combined_string +=' '
 			furigana_position+= 1
@@ -43,14 +46,16 @@ def combineStrings(HTML_string, furigana_string):
 			combined_string += ' '
 			format_position += 1
 		elif not HTML_string[format_position] == furigana_string[furigana_position]:
-			while not HTML_string[format_position] == furigana_string[furigana_position]:
-				combined_string += HTML_string[format_position]
-				format_position += 1
+			character_lookahead_pos = format_position + 1
+			while not HTML_string[character_lookahead_pos] == furigana_string[furigana_position]:
+				character_lookahead_pos += 1
+			combined_string += HTML_string[format_position:character_lookahead_pos]
+			format_position = character_lookahead_pos
 		else:
 			break
 	if furigana_position < len(furigana_string):
 		combined_string += furigana_string[furigana_position:]
-return combined_string
+	return combined_string
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
@@ -168,7 +173,7 @@ class MecabController(object):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
                 s += " "
             fin += s
-        return combineStrings(original_expression, fin.strip().replace("< br>", "<br>"))
+        return mergeHTMLFurigana(original_expression, fin.strip().replace("< br>", "<br>"))
 
 # Kakasi
 ##########################################################################
