@@ -7,7 +7,7 @@
 #
 
 import sys, os, platform, re, subprocess, aqt.utils
-from anki.utils import stripHTML, isWin, isMac
+from anki.utils import stripHTML, entsToTxt, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
 
@@ -18,6 +18,73 @@ furiganaFieldSuffix = u" (furigana)"
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
+
+def findAdditions(base_sentence, new_sentence, startchar, endchar):
+	base_position = 0
+	new_position = 0
+	difference_array=[]
+	while new_position < len(new_sentence) and base_position < len(base_sentence):
+		if new_sentence[new_position] == base_sentence[base_position]:
+			new_position+=1
+			base_position+=1
+		elif new_sentence[new_position] == " ":
+			# furigana needs to preserve spaces before kanji to ensure correct formatting
+			if startchar == "[":
+				difference_array.append([base_position,new_position,new_position+1])
+			new_position+=1
+		elif base_sentence[base_position] == " ":
+			base_position+=1
+		elif new_sentence[new_position] == startchar:
+			change_start = new_position
+			while not new_sentence[new_position] == endchar:
+				new_position+=1
+			new_position+=1
+			difference_array.append([base_position, change_start, new_position])
+	if new_position < len(new_sentence):
+		difference_array.append([base_position, new_position, len(new_sentence)])
+	return difference_array
+
+def mergeHTMLFurigana(HTML_string, furigana_string):
+	base_pos=0
+	furigana_diff_pos=0
+	format_diff_pos=0
+	output_sentence=''
+	base_sentence = escapeText(HTML_string)
+	HTML_string = entsToTxt(HTML_string)
+	base_sentence = re.sub('<br ?/?>','---newline---',base_sentence)
+	furigana_sentence = re.sub('<br ?/?>','---newline---',furigana_string)
+	format_sentence = re.sub('<br ?/?>','---newline---',HTML_string)
+	furigana_diff_array=findAdditions(base_sentence,furigana_sentence,"[","]")
+	format_diff_array=findAdditions(base_sentence,format_sentence,"<",">")
+	while furigana_diff_pos < len(furigana_diff_array) and format_diff_pos < len(format_diff_array):
+		if furigana_diff_array[furigana_diff_pos][0] <= format_diff_array[format_diff_pos][0]:
+			if base_pos <= furigana_diff_array[furigana_diff_pos][0]:
+				output_sentence+=base_sentence[base_pos:furigana_diff_array[furigana_diff_pos][0]]
+				base_pos = furigana_diff_array[furigana_diff_pos][0]
+			output_sentence+=furigana_sentence[furigana_diff_array[furigana_diff_pos][1]:furigana_diff_array[furigana_diff_pos][2]]
+			furigana_diff_pos+=1
+		elif format_diff_array[format_diff_pos][0] < furigana_diff_array[furigana_diff_pos][0]:
+			if base_pos < format_diff_array[format_diff_pos][0]:
+				output_sentence+=base_sentence[base_pos:format_diff_array[format_diff_pos][0]]
+				base_pos = format_diff_array[format_diff_pos][0]
+			output_sentence+=format_sentence[format_diff_array[format_diff_pos][1]:format_diff_array[format_diff_pos][2]]
+			format_diff_pos+=1
+	while furigana_diff_pos < len(furigana_diff_array):
+		if base_pos < furigana_diff_array[furigana_diff_pos][0]:
+			output_sentence+=base_sentence[base_pos:furigana_diff_array[furigana_diff_pos][0]]
+			base_pos = furigana_diff_array[furigana_diff_pos][0]
+		output_sentence+=furigana_sentence[furigana_diff_array[furigana_diff_pos][1]:furigana_diff_array[furigana_diff_pos][2]]
+		furigana_diff_pos+=1
+	while format_diff_pos < len(format_diff_array):
+		if base_pos < format_diff_array[format_diff_pos][0]:
+			output_sentence+=base_sentence[base_pos:format_diff_array[format_diff_pos][0]]
+			base_pos = format_diff_array[format_diff_pos][0]
+		output_sentence+=format_sentence[format_diff_array[format_diff_pos][1]:format_diff_array[format_diff_pos][2]]
+		format_diff_pos+=1
+	if base_pos < len(base_sentence):
+		output_sentence+=base_sentence[base_pos:len(base_sentence)]
+	output_sentence = re.sub('---newline---','<br>',output_sentence)
+	return output_sentence
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
@@ -76,6 +143,7 @@ class MecabController(object):
 
     def reading(self, expr):
         self.ensureOpen()
+        original_expression = expr
         expr = escapeText(expr)
         self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
         self.mecab.stdin.flush()
@@ -134,7 +202,7 @@ class MecabController(object):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
                 s += " "
             fin += s
-        return fin.strip().replace("< br>", "<br>")
+        return mergeHTMLFurigana(original_expression, fin.strip().replace("< br>", "<br>"))
 
 # Kakasi
 ##########################################################################
