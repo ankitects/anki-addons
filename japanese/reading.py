@@ -19,43 +19,72 @@ kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
 
+def findAdditions(base_sentence, new_sentence, startchar, endchar):
+	base_position = 0
+	new_position = 0
+	difference_array=[]
+	while new_position < len(new_sentence) and base_position < len(base_sentence):
+		if new_sentence[new_position] == base_sentence[base_position]:
+			new_position+=1
+			base_position+=1
+		elif new_sentence[new_position] == " ":
+			# furigana needs to preserve spaces before kanji to ensure correct formatting
+			if startchar == "[":
+				difference_array.append([base_position,new_position,new_position+1])
+			new_position+=1
+		elif base_sentence[base_position] == " ":
+			base_position+=1
+		elif new_sentence[new_position] == startchar:
+			change_start = new_position
+			while not new_sentence[new_position] == endchar:
+				new_position+=1
+			new_position+=1
+			difference_array.append([base_position, change_start, new_position])
+	if new_position < len(new_sentence):
+		difference_array.append([base_position, new_position, len(new_sentence)])
+	return difference_array
+
 def mergeHTMLFurigana(HTML_string, furigana_string):
-	format_position = 0
-	furigana_position = 0
-	combined_string = ''
+	base_pos=0
+	furigana_diff_pos=0
+	format_diff_pos=0
+	output_sentence=''
+	base_sentence = escapeText(HTML_string)
 	HTML_string = entsToTxt(HTML_string)
-	HTML_string = HTML_string.replace(u'\uff5e', "~")
-	while furigana_position < len(furigana_string) and format_position < len(HTML_string):
-		if HTML_string[format_position] == furigana_string[furigana_position]:
-			character_lookahead_pos = 1
-			while furigana_position + character_lookahead_pos < len(furigana_string) and format_position + character_lookahead_pos < len(HTML_string) and HTML_string[format_position + character_lookahead_pos] == furigana_string[furigana_position + character_lookahead_pos]:
-				character_lookahead_pos += 1
-			combined_string +=HTML_string[format_position:format_position + character_lookahead_pos]
-			furigana_position += character_lookahead_pos
-			format_position += character_lookahead_pos
-		elif furigana_string[furigana_position] == '[':
-			character_lookahead_pos = furigana_position + 1
-			while not furigana_string[character_lookahead_pos] == ']':
-				character_lookahead_pos += 1
-			combined_string += furigana_string[furigana_position:character_lookahead_pos+1]
-			furigana_position = character_lookahead_pos + 1
-		elif furigana_string[furigana_position] == ' ':
-			combined_string +=' '
-			furigana_position+= 1
-		elif HTML_string[format_position] == ' ':
-			combined_string += ' '
-			format_position += 1
-		elif not HTML_string[format_position] == furigana_string[furigana_position]:
-			character_lookahead_pos = format_position + 1
-			while not HTML_string[character_lookahead_pos] == furigana_string[furigana_position]:
-				character_lookahead_pos += 1
-			combined_string += HTML_string[format_position:character_lookahead_pos]
-			format_position = character_lookahead_pos
-		else:
-			break
-	if furigana_position < len(furigana_string):
-		combined_string += furigana_string[furigana_position:]
-	return combined_string
+	base_sentence = re.sub('<br ?/?>','---newline---',base_sentence)
+	furigana_sentence = re.sub('<br ?/?>','---newline---',furigana_string)
+	format_sentence = re.sub('<br ?/?>','---newline---',HTML_string)
+	furigana_diff_array=findAdditions(base_sentence,furigana_sentence,"[","]")
+	format_diff_array=findAdditions(base_sentence,format_sentence,"<",">")
+	while furigana_diff_pos < len(furigana_diff_array) and format_diff_pos < len(format_diff_array):
+		if furigana_diff_array[furigana_diff_pos][0] <= format_diff_array[format_diff_pos][0]:
+			if base_pos <= furigana_diff_array[furigana_diff_pos][0]:
+				output_sentence+=base_sentence[base_pos:furigana_diff_array[furigana_diff_pos][0]]
+				base_pos = furigana_diff_array[furigana_diff_pos][0]
+			output_sentence+=furigana_sentence[furigana_diff_array[furigana_diff_pos][1]:furigana_diff_array[furigana_diff_pos][2]]
+			furigana_diff_pos+=1
+		elif format_diff_array[format_diff_pos][0] < furigana_diff_array[furigana_diff_pos][0]:
+			if base_pos < format_diff_array[format_diff_pos][0]:
+				output_sentence+=base_sentence[base_pos:format_diff_array[format_diff_pos][0]]
+				base_pos = format_diff_array[format_diff_pos][0]
+			output_sentence+=format_sentence[format_diff_array[format_diff_pos][1]:format_diff_array[format_diff_pos][2]]
+			format_diff_pos+=1
+	while furigana_diff_pos < len(furigana_diff_array):
+		if base_pos < furigana_diff_array[furigana_diff_pos][0]:
+			output_sentence+=base_sentence[base_pos:furigana_diff_array[furigana_diff_pos][0]]
+			base_pos = furigana_diff_array[furigana_diff_pos][0]
+		output_sentence+=furigana_sentence[furigana_diff_array[furigana_diff_pos][1]:furigana_diff_array[furigana_diff_pos][2]]
+		furigana_diff_pos+=1
+	while format_diff_pos < len(format_diff_array):
+		if base_pos < format_diff_array[format_diff_pos][0]:
+			output_sentence+=base_sentence[base_pos:format_diff_array[format_diff_pos][0]]
+			base_pos = format_diff_array[format_diff_pos][0]
+		output_sentence+=format_sentence[format_diff_array[format_diff_pos][1]:format_diff_array[format_diff_pos][2]]
+		format_diff_pos+=1
+	if base_pos < len(base_sentence):
+		output_sentence+=base_sentence[base_pos:len(base_sentence)]
+	output_sentence = re.sub('---newline---','<br>',output_sentence)
+	return output_sentence
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
