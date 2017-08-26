@@ -11,6 +11,7 @@ from aqt.qt import *
 from aqt.utils import openLink
 from aqt import mw
 from anki.utils import ids2str
+from aqt.utils import mungeQA
 
 CARDS_PER_ROW = 3
 
@@ -53,8 +54,10 @@ td { border: 1px solid #ccc; padding: 1em; }
                 first = False
             buf.write("<tr>")
         c = mw.col.getCard(cid)
+        qatxt = c._getQA(True, False)['a']
+        qatxt = mungeQA(mw.col, qatxt)
         cont = u'<td width="{1}%"><center>{0}</center></td>'.format(
-            esc(c._getQA(True, False)['a']), 100/CARDS_PER_ROW)
+            esc(qatxt), 100/CARDS_PER_ROW)
         buf.write(cont)
         if j % 50 == 0:
             mw.progress.update("Cards exported: %d" % (j+1))
