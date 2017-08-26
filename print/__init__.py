@@ -38,7 +38,7 @@ def onPrint():
               + mw.baseHTML() + "</head><body>")
     buf.write("""<style>
 img { max-width: 100%; }
-tr { page-break-after:auto; }
+tr { page-break-inside:avoid; page-break-after:auto }
 td { page-break-after:auto; }
 td { border: 1px solid #ccc; padding: 1em; }
 </style><table cellspacing=10 width=100%>""")
@@ -53,7 +53,8 @@ td { border: 1px solid #ccc; padding: 1em; }
                 first = False
             buf.write("<tr>")
         c = mw.col.getCard(cid)
-        cont = u"<td><center>%s</center></td>" % esc(c._getQA(True, False)['a'])
+        cont = u'<td width="{1}%"><center>{0}</center></td>'.format(
+            esc(c._getQA(True, False)['a']), 100/CARDS_PER_ROW)
         buf.write(cont)
         if j % 50 == 0:
             mw.progress.update("Cards exported: %d" % (j+1))
