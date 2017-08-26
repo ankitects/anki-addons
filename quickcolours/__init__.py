@@ -11,23 +11,25 @@ colours = [
     ("#00f", "F9"),
 ]
 
-from aqt import mw
-from aqt.qt import *
 from anki.hooks import addHook
 
 def updateColour(editor, colour):
-    editor.web.eval("saveSel();")
     editor.fcolour = colour
     editor.onColourChanged()
     editor._wrapWithColour(editor.fcolour)
 
-def onSetupButtons(editor):
+def onSetupShortcuts(cuts, editor):
+    # remove the default f8 shortcut
+    idx = None
+    for n, (key, fn) in enumerate(cuts):
+        if key == "F8":
+            idx = n
+            break
+    if idx is not None:
+        del cuts[idx]
+
     # add colours
     for code, key in colours:
-        s = QShortcut(QKeySequence(key), editor.parentWindow)
-        s.connect(s, SIGNAL("activated()"),
-                  lambda c=code: updateColour(editor, c))
-    # remove the default f8 shortcut
-    editor._buttons['change_colour'].setShortcut(QKeySequence())
+        cuts.append((key, lambda c=code: updateColour(editor, c)))
 
-addHook("setupEditorButtons", onSetupButtons)
+addHook("setupEditorShortcuts", onSetupShortcuts)

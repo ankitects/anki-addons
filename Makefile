@@ -1,7 +1,14 @@
-all: clean
+all: nocache japanese.zip quickcolours.zip
+
+japanese.zip: $(shell find japanese -type f)
 	(cd japanese && zip -r ../japanese.zip *)
-	zip chinese.zip chinese.py unihan.db
+
+quickcolours.zip: quickcolours/__init__.py
+	(cd quickcolours && zip -r ../quickcolours.zip *)	
+
+nocache:
+	find . -name '*.pyc' -delete
+	find . -name __pycache__ -delete
 
 clean:
-	rm -f japanese.zip chinese.zip *.pyc japanese/*.pyc japanese/__pycache__
-
+	rm -rf *.zip

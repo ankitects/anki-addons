@@ -1,5 +1,4 @@
-japanese.zip
-chinese.zip
+*.zip
 *.pyc
 *.pyo
 .idea
