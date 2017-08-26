@@ -6,11 +6,9 @@
 # printed. Card styling is not included. Cards are printed in sort field
 # order.
 
-import re, urllib
+import re
 from aqt.qt import *
-from anki.utils import isWin
-from anki.hooks import runHook, addHook
-from aqt.utils import getBase, openLink
+from aqt.utils import openLink
 from aqt import mw
 from anki.utils import ids2str
 
@@ -25,7 +23,8 @@ select c.id from cards c, notes n where did in %s
 and c.nid = n.id order by n.sfld""" % ids2str(dids))
 
 def onPrint():
-    path = os.path.join(mw.pm.profileFolder(), "print.html")
+    path = os.path.join(QStandardPaths.writableLocation(
+        QStandardPaths.DesktopLocation), "print.html")
     ids = sortFieldOrderCids(mw.col.decks.selected())
     def esc(s):
         # strip off the repeated question in answer if exists
@@ -33,17 +32,10 @@ def onPrint():
         # remove type answer
         s = re.sub("\[\[type:[^]]+\]\]", "", s)
         return s
-    def upath(path):
-        if isWin:
-            prefix = u"file:///"
-        else:
-            prefix = u"file://"
-        return prefix + unicode(
-            urllib.quote(path.encode("utf-8")), "utf-8")
-    buf = open(path, "w")
+    buf = open(path, "w", encoding="utf8")
     buf.write("<html><head>" +
               '<meta charset="utf-8">'
-              + getBase(mw.col).encode("utf8") + "</head><body>")
+              + mw.baseHTML() + "</head><body>")
     buf.write("""<style>
 img { max-width: 100%; }
 tr { page-break-after:auto; }
@@ -62,17 +54,17 @@ td { border: 1px solid #ccc; padding: 1em; }
             buf.write("<tr>")
         c = mw.col.getCard(cid)
         cont = u"<td><center>%s</center></td>" % esc(c._getQA(True, False)['a'])
-        buf.write(cont.encode("utf8"))
+        buf.write(cont)
         if j % 50 == 0:
             mw.progress.update("Cards exported: %d" % (j+1))
     buf.write("</tr>")
     buf.write("</table></body></html>")
     mw.progress.finish()
     buf.close()
-    openLink(upath(path))
+    openLink(QUrl.fromLocalFile(path))
 
 q = QAction(mw)
 q.setText("Print")
 q.setShortcut(QKeySequence("Ctrl+P"))
 mw.form.menuTools.addAction(q)
-mw.connect(q, SIGNAL("triggered()"), onPrint)
+q.triggered.connect(onPrint)

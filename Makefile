@@ -1,4 +1,4 @@
-all: prepare zips/japanese.zip zips/quickcolours.zip zips/cardstats.zip
+all: prepare zips/japanese.zip zips/quickcolours.zip zips/cardstats.zip zips/print.zip
 
 zips/japanese.zip: $(shell find japanese -type f)
 	(cd japanese && zip -r ../zips/japanese.zip *)
@@ -8,6 +8,9 @@ zips/quickcolours.zip: quickcolours/__init__.py
 
 zips/cardstats.zip: cardstats/__init__.py
 	(cd cardstats && zip -r ../zips/cardstats.zip *)	
+
+zips/print.zip: print/__init__.py
+	(cd print && zip -r ../zips/print.zip *)	
 
 prepare:
 	find . -name '*.pyc' -delete
