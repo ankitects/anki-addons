@@ -100,6 +100,6 @@ def cardStats(on):
 action = QAction(mw)
 action.setText("Card Stats")
 action.setCheckable(True)
-action.setShortcut(QKeySequence("Ctrl+Alt+C"))
+action.setShortcut(QKeySequence("Ctrl+Shift+C"))
 mw.form.menuTools.addAction(action)
 action.toggled.connect(cardStats)
