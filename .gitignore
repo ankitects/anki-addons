@@ -3,3 +3,4 @@ chinese.zip
 *.pyc
 *.pyo
 .idea
+__pycache__

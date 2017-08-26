@@ -3,7 +3,6 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 # Automatic reading generation with kakasi and mecab.
-# See http://ichi2.net/anki/wiki/JapaneseSupport
 #
 
 import sys, os, platform, re, subprocess, aqt.utils
@@ -18,6 +17,8 @@ furiganaFieldSuffix = u" (furigana)"
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
             '--unk-format=%m[] ']
+
+supportDir = os.path.join(os.path.dirname(__file__), "support")
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
@@ -54,12 +55,11 @@ class MecabController(object):
         self.mecab = None
 
     def setup(self):
-        base = "../../addons/japanese/support/"
         self.mecabCmd = mungeForPlatform(
-            [base + "mecab"] + mecabArgs + [
-                '-d', base, '-r', base + "mecabrc"])
-        os.environ['DYLD_LIBRARY_PATH'] = base
-        os.environ['LD_LIBRARY_PATH'] = base
+            [os.path.join(supportDir, "mecab")] + mecabArgs + [
+                '-d', supportDir, '-r', os.path.join(supportDir,"mecabrc")])
+        os.environ['DYLD_LIBRARY_PATH'] = supportDir
+        os.environ['LD_LIBRARY_PATH'] = supportDir
         if not isWin:
             os.chmod(self.mecabCmd[0], 0o755)
 
@@ -145,11 +145,10 @@ class KakasiController(object):
         self.kakasi = None
 
     def setup(self):
-        base = "../../addons/japanese/support/"
         self.kakasiCmd = mungeForPlatform(
-            [base + "kakasi"] + kakasiArgs)
-        os.environ['ITAIJIDICT'] = base + "itaijidict"
-        os.environ['KANWADICT'] = base + "kanwadict"
+            [os.path.join(supportDir, "kakasi")] + kakasiArgs)
+        os.environ['ITAIJIDICT'] = os.path.join(supportDir, "itaijidict")
+        os.environ['KANWADICT'] = os.path.join(supportDir, "kanwadict")
         if not isWin:
             os.chmod(self.kakasiCmd[0], 0o755)
 
