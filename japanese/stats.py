@@ -154,7 +154,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
         return out + "<br/>"
 
     def edictKanjiLink(self, kanji):
-        base="http://www.csse.monash.edu.au/~jwb/cgi-bin/wwwjdic.cgi?1MMJ"
+        base="http://nihongo.monash.edu/cgi-bin/wwwjdic?1MMJ"
         url=base + kanji
         return '<a href="%s">%s</a>' % (url, kanji)
 
