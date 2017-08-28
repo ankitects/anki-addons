@@ -10,9 +10,12 @@ from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
 
-srcFields = ['Expression']
-dstFields = ['Reading']
-furiganaFieldSuffix = u" (furigana)"
+from aqt import mw
+config = mw.addonManager.getConfig(__name__)
+
+srcFields = config['srcFields']
+dstFields = config['dstFields']
+furiganaFieldSuffix = config['furiganaSuffix']
 
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
 mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',

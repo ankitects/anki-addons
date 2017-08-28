@@ -13,7 +13,7 @@ from aqt import mw
 from anki.utils import ids2str
 from aqt.utils import mungeQA
 
-CARDS_PER_ROW = 3
+config = mw.addonManager.getConfig(__name__)
 
 def sortFieldOrderCids(did):
     dids = [did]
@@ -47,7 +47,7 @@ td { border: 1px solid #ccc; padding: 1em; }
 
     mw.progress.start(immediate=True)
     for j, cid in enumerate(ids):
-        if j % CARDS_PER_ROW == 0:
+        if j % config['cardsPerRow'] == 0:
             if not first:
                 buf.write("</tr>")
             else:
@@ -57,7 +57,7 @@ td { border: 1px solid #ccc; padding: 1em; }
         qatxt = c._getQA(True, False)['a']
         qatxt = mungeQA(mw.col, qatxt)
         cont = u'<td width="{1}%"><center>{0}</center></td>'.format(
-            esc(qatxt), 100/CARDS_PER_ROW)
+            esc(qatxt), 100/config['cardsPerRow'])
         buf.write(cont)
         if j % 50 == 0:
             mw.progress.update("Cards exported: %d" % (j+1))

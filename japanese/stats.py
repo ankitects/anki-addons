@@ -10,7 +10,9 @@ from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
-from .notetypes import SOURCE_FIELDS, isJapaneseNoteType
+from .notetypes import isJapaneseNoteType
+from aqt import mw
+config = mw.addonManager.getConfig(__name__)
 
 # Backwards compatibility
 try:
@@ -21,10 +23,6 @@ try:
     range = xrange # Python 2.X
 except NameError:
     pass # Python 3+
-
-# look for kanji in these fields
-# Look at notetypes.py to changes this setting
-srcFields = SOURCE_FIELDS
 
 def isKanji(unichar):
     try:
@@ -74,7 +72,7 @@ class KanjiStats(object):
 
             idxs = []
             for c, name in enumerate(self.col.models.fieldNames(m)):
-                for f in srcFields:
+                for f in config['srcFields']:
                     if name == f:
                         idxs.append(c)
             for row in self.col.db.execute("""
