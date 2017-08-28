@@ -3,3 +3,4 @@ zips
 *.pyo
 .idea
 __pycache__
+meta.json
