@@ -7,7 +7,7 @@
 
 from aqt.qt import *
 from anki.hooks import addHook
-from japanese.reading import mecab, srcFields, dstFields
+from .reading import mecab, srcFields, dstFields
 from .notetypes import isJapaneseNoteType
 from aqt import mw
 
