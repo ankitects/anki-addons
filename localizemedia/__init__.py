@@ -7,6 +7,7 @@
 #
 
 import re
+import time
 
 from aqt import mw
 from aqt.qt import *
@@ -67,6 +68,9 @@ def _localizeNote(browser, note):
                 if not newName:
                     return
                 val = val.replace(fname, newName)
+
+                # don't overburden the server(s)
+                time.sleep(1)
 
         note[fld] = val
         note.flush()
