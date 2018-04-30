@@ -82,6 +82,6 @@ def onMenuSetup(browser):
     mn = browser.form.menu_Notes
     mn.addSeparator()
     mn.addAction(act)
-    mn.triggered.connect(lambda b=browser: onLocalize(browser))
+    act.triggered.connect(lambda b=browser: onLocalize(browser))
 
 addHook("browser.setupMenus", onMenuSetup)
