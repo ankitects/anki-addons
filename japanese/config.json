@@ -1,5 +1,5 @@
 {
-    "noteTypes": ["japanese"],
+    "noteTypes": ["japanese", "日本語"],
     "srcFields": ["Expression", "Kanji"],
     "dstFields": ["Reading"],
     "furiganaSuffix": " (furigana)"
