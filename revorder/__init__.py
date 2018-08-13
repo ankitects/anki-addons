@@ -7,6 +7,11 @@
 #
 # ivl desc: sort from largest interval first
 # ivl asc: sort from smallest interval first
+#
+# This only changes the behaviour of the regular scheduler in Anki 2.1.
+# If you are using the experimental scheduler, a better option is to use
+# a filtered deck to change the review order, as this is faster and works
+# on mobile as well.
 
 order = "ivl desc"
 
