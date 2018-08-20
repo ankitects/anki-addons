@@ -3,7 +3,6 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 # Changes remote image links in selected cards to local ones.
-# For use with Anki 2.1.0beta25+
 #
 
 import re
@@ -37,6 +36,7 @@ def _localizeNids(browser, nids):
     for c, nid in enumerate(nids):
         note = mw.col.getNote(nid)
         if not _localizeNote(browser, note):
+            mw.progress.finish()
             showInfo("Aborted after processing %d notes. Any images already downloaded have been saved." % (c))
             return
 
@@ -53,6 +53,10 @@ def _localizeNote(browser, note):
             if file.startswith("http://") or file.startswith("https://"):
                 found = True
                 break
+            elif file.startswith("data:image"):
+                found = True
+                break
+
         if not found:
             continue
 
@@ -61,20 +65,20 @@ def _localizeNote(browser, note):
             for match in re.finditer(regex, val):
                 fname = match.group("fname")
                 remote = re.match("(https?)://", fname.lower())
-                if not remote:
-                    continue
+                if remote:
+                    newName = browser.editor._retrieveURL(fname)
+                    if not newName:
+                        return
+                    val = val.replace(fname, newName)
 
-                newName = browser.editor._retrieveURL(fname)
-                if not newName:
-                    return
-                val = val.replace(fname, newName)
-
-                # don't overburden the server(s)
-                time.sleep(1)
+                    # don't overburden the server(s)
+                    time.sleep(1)
+                elif fname.startswith("data:image"):
+                    val = val.replace(fname, browser.editor.inlinedImageToFilename(fname))
 
         note[fld] = val
         note.flush()
-        return True
+    return True
 
 def onMenuSetup(browser):
     act = QAction(browser)
