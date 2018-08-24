@@ -1,5 +1,5 @@
-"""
 -*- coding: utf-8 -*-
+"""
 Author: RawToast
 License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
