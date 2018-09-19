@@ -57,39 +57,23 @@ def _v2_fillRev(self):
         return True
     if not self.revCount:
         return False
-
     lim = min(self.queueLimit, self._currentRevLimit())
     if lim:
-        self._revQueue = self.col.db.list("""
+        sql = """
 select id from cards where
 did in %s and queue = 2 and due <= ?
-order by due
-limit ?""" % (ids2str(self.col.decks.active())),
-                self.today, lim)
-
+order by %s
+limit ?"""
+        if self.col.decks.get(self.col.decks.selected(), default=False)['dyn']:
+            self._revQueue = self.col.db.list(
+                sql % (ids2str(self.col.decks.active()), "due"), self.today, lim)
+            self._revQueue.reverse()
+        else:
+            self._revQueue = self.col.db.list(
+                sql % (ids2str(self.col.decks.active()), order), self.today, lim)
+            self._revQueue.reverse()
         if self._revQueue:
-            if self.col.decks.get(self.col.decks.selected(), default=False)['dyn']:
-                # dynamic decks need due order preserved
-                self._revQueue.reverse()
-            else:
-                # fixme: as soon as a card is answered, this is no longer consistent
-                r = random.Random()
-                r.seed(self.today)
-                r.shuffle(self._revQueue)
-
-                ##### Our code
-                self._revQueue = self.col.db.list(
-                    "select id from cards where did in %s and queue = 2 and due <= ? "
-                    % (ids2str(self.col.decks.active())) + " order by " + order + " limit ?", self.today, lim)
-                self._revQueue.reverse()
-                sys.stdout.write("len(_revQueue): {}\n".format(str(len(self._revQueue))))
-                for i in range(len(self._revQueue)):
-                    card = mw.col.getCard(self._revQueue[i])
-                    sys.stdout.write("cid= {} ivl= {}\n".format(card.id, card.ivl))
-                #####
-
             return True
-
     if self.revCount:
         # if we didn't get a card but the count is non-zero,
         # we need to check again for any cards that were
