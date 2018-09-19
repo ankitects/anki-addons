@@ -7,20 +7,18 @@
 #
 # ivl desc: sort from largest interval first
 # ivl asc: sort from smallest interval first
-#
-# This only changes the behaviour of the regular scheduler in Anki 2.1.
-# If you are using the experimental scheduler, a better option is to use
-# a filtered deck to change the review order, as this is faster and works
-# on mobile as well.
 
 order = "ivl desc"
 
 from anki.sched import Scheduler
 
+import sys
 import random
 import anki
 from anki.utils import ids2str
 from anki.schedv2 import Scheduler
+from aqt import mw
+
 
 def _fillRev(self):
     if self._revQueue:
@@ -78,6 +76,18 @@ limit ?""" % (ids2str(self.col.decks.active())),
                 r = random.Random()
                 r.seed(self.today)
                 r.shuffle(self._revQueue)
+
+                ##### Our code
+                self._revQueue = self.col.db.list(
+                    "select id from cards where did in %s and queue = 2 and due <= ? "
+                    % (ids2str(self.col.decks.active())) + " order by " + order + " limit ?", self.today, lim)
+                self._revQueue.reverse()
+                sys.stdout.write("len(_revQueue): {}\n".format(str(len(self._revQueue))))
+                for i in range(len(self._revQueue)):
+                    card = mw.col.getCard(self._revQueue[i])
+                    sys.stdout.write("cid= {} ivl= {}\n".format(card.id, card.ivl))
+                #####
+
             return True
 
     if self.revCount:
