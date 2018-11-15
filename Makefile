@@ -1,6 +1,6 @@
 ZIP=zip -r --exclude=meta.json
 
-all: prepare zips/japanese.zip zips/quickcolours.zip zips/cardstats.zip zips/print.zip zips/localizemedia.zip zips/removehistory.zip zips/revorder.zip
+all: prepare zips/japanese.zip zips/quickcolours.zip zips/cardstats.zip zips/print.zip zips/localizemedia.zip zips/removehistory.zip zips/lockdebug.zip
 
 zips/japanese.zip: $(shell find japanese -type f | grep -v pycache)
 	(cd japanese && $(ZIP) ../zips/japanese.zip *)
@@ -20,8 +20,8 @@ zips/localizemedia.zip: localizemedia/__init__.py
 zips/removehistory.zip: removehistory/__init__.py
 	(cd removehistory && $(ZIP) ../zips/removehistory.zip *)	
 
-zips/revorder.zip: revorder/__init__.py
-	(cd revorder && $(ZIP) ../zips/revorder.zip *)	
+zips/lockdebug.zip: lockdebug/__init__.py
+	(cd lockdebug && $(ZIP) ../zips/lockdebug.zip *)	
 
 prepare:
 	find . -name '*.pyc' -delete
