@@ -37,7 +37,7 @@ def _localizeNids(browser, nids):
         note = mw.col.getNote(nid)
         if not _localizeNote(browser, note):
             mw.progress.finish()
-            showInfo("Aborted after processing %d notes. Any images already downloaded have been saved." % (c))
+            showInfo("Aborted after processing %d notes. Any media already downloaded has been saved." % (c))
             return
 
         mw.progress.update(label="Successfully processed %d/%d notes" % (c+1, len(nids)))
@@ -61,7 +61,7 @@ def _localizeNote(browser, note):
             continue
 
         # gather and rewrite
-        for regex in mw.col.media.imgRegexps:
+        for regex in mw.col.media.regexps:
             for match in re.finditer(regex, val):
                 fname = match.group("fname")
                 remote = re.match("(https?)://", fname.lower())
@@ -82,7 +82,7 @@ def _localizeNote(browser, note):
 
 def onMenuSetup(browser):
     act = QAction(browser)
-    act.setText("Localize Images")
+    act.setText("Localize Media")
     mn = browser.form.menu_Notes
     mn.addSeparator()
     mn.addAction(act)
