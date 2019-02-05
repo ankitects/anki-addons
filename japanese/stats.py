@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright: Damien Elmes <anki@ichi2.net>
+# Copyright: Ankitects Pty Ltd and contributors
 # Used/unused kanji list code originally by 'LaC'
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
