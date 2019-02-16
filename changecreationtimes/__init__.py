@@ -21,8 +21,7 @@
 #   cards are foreign-keyed to the note's ID, we have to execute SQL to change
 #   the card table too.
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from aqt.qt import *
 from anki.hooks import addHook
 from anki.cards import Card
 from aqt import mw
@@ -121,8 +120,8 @@ def identifyNotes(card_ids):
             # user didn't intend. Anki's data model makes this logically
             # possible, but the browser may prevent it. This test is a way to be
             # absolutely certain.
-            if nids_lookup.has_key(card.nid):
-                showWarning("A note found out of order. Your cards appear to be sorted in a way that siblings are not contiguous. It is not possible to reset the create time this way. Please report this to the addon discussion forum.", parent=browser)
+            if card.nid in nids_lookup:
+                showWarning("A note found out of order. Your cards appear to be sorted in a way that siblings are not contiguous. It is not possible to reset the create time this way. Please report this to the addon discussion forum.")
             
             # Add the nid to the end of an array which will be used to drive the
             # DB update. This maintains note ids in the same order which the
@@ -145,7 +144,7 @@ def identifyNotes(card_ids):
     
 def setupMenu(browser):
     a = QAction("Reset Creation Times", browser)
-    browser.connect(a, SIGNAL("triggered()"), lambda e=browser: onResetTimes(e))
+    a.triggered.connect(lambda _, e=browser: onResetTimes(e))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
 
@@ -198,7 +197,7 @@ def onResetTimes(browser):
     # Force a full sync if collection isn't already marked for one. This is
     # apparently because we are changing the key column of the table.
     # (Per Damien on 2013/01/07: http://groups.google.com/group/anki-users/msg/3c8910e10f6fd0ac?hl=en )
-    mw.col.modSchema()
+    mw.col.modSchema(check=True)
     
     # Do it.
     resetCreationTimes(nids, desttime)
