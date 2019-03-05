@@ -24,6 +24,7 @@
 from aqt.qt import *
 from anki.hooks import addHook
 from anki.cards import Card
+from anki.lang import ngettext
 from aqt import mw
 from aqt.utils import getText, showWarning, tooltip
 import time

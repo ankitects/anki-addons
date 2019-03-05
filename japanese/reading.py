@@ -5,7 +5,7 @@
 # Automatic reading generation with kakasi and mecab.
 #
 
-import sys, os, platform, re, subprocess, aqt.utils
+import sys, os, re, subprocess
 from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
@@ -37,6 +37,7 @@ if sys.platform == "win32":
     try:
         si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
     except:
+        # pylint: disable=no-member
         si.dwFlags |= subprocess._subprocess.STARTF_USESHOWWINDOW
 else:
     si = None
@@ -87,7 +88,7 @@ class MecabController(object):
         for node in expr.split(" "):
             if not node:
                 break
-            (kanji, reading) = re.match("(.+)\[(.*)\]", node).groups()
+            (kanji, reading) = re.match(r"(.+)\[(.*)\]", node).groups()
             # hiragana, punctuation, not japanese, or lacking a reading
             if kanji == reading or not reading:
                 out.append(kanji)
@@ -177,9 +178,10 @@ class KakasiController(object):
 # Focus lost hook
 ##########################################################################
 
+mecab = None
+
 def onFocusLost(flag, n, fidx):
     global mecab
-    from aqt import mw
     if not mecab:
         return flag
     src = None

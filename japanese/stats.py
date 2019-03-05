@@ -4,9 +4,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import unicodedata
-from anki.hooks import addHook
 from anki.utils import ids2str, splitFields
-from aqt import mw
 from aqt.webview import AnkiWebView
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
@@ -54,9 +52,9 @@ class KanjiStats(object):
         if total:
             d['total'] = self.rjustfig(total, width)
             d['percent'] = float(count)/total*100
-            return _("%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%).") % d
+            return ("%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%).") % d
         else:
-            return _("%(count)s %(gradename)s kanji.") % d
+            return ("%(count)s %(gradename)s kanji.") % d
 
     def rjustfig(self, n, width):
         n = unicode(n)
@@ -91,11 +89,11 @@ where c.nid = n.id and mid = ? and c.queue > 0
         self.genKanjiSets()
         counts = [(name, len(found), len(all)) \
                   for (name, all), found in zip(self.kanjiGrades, self.kanjiSets)]
-        out = ((_("<h1>Kanji statistics</h1>The seen cards in this %s "
+        out = ((("<h1>Kanji statistics</h1>The seen cards in this %s "
                  "contain:") % (self.lim and "deck" or "collection")) +
                "<ul>" +
                # total kanji
-               _("<li>%d total unique kanji.</li>") %
+               ("<li>%d total unique kanji.</li>") %
                sum([c[1] for c in counts]) +
                # total joyo
                "<li>%s</li>" % self.kanjiCountStr(
@@ -110,7 +108,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
                # total non-joyo
                "<li>%s</li>" % self.kanjiCountStr(*counts[0]))
 
-        out += "</ul><p/>" + _(u"Jouyou levels:") + "<p/><ul>"
+        out += "</ul><p/>" + (u"Jouyou levels:") + "<p/><ul>"
         L = ["<li>" + self.kanjiCountStr(c[0],c[1],c[2], width=3) + "</li>"
              for c in counts[1:8]]
         out += "".join(L)
@@ -120,9 +118,9 @@ where c.nid = n.id and mid = ? and c.queue > 0
     def missingReport(self, check=None):
         if not check:
             check = lambda x, y: x not in y
-            out = _("<h1>Missing</h1>")
+            out = ("<h1>Missing</h1>")
         else:
-            out = _("<h1>Seen</h1>")
+            out = ("<h1>Seen</h1>")
         for grade in range(1, len(self.kanjiGrades)):
             missing = "".join(self.missingInGrade(grade, check))
             if not missing:
@@ -147,7 +145,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
         return self.missingReport(lambda x, y: x in y)
 
     def nonJouyouReport(self):
-        out = _("<h1>Non-Jouyou</h1>")
+        out = ("<h1>Non-Jouyou</h1>")
         out += self.mkEdict("".join(self.kanjiSets[0]))
         return out + "<br/>"
 

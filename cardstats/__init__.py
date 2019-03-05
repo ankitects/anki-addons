@@ -45,7 +45,7 @@ class CardStats(object):
                 def sizeHint(self):
                     return QSize(200, 100)
             self.web = ThinAnkiWebView()
-            self.shown = self._addDockable(_("Card Info"), self.web)
+            self.shown = self._addDockable(("Card Info"), self.web)
             self.shown.closed.connect(self._onClosed)
         self._update()
 
@@ -72,14 +72,14 @@ class CardStats(object):
         r = self.mw.reviewer
         d = self.mw.col
         if r.card:
-            txt += _("<h3>Current</h3>")
+            txt += ("<h3>Current</h3>")
             txt += d.cardStats(r.card)
         lc = r.lastCard()
         if lc:
-            txt += _("<h3>Last</h3>")
+            txt += ("<h3>Last</h3>")
             txt += d.cardStats(lc)
         if not txt:
-            txt = _("No current card or last card.")
+            txt = ("No current card or last card.")
         style = self._style()
         self.web.setHtml("""
 <html><head>

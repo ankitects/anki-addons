@@ -6,7 +6,6 @@
 #
 
 import re
-from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -31,10 +30,10 @@ class Lookup(object):
         text = mw.web.selectedText()
         text = text.strip()
         if not text:
-            showInfo(_("Empty selection."))
+            showInfo(("Empty selection."))
             return
         if "\n" in text:
-            showInfo(_("Can't look up a selection with a newline."))
+            showInfo(("Can't look up a selection with a newline."))
             return
         function(text)
 
@@ -143,6 +142,7 @@ def onLookupAlcSelection():
     mw.lookup.selection(mw.lookup.alc)
 
 def createMenu():
+    # pylint: disable=unnecessary-lambda
     ml = QMenu()
     ml.setTitle("Lookup")
     mw.form.menuTools.addAction(ml.menuAction())
@@ -154,7 +154,7 @@ def createMenu():
     a.setShortcut("Ctrl+1")
     ml.addAction(a)
     # Call from lambda to preserve default argument
-    a.triggered.connect(lambda: onLookupExpression()) 
+    a.triggered.connect(lambda: onLookupExpression())
     a = QAction(mw)
     a.setText("...meaning on alc")
     a.setShortcut("Ctrl+2")

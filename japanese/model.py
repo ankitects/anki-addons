@@ -9,14 +9,14 @@ import anki.stdmodels
 
 def addJapaneseModel(col):
     mm = col.models
-    m = mm.new(_("Japanese (recognition)"))
-    fm = mm.newField(_("Expression"))
+    m = mm.new(("Japanese (recognition)"))
+    fm = mm.newField(("Expression"))
     mm.addField(m, fm)
-    fm = mm.newField(_("Meaning"))
+    fm = mm.newField(("Meaning"))
     mm.addField(m, fm)
-    fm = mm.newField(_("Reading"))
+    fm = mm.newField(("Reading"))
     mm.addField(m, fm)
-    t = mm.newTemplate(_("Recognition"))
+    t = mm.newTemplate(("Recognition"))
     # css
     m['css'] += u"""\
 .jp { font-size: 30px }
@@ -37,7 +37,7 @@ def addDoubleJapaneseModel(col):
     mm = col.models
     m = addJapaneseModel(col)
     m['name'] = "Japanese (recognition&recall)"
-    rev = mm.newTemplate(_("Recall"))
+    rev = mm.newTemplate(("Recall"))
     rev['qfmt'] = "{{Meaning}}"
     rev['afmt'] = """{{FrontSide}}
 
@@ -58,6 +58,6 @@ def addOptionalJapaneseModel(col):
     mm.addField(m, fm)
     return m
 
-anki.stdmodels.models.append((_("Japanese (recognition)"), addJapaneseModel))
-anki.stdmodels.models.append((_("Japanese (recognition&recall)"), addDoubleJapaneseModel))
-anki.stdmodels.models.append((_("Japanese (optional recall)"), addOptionalJapaneseModel))
+anki.stdmodels.models.append((("Japanese (recognition)"), addJapaneseModel))
+anki.stdmodels.models.append((("Japanese (recognition&recall)"), addDoubleJapaneseModel))
+anki.stdmodels.models.append((("Japanese (optional recall)"), addOptionalJapaneseModel))
