@@ -10,7 +10,6 @@ from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
 from aqt.webview import AnkiWebView
-import aqt.stats
 
 class CardStats(object):
     def __init__(self, mw):

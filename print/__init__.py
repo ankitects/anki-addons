@@ -31,7 +31,7 @@ def onPrint():
         # strip off the repeated question in answer if exists
         #s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
         # remove type answer
-        s = re.sub("\[\[type:[^]]+\]\]", "", s)
+        s = re.sub(r"\[\[type:[^]]+\]\]", "", s)
         return s
     buf = open(path, "w", encoding="utf8")
     buf.write("<html><head>" +

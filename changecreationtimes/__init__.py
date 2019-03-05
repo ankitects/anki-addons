@@ -23,7 +23,6 @@
 
 from aqt.qt import *
 from anki.hooks import addHook
-from anki.cards import Card
 from anki.lang import ngettext
 from aqt import mw
 from aqt.utils import getText, showWarning, tooltip
@@ -95,6 +94,7 @@ def identifyNotes(card_ids):
     
     # Loop through the selected cards, detecting unique notes and saving the
     # note IDs for driving the DB update.
+    card_cnt = 0
     for card_cnt, card_id in enumerate(card_ids):
         
         # debug

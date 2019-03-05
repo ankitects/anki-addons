@@ -158,7 +158,7 @@ def buildChanges(depth, deckprefix, tag):
         if tag:
             rest = components[depth:]
             tag = "-".join(rest)
-            tag = re.sub("[\s,]", "-", tag)
+            tag = re.sub(r"[\s,]", "-", tag)
         else:
             tag = ""
 
