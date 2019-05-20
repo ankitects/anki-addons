@@ -39,7 +39,7 @@ def build(dir):
     subprocess.check_call(["7z", "a", "-tzip",
                            "-x!meta.json",
                            "-bso0", # less verbose
-                           os.path.join(build_dir, dir+".ankiaddon"),
+                           out,
                            # package folder contents but not folder itself
                            "-w", os.path.join(dir, ".")])
 
