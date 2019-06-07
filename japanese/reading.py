@@ -83,7 +83,7 @@ class MecabController(object):
         expr = escapeText(expr)
         self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
         self.mecab.stdin.flush()
-        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp')
+        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp', "replace")
         out = []
         for node in expr.split(" "):
             if not node:
@@ -172,7 +172,7 @@ class KakasiController(object):
         expr = escapeText(expr)
         self.kakasi.stdin.write(expr.encode("sjis", "ignore") + b'\n')
         self.kakasi.stdin.flush()
-        res = self.kakasi.stdout.readline().rstrip(b'\r\n').decode("sjis")
+        res = self.kakasi.stdout.readline().rstrip(b'\r\n').decode("sjis", "replace")
         return res
 
 # Focus lost hook
