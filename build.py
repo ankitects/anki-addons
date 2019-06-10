@@ -20,6 +20,8 @@ def build_all():
             needed.append(dir)
 
     if needed:
+        print("testing...")
+        test(needed)
         print("linting...")
         lint(needed)
         for dir in needed:
@@ -38,21 +40,31 @@ def build(dir):
     ensure_manifest(dir)
     subprocess.check_call(["7z", "a", "-tzip",
                            "-x!meta.json",
+                           "-x!tests",
                            "-bso0", # less verbose
                            out,
                            # package folder contents but not folder itself
                            "-w", os.path.join(dir, ".")])
 
+def test(dirs):
+    try:
+        run(["pytest"] + dirs)
+    except subprocess.CalledProcessError:
+        print("Ignoring failed tests for now")
+
 def lint(dirs):
-    env=os.environ.copy()
-    env["PYTHONPATH"]="../dtop"
-    subprocess.check_call([
+    run([
         "pylint",
         "-j", "0",
         "--rcfile=../dtop/.pylintrc",
         "-f", "colorized",
         "--extension-pkg-whitelist=PyQt5",
-    ] + dirs, env=env)
+    ] + dirs)
+
+def run(cmd):
+    env=os.environ.copy()
+    env["PYTHONPATH"]="../dtop"
+    subprocess.check_call(cmd, env=env)
 
 def ensure_manifest(dir):
     manifest_path = os.path.join(dir, "manifest.json")
