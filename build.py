@@ -49,7 +49,7 @@ def build(dir):
 def test(dirs):
     try:
         run(["pytest"] + dirs)
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         print("Ignoring failed tests for now")
 
 def lint(dirs):
