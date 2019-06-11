@@ -4,3 +4,4 @@ _build
 .idea
 __pycache__
 meta.json
+.*.swp

@@ -46,19 +46,14 @@ class KanjiStats(object):
     def kanjiGrade(self, unichar):
         return self._gradeHash.get(unichar, 0)
 
-    # FIXME: as it's html, the width doesn't matter
-    def kanjiCountStr(self, gradename, count, total=0, width=0):
-        d = {'count': self.rjustfig(count, width), 'gradename': gradename}
+    def kanjiCountStr(self, gradename, count, total=0):
+        d = {'count': count, 'gradename': gradename}
         if total:
-            d['total'] = self.rjustfig(total, width)
+            d['total'] = total
             d['percent'] = float(count)/total*100
             return ("%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%).") % d
         else:
             return ("%(count)s %(gradename)s kanji.") % d
-
-    def rjustfig(self, n, width):
-        n = unicode(n)
-        return n + "&nbsp;" * (width - len(n))
 
     def genKanjiSets(self):
         self.kanjiSets = [set([]) for g in self.kanjiGrades]
@@ -109,7 +104,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
                "<li>%s</li>" % self.kanjiCountStr(*counts[0]))
 
         out += "</ul><p/>" + (u"Jouyou levels:") + "<p/><ul>"
-        L = ["<li>" + self.kanjiCountStr(c[0],c[1],c[2], width=3) + "</li>"
+        L = ["<li>" + self.kanjiCountStr(c[0],c[1],c[2]) + "</li>"
              for c in counts[1:8]]
         out += "".join(L)
         out += "</ul>"
