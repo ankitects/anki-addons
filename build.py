@@ -20,8 +20,6 @@ def build_all():
             needed.append(dir)
 
     if needed:
-        print("testing...")
-        test(needed)
         print("linting...")
         lint(needed)
         for dir in needed:
@@ -45,12 +43,6 @@ def build(dir):
                            out,
                            # package folder contents but not folder itself
                            "-w", os.path.join(dir, ".")])
-
-def test(dirs):
-    try:
-        run(["pytest"] + dirs)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        print("Ignoring failed tests for now")
 
 def lint(dirs):
     run([
