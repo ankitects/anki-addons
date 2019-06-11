@@ -8,7 +8,8 @@ Support plugin here
 
 """
 
-from . import cfg; config = cfg.load()
+from aqt import mw
+config = mw.addonManager.getConfig(__name__)
 
 def isJapaneseNoteType(noteName):
     noteName = noteName.lower()
