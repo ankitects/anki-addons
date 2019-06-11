@@ -10,7 +10,8 @@ from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 from .notetypes import isJapaneseNoteType
 from aqt import mw
-config = mw.addonManager.getConfig(__name__)
+
+from . import cfg; config = cfg.load()
 
 # Backwards compatibility
 try:

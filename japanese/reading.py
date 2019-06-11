@@ -9,9 +9,9 @@ import sys, os, re, subprocess
 from anki.utils import stripHTML, isWin, isMac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
-
 from aqt import mw
-config = mw.addonManager.getConfig(__name__)
+
+from . import cfg; config = cfg.load()
 
 srcFields = config['srcFields']
 dstFields = config['dstFields']
