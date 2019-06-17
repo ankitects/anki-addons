@@ -88,7 +88,14 @@ class MecabController(object):
         for node in expr.split(" "):
             if not node:
                 break
-            (kanji, reading) = re.match(r"(.+)\[(.*)\]", node).groups()
+            m = re.match(r"(.+)\[(.*)\]", node)
+            if not m:
+                sys.stderr.write(
+                    "Unexpected output from mecab. Perhaps your Windows username contains non-Latin text?: {}\n".
+                        format(repr(expr)))
+                return ""
+
+            (kanji, reading) = m.groups()
             # hiragana, punctuation, not japanese, or lacking a reading
             if kanji == reading or not reading:
                 out.append(kanji)
