@@ -1,0 +1,8 @@
+The add-on itself is AGPL3, with the following third party components included:
+
+- mecab (GPL)
+- kakasi (GPL)
+- mecab ipadic (see bundled license file)
+- userdic.dic (derived from EDICT, CC Attribution-ShareAlike 3.0)
+
+
