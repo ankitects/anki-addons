@@ -61,7 +61,8 @@ class MecabController(object):
     def setup(self):
         self.mecabCmd = mungeForPlatform(
             [os.path.join(supportDir, "mecab")] + mecabArgs + [
-                '-d', supportDir, '-r', os.path.join(supportDir,"mecabrc")])
+                '-d', supportDir, '-r', os.path.join(supportDir, "mecabrc"),
+                '-u', os.path.join(supportDir, "user_dic.dic")])
         os.environ['DYLD_LIBRARY_PATH'] = supportDir
         os.environ['LD_LIBRARY_PATH'] = supportDir
         if not isWin:
@@ -81,9 +82,9 @@ class MecabController(object):
     def reading(self, expr):
         self.ensureOpen()
         expr = escapeText(expr)
-        self.mecab.stdin.write(expr.encode("euc-jp", "ignore") + b'\n')
+        self.mecab.stdin.write(expr.encode("utf-8", "ignore") + b'\n')
         self.mecab.stdin.flush()
-        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('euc-jp', "replace")
+        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('utf-8', "replace")
         out = []
         for node in expr.split(" "):
             if not node:
