@@ -24,35 +24,17 @@ def regenerateReadings(nids):
         _noteName = note.model()['name'].lower()
         if not isJapaneseNoteType(_noteName):
             continue
-
-        src = None
-        for field in srcFields:
-            if field in note:
-                src = field
-                break
-        if not src:
-            # no src field
-            continue
-        # dst is the destination field for the Readings
-        dst = None
-        for field in dstFields:
-            if field in note:
-                dst = field
-                break
-        if not dst:
-            # no dst field
-            continue
-        if note[dst]:
-            # already contains data, skip
-            continue
-        srcTxt = mw.col.media.strip(note[src])
-        if not srcTxt.strip():
-            continue
-        try:
-            note[dst] = mecab.reading(srcTxt)
-        except Exception as e:
-            mecab = None
-            raise
+        for (srcField, dstField) in zip(srcFields, dstFields):
+            if srcField in note and dstField in note and not note[dstField]:
+              srcTxt = mw.col.media.strip(note[srcField])
+              if not srcTxt.strip():
+                  continue
+              try:
+                  mecabReading = mecab.reading(srcTxt)
+                  note[dstField] = mecabReading
+              except Exception as e:
+                  mecab = None
+                  raise
         note.flush()
     mw.progress.finish()
     mw.reset()
