@@ -204,7 +204,7 @@ def onFocusLost(flag, n, fidx):
     if src in srcFields:
         srcIdx = srcFields.index(src)
         dst = dstFields[srcIdx]
-    else:
+    if dst not in n:
         dst = src + furiganaFieldSuffix
     if not src or not dst:
         return flag
