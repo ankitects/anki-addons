@@ -189,17 +189,20 @@ class KakasiController(object):
 mecab = None
 
 def onFocusLost(flag, n, fidx):
-    global mecab
-    if not mecab:
-        return flag
-    src = None
-    dst = None
     # japanese model?
     if not isJapaneseNoteType(n.model()['name']):
         return flag
-    # have src and dst fields?
     fields = mw.col.models.fieldNames(n.model())
     src = fields[fidx]
+    if not regenerateReading(n, src):
+        return flag
+    return True
+
+def regenerateReading(n, src):
+    global mecab
+    if not mecab:
+        return False
+    dst = None
     # Retro compatibility
     if src in srcFields:
         srcIdx = srcFields.index(src)
@@ -207,17 +210,17 @@ def onFocusLost(flag, n, fidx):
     if dst not in n:
         dst = src + furiganaFieldSuffix
     if not src or not dst:
-        return flag
+        return False
     # dst field exists?
     if dst not in n:
-        return flag
+        return False
     # dst field already filled?
     if n[dst]:
-        return flag
+        return False
     # grab source text
     srcTxt = mw.col.media.strip(n[src])
     if not srcTxt:
-        return flag
+        return False
     # update field
     try:
         n[dst] = mecab.reading(srcTxt)
