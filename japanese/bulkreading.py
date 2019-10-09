@@ -7,7 +7,7 @@
 
 from aqt.qt import *
 from anki.hooks import addHook
-from .reading import mecab, srcFields, dstFields
+from .reading import regenerateReading
 from .notetypes import isJapaneseNoteType
 from aqt import mw
 
@@ -15,26 +15,15 @@ from aqt import mw
 ##########################################################################
 
 def regenerateReadings(nids):
-    global mecab
     mw.checkpoint("Bulk-add Readings")
     mw.progress.start()
     for nid in nids:
         note = mw.col.getNote(nid)
-        # Amend notetypes.py to add your note types
-        _noteName = note.model()['name'].lower()
-        if not isJapaneseNoteType(_noteName):
+        if not isJapaneseNoteType(note.model()['name']):
             continue
-        for (srcField, dstField) in zip(srcFields, dstFields):
-            if srcField in note and dstField in note and not note[dstField]:
-              srcTxt = mw.col.media.strip(note[srcField])
-              if not srcTxt.strip():
-                  continue
-              try:
-                  mecabReading = mecab.reading(srcTxt)
-                  note[dstField] = mecabReading
-              except Exception as e:
-                  mecab = None
-                  raise
+        fields = mw.col.models.fieldNames(note.model())
+        for src in fields:
+            regenerateReading(note, src)
         note.flush()
     mw.progress.finish()
     mw.reset()
