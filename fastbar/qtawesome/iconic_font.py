@@ -25,7 +25,6 @@ from PyQt5.QtCore import QObject, QPoint, QRect, qRound, Qt
 from PyQt5.QtGui import (QColor, QFont, QFontDatabase, QIcon, QIconEngine,
                         QPainter, QPixmap)
 from PyQt5.QtWidgets import QApplication
-from ..six import unichr
 
 
 # Linux packagers, please set this to True if you want to make qtawesome
@@ -199,7 +198,7 @@ class IconicFont(QObject):
         def hook(obj):
             result = {}
             for key in obj:
-                result[key] = unichr(int(obj[key], 16))
+                result[key] = chr(int(obj[key], 16))
             return result
 
         if directory is None:

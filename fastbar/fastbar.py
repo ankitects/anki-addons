@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# pylint: skip-file
+#
 # Fastbar: an Anki 2.1 add-on adds a toolbar and toggle the sidebar
 # in the Card Browser of Anki 2.1.
 # Version: 0.1.1
@@ -26,7 +28,6 @@ from anki.hooks import addHook, wrap
 from anki.lang import _
 
 from . import qtawesome as qta
-from . import six
 
 class Fastbar:
     def addToolBar(self):
