@@ -23,6 +23,7 @@ from aqt.browser import Browser
 from anki.sched import Scheduler
 from anki.utils import ids2str, intTime
 from anki.hooks import addHook, wrap
+from anki.lang import _
 
 from . import qtawesome as qta
 from . import six
