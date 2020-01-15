@@ -35,11 +35,6 @@ rendering process, and each time a filter is processed on the card,
 the objects can be reused.
 """
 
-
-# fixme: this is a work in progress - we need a solution for the preview
-# screen as well
-
-
 import time
 from typing import Dict, Optional, Tuple
 
@@ -61,12 +56,19 @@ def my_card_will_render_func(
     # tell python we want to update the above global variables
     global current_card, current_note
 
-    # update them using the IDs stored in the QAData object (see types.py)
+    # get the IDs stored in the QAData object (see types.py)
     card_id = data[0]
-    current_card = mw.col.getCard(card_id)
-
     note_id = data[1]
-    current_note = mw.col.getNote(note_id)
+
+    # when the user is previewing cards in the add screen, the card
+    # won't have been added to the database yet. so we try to fetch
+    # the card, and set it to None if the fetch fails
+    try:
+        current_card = mw.col.getCard(card_id)
+        current_note = mw.col.getNote(note_id)
+    except:
+        current_card = None
+        current_note = None
 
     # this is a filter, so it must return its first argument.
     return templates
@@ -85,6 +87,10 @@ def my_field_filter(
         (label, rest) = filter_name.split("-", maxsplit=1)
     except ValueError:
         return invalid_name(filter_name)
+
+    # if in the adding screen, we can't get info about the card
+    if not current_card:
+        return "(n/a)"
 
     # call the appropriate function
     if rest == "card-interval":
