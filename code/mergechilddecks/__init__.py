@@ -12,7 +12,7 @@ from aqt.qt import *
 
 class Wizard(QWizard):
 
-    changes: List[Dict[str,str]] = []
+    changes: List[Dict[str, str]] = []
 
     def __init__(self):
         QWizard.__init__(self)
@@ -152,7 +152,7 @@ class CommitPage(QWizardPage):
         performDeckChange(changes)
 
 
-def buildChanges(depth, deckprefix, tag) -> List[Dict[str,str]]:
+def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
     changes = []
     for deck in sorted(mw.col.decks.all(), key=lambda x: x["name"].lower()):
         # ignore if prefix doesn't match

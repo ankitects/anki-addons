@@ -83,4 +83,4 @@ q = QAction(mw)
 q.setText("Print")
 q.setShortcut(QKeySequence("Ctrl+P"))
 mw.form.menuTools.addAction(q)
-q.triggered.connect(onPrint) # type: ignore
+q.triggered.connect(onPrint)  # type: ignore

@@ -22,8 +22,6 @@ def build_all():
             needed.append(dir)
 
     if needed:
-        print("linting...")
-        lint(needed)
         for dir in needed:
             print("building", dir, "...")
             build(dir)
@@ -53,14 +51,6 @@ def build(dir):
             "-w",
             os.path.join(dir, "."),
         ]
-    )
-
-
-def lint(dirs):
-    run("../dtop/pyenv/bin/mypy " + " ".join(dirs))
-    run(
-        "../dtop/pyenv/bin/pylint -j 0 --rcfile=../dtop/pylib/.pylintrc -f colorized --extension-pkg-whitelist=ankirspy,PyQt5 "
-        + " ".join(dirs)
     )
 
 

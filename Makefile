@@ -12,5 +12,10 @@ clean:
 	rm -rf _build
 
 fix:
-	../dtop/pyenv/bin/black . --exclude="fastbar|archive"
-	../dtop/pyenv/bin/isort .
+	../dtop/pyenv/bin/black code
+	../dtop/pyenv/bin/isort code
+
+check:
+	../dtop/pyenv/bin/mypy code
+	../dtop/pyenv/bin/pylint -j 0 --rcfile=../dtop/pylib/.pylintrc -f colorized \
+	--extension-pkg-whitelist=ankirspy,PyQt5 code/*

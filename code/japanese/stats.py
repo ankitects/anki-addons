@@ -18,6 +18,7 @@ config = mw.addonManager.getConfig(__name__)
 # Backwards compatibility
 unicode = lambda *s: str(s)
 
+
 def isKanji(unichar):
     try:
         return unicodedata.name(unichar).find("CJK UNIFIED IDEOGRAPH") >= 0

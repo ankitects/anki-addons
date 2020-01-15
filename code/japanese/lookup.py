@@ -6,12 +6,12 @@
 #
 
 import re
+from urllib.parse import quote
 
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
 
-from urllib.parse import quote
 setUrl = QUrl.setUrl
 
 
