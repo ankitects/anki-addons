@@ -11,15 +11,8 @@ from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
 
-# Backwards compatibility
-try:
-    from urllib import quote  # Python 2.X
-except ImportError:
-    from urllib.parse import quote  # Python 3+
-try:
-    setUrl = QUrl.setEncodedUrl  # Python 2.X
-except AttributeError:
-    setUrl = QUrl.setUrl  # Python 3+
+from urllib.parse import quote
+setUrl = QUrl.setUrl
 
 
 class Lookup(object):

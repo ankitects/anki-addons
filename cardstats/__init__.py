@@ -113,4 +113,4 @@ action.setText("Card Stats")
 action.setCheckable(True)
 action.setShortcut(QKeySequence("Ctrl+Alt+C"))
 mw.form.menuTools.addAction(action)
-action.toggled.connect(cardStats)
+action.toggled.connect(cardStats) # type: ignore

@@ -16,15 +16,7 @@ from .notetypes import isJapaneseNoteType
 config = mw.addonManager.getConfig(__name__)
 
 # Backwards compatibility
-try:
-    UNICODE_EXISTS = bool(type(unicode))  # Python 2.X
-except NameError:
-    unicode = lambda *s: str(s)  # Python 3+
-try:
-    range = xrange  # Python 2.X
-except NameError:
-    pass  # Python 3+
-
+unicode = lambda *s: str(s)
 
 def isKanji(unichar):
     try:

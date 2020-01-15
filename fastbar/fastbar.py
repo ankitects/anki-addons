@@ -18,6 +18,8 @@
 # Released under the MIT License.
 # https://bitbucket.org/gutworth/six/src/LICENSE
 
+# type: ignore
+
 from aqt.qt import *
 from PyQt5 import QtWidgets, QtCore
 from aqt.forms.browser import Ui_Dialog

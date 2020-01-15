@@ -3,6 +3,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import re
+from typing import Dict, List
 
 from anki.utils import ids2str, intTime
 from aqt import mw
@@ -11,7 +12,7 @@ from aqt.qt import *
 
 class Wizard(QWizard):
 
-    changes = []
+    changes: List[Dict[str,str]] = []
 
     def __init__(self):
         QWizard.__init__(self)
@@ -151,7 +152,7 @@ class CommitPage(QWizardPage):
         performDeckChange(changes)
 
 
-def buildChanges(depth, deckprefix, tag):
+def buildChanges(depth, deckprefix, tag) -> List[Dict[str,str]]:
     changes = []
     for deck in sorted(mw.col.decks.all(), key=lambda x: x["name"].lower()):
         # ignore if prefix doesn't match
