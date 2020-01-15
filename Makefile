@@ -10,3 +10,7 @@ buildall:
 
 clean:
 	rm -rf _build
+
+fix:
+	../dtop/pyenv/bin/black . --exclude="fastbar|archive"
+	../dtop/pyenv/bin/isort .
