@@ -5,3 +5,4 @@ _build
 __pycache__
 meta.json
 .*.swp
+.mypy_cache
