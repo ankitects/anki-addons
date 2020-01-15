@@ -35,6 +35,11 @@ rendering process, and each time a filter is processed on the card,
 the objects can be reused.
 """
 
+
+# fixme: this is a work in progress - we need a solution for the preview
+# screen as well
+
+
 import time
 from typing import Dict, Optional, Tuple
 
