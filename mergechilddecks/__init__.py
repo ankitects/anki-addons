@@ -1,11 +1,13 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import re
+
+from anki.utils import ids2str, intTime
 from aqt import mw
 from aqt.qt import *
-from anki.utils import intTime, ids2str
+
 
 class Wizard(QWizard):
 
@@ -19,8 +21,8 @@ class Wizard(QWizard):
         self.addPage(PreviewPage())
         self.addPage(CommitPage())
 
-class OptionsPage(QWizardPage):
 
+class OptionsPage(QWizardPage):
     def __init__(self):
         QWizardPage.__init__(self)
 
@@ -39,7 +41,9 @@ class OptionsPage(QWizardPage):
         hbox.addStretch()
         vbox.addLayout(hbox)
 
-        l = QLabel("For example, if you set this to 2, cards from 'One::Two::Three' will be moved into 'One::Two'")
+        l = QLabel(
+            "For example, if you set this to 2, cards from 'One::Two::Three' will be moved into 'One::Two'"
+        )
         l.setWordWrap(True)
         vbox.addWidget(l)
 
@@ -52,7 +56,9 @@ class OptionsPage(QWizardPage):
         self.registerField("deckprefix", deck)
         hbox.addWidget(deck)
         vbox.addLayout(hbox)
-        l = QLabel("Specifying a deck here will ignore any decks that don't start with the prefix.")
+        l = QLabel(
+            "Specifying a deck here will ignore any decks that don't start with the prefix."
+        )
         l.setWordWrap(True)
         vbox.addWidget(l)
 
@@ -62,13 +68,16 @@ class OptionsPage(QWizardPage):
         tag.setChecked(True)
         self.registerField("tag", tag)
         vbox.addWidget(tag)
-        l = QLabel("When enabled, a tag based on the original child deck name will be added to notes.")
+        l = QLabel(
+            "When enabled, a tag based on the original child deck name will be added to notes."
+        )
         l.setWordWrap(True)
         vbox.addWidget(l)
 
         vbox.addStretch()
 
         self.setLayout(vbox)
+
 
 class PreviewPage(QWizardPage):
     def __init__(self):
@@ -87,9 +96,9 @@ class PreviewPage(QWizardPage):
         edit.setFont(f)
         vbox.addWidget(edit)
 
-        changes = buildChanges(self.field("depth"),
-                               self.field("deckprefix"),
-                               self.field("tag"))
+        changes = buildChanges(
+            self.field("depth"), self.field("deckprefix"), self.field("tag")
+        )
 
         self.wizard().changes = changes
 
@@ -112,9 +121,12 @@ class PreviewPage(QWizardPage):
 From: %s
   To: %s
  Tag: %s  
-""" % (change['oldname'],
-                   change['newname'],
-                   change['tag'] or "[no tag added]")
+""" % (
+            change["oldname"],
+            change["newname"],
+            change["tag"] or "[no tag added]",
+        )
+
 
 class CommitPage(QWizardPage):
     def __init__(self):
@@ -138,15 +150,16 @@ class CommitPage(QWizardPage):
         changes = self.wizard().changes
         performDeckChange(changes)
 
+
 def buildChanges(depth, deckprefix, tag):
     changes = []
-    for deck in sorted(mw.col.decks.all(), key=lambda x: x['name'].lower()):
+    for deck in sorted(mw.col.decks.all(), key=lambda x: x["name"].lower()):
         # ignore if prefix doesn't match
-        if not deck['name'].lower().startswith(deckprefix.lower()):
+        if not deck["name"].lower().startswith(deckprefix.lower()):
             continue
 
         # ignore if it's already short enough
-        components = deck['name'].split("::")
+        components = deck["name"].split("::")
         if len(components) <= depth:
             continue
 
@@ -162,13 +175,14 @@ def buildChanges(depth, deckprefix, tag):
         else:
             tag = ""
 
-        changes.append(dict(
-            oldname=deck['name'],
-            newname="::".join(newcomponents),
-            tag=tag.lower()
-        ))
+        changes.append(
+            dict(
+                oldname=deck["name"], newname="::".join(newcomponents), tag=tag.lower()
+            )
+        )
 
     return changes
+
 
 def performDeckChange(changes):
     # process in reverse order, leaves first
@@ -183,9 +197,10 @@ def performDeckChange(changes):
     finally:
         mw.progress.finish()
 
+
 def changeDeck(nameMap, change):
-    oldDid = nameMap[change['oldname']]['id']
-    newDid = nameMap[change['newname']]['id']
+    oldDid = nameMap[change["oldname"]]["id"]
+    newDid = nameMap[change["newname"]]["id"]
 
     # remove cards from any filtered decks
     cids = mw.col.db.list("select id from cards where odid=?", oldDid)
@@ -193,28 +208,37 @@ def changeDeck(nameMap, change):
         mw.col.sched.remFromDyn(cids)
 
     # tag the notes
-    if change['tag']:
+    if change["tag"]:
         nids = mw.col.db.list("select distinct nid from cards where did=?", oldDid)
         if nids:
-            mw.col.tags.bulkAdd(nids, change['tag'])
+            mw.col.tags.bulkAdd(nids, change["tag"])
 
     # move cards
     mod = intTime()
     usn = mw.col.usn()
-    mw.col.db.execute("""
+    mw.col.db.execute(
+        """
 update cards set did=?, usn=?, mod=? where did=?""",
-                      newDid, usn, mod, oldDid)
+        newDid,
+        usn,
+        mod,
+        oldDid,
+    )
 
     # remove the deck
     mw.col.decks.rem(oldDid)
 
+
 def setupMenu():
     action = QAction("Merge Child Decks...", mw)
+
     def onMergeAction():
         w = Wizard()
         w.exec()
         mw.reset()
+
     action.triggered.connect(onMergeAction)
     mw.form.menuTools.addAction(action)
+
 
 setupMenu()

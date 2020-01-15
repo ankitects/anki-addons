@@ -9,7 +9,9 @@ Support plugin here
 """
 
 from aqt import mw
+
 config = mw.addonManager.getConfig(__name__)
+
 
 def isJapaneseNoteType(noteName):
     noteName = noteName.lower()

@@ -5,12 +5,13 @@
 # Feed field HTML through BeautifulSoup to fix things like unbalanced div tags.
 #
 
+from bs4 import BeautifulSoup
+
+from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
-from anki.hooks import addHook
 from aqt.utils import showInfo
 
-from bs4 import BeautifulSoup
 
 def onFixHTML(browser):
     nids = browser.selectedNotes()
@@ -31,14 +32,16 @@ def onFixHTML(browser):
 
     showInfo("Updated %d/%d notes." % (changed, len(nids)), parent=browser)
 
+
 def _onFixHTML(browser, nids):
     changed = 0
     for c, nid in enumerate(nids):
         note = mw.col.getNote(nid)
         if _fixNoteHTML(note):
             changed += 1
-        mw.progress.update(label="Processed %d/%d notes" % (c+1, len(nids)))
+        mw.progress.update(label="Processed %d/%d notes" % (c + 1, len(nids)))
     return changed
+
 
 # true on change
 def _fixNoteHTML(note):
@@ -54,6 +57,7 @@ def _fixNoteHTML(note):
 
     return changed
 
+
 def onMenuSetup(browser):
     act = QAction(browser)
     act.setText("Fix Invalid HTML")
@@ -61,5 +65,6 @@ def onMenuSetup(browser):
     mn.addSeparator()
     mn.addAction(act)
     act.triggered.connect(lambda b=browser: onFixHTML(browser))
+
 
 addHook("browser.setupMenus", onMenuSetup)

@@ -11,6 +11,7 @@ from aqt import mw
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
+
 class CardStats(object):
     def __init__(self, mw):
         self.mw = mw
@@ -22,9 +23,11 @@ class CardStats(object):
     def _addDockable(self, title, w):
         class DockableWithClose(QDockWidget):
             closed = pyqtSignal()
+
             def closeEvent(self, evt):
                 self.closed.emit()
                 QDockWidget.closeEvent(self, evt)
+
         dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
         dock.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
@@ -40,9 +43,11 @@ class CardStats(object):
 
     def show(self):
         if not self.shown:
+
             class ThinAnkiWebView(AnkiWebView):
                 def sizeHint(self):
                     return QSize(200, 100)
+
             self.web = ThinAnkiWebView()
             self.shown = self._addDockable(("Card Info"), self.web)
             self.shown.closed.connect(self._onClosed)
@@ -52,7 +57,7 @@ class CardStats(object):
         if self.shown:
             self._remDockable(self.shown)
             self.shown = None
-            #actionself.mw.form.actionCstats.setChecked(False)
+            # actionself.mw.form.actionCstats.setChecked(False)
 
     def toggle(self):
         if self.shown:
@@ -71,30 +76,37 @@ class CardStats(object):
         r = self.mw.reviewer
         d = self.mw.col
         if r.card:
-            txt += ("<h3>Current</h3>")
+            txt += "<h3>Current</h3>"
             txt += d.cardStats(r.card)
         lc = r.lastCard()
         if lc:
-            txt += ("<h3>Last</h3>")
+            txt += "<h3>Last</h3>"
             txt += d.cardStats(lc)
         if not txt:
-            txt = ("No current card or last card.")
+            txt = "No current card or last card."
         style = self._style()
-        self.web.setHtml("""
+        self.web.setHtml(
+            """
 <html><head>
 </head><style>%s</style>
-<body><center>%s</center></body></html>"""% (style, txt))
+<body><center>%s</center></body></html>"""
+            % (style, txt)
+        )
 
     def _style(self):
         from anki import version
+
         if version.startswith("2.0."):
             return ""
         return "td { font-size: 80%; }"
 
+
 _cs = CardStats(mw)
+
 
 def cardStats(on):
     _cs.toggle()
+
 
 action = QAction(mw)
 action.setText("Card Stats")

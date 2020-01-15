@@ -5,32 +5,38 @@
 # Automatic reading generation with kakasi and mecab.
 #
 
-import sys, os, re, subprocess
-from anki.utils import stripHTML, isWin, isMac
+import os
+import re
+import subprocess
+import sys
+
 from anki.hooks import addHook
+from anki.utils import isMac, isWin, stripHTML
+from aqt import mw
+
 from .notetypes import isJapaneseNoteType
 
-from aqt import mw
 config = mw.addonManager.getConfig(__name__)
 
-srcFields = config['srcFields']
-dstFields = config['dstFields']
-furiganaFieldSuffix = config['furiganaSuffix']
+srcFields = config["srcFields"]
+dstFields = config["dstFields"]
+furiganaFieldSuffix = config["furiganaSuffix"]
 
 kakasiArgs = ["-isjis", "-osjis", "-u", "-JH", "-KH"]
-mecabArgs = ['--node-format=%m[%f[7]] ', '--eos-format=\n',
-            '--unk-format=%m[] ']
+mecabArgs = ["--node-format=%m[%f[7]] ", "--eos-format=\n", "--unk-format=%m[] "]
 
 supportDir = os.path.join(os.path.dirname(__file__), "support")
+
 
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
     text = text.replace("\n", " ")
-    text = text.replace(u'\uff5e', "~")
+    text = text.replace(u"\uff5e", "~")
     text = re.sub("<br( /)?>", "---newline---", text)
     text = stripHTML(text)
     text = text.replace("---newline---", "<br>")
     return text
+
 
 if sys.platform == "win32":
     si = subprocess.STARTUPINFO()
@@ -45,6 +51,7 @@ else:
 # Mecab
 ##########################################################################
 
+
 def mungeForPlatform(popen):
     if isWin:
         popen = [os.path.normpath(x) for x in popen]
@@ -53,18 +60,26 @@ def mungeForPlatform(popen):
         popen[0] += ".lin"
     return popen
 
-class MecabController(object):
 
+class MecabController(object):
     def __init__(self):
         self.mecab = None
 
     def setup(self):
         self.mecabCmd = mungeForPlatform(
-            [os.path.join(supportDir, "mecab")] + mecabArgs + [
-                '-d', supportDir, '-r', os.path.join(supportDir, "mecabrc"),
-                '-u', os.path.join(supportDir, "user_dic.dic")])
-        os.environ['DYLD_LIBRARY_PATH'] = supportDir
-        os.environ['LD_LIBRARY_PATH'] = supportDir
+            [os.path.join(supportDir, "mecab")]
+            + mecabArgs
+            + [
+                "-d",
+                supportDir,
+                "-r",
+                os.path.join(supportDir, "mecabrc"),
+                "-u",
+                os.path.join(supportDir, "user_dic.dic"),
+            ]
+        )
+        os.environ["DYLD_LIBRARY_PATH"] = supportDir
+        os.environ["LD_LIBRARY_PATH"] = supportDir
         if not isWin:
             os.chmod(self.mecabCmd[0], 0o755)
 
@@ -73,18 +88,24 @@ class MecabController(object):
             self.setup()
             try:
                 self.mecab = subprocess.Popen(
-                    self.mecabCmd, bufsize=-1, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    startupinfo=si)
+                    self.mecabCmd,
+                    bufsize=-1,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    startupinfo=si,
+                )
             except OSError:
-                raise Exception("Please ensure your Linux system has 64 bit binary support.")
+                raise Exception(
+                    "Please ensure your Linux system has 64 bit binary support."
+                )
 
     def reading(self, expr):
         self.ensureOpen()
         expr = escapeText(expr)
-        self.mecab.stdin.write(expr.encode("utf-8", "ignore") + b'\n')
+        self.mecab.stdin.write(expr.encode("utf-8", "ignore") + b"\n")
         self.mecab.stdin.flush()
-        expr = self.mecab.stdout.readline().rstrip(b'\r\n').decode('utf-8', "replace")
+        expr = self.mecab.stdout.readline().rstrip(b"\r\n").decode("utf-8", "replace")
         out = []
         for node in expr.split(" "):
             if not node:
@@ -92,8 +113,10 @@ class MecabController(object):
             m = re.match(r"(.+)\[(.*)\]", node)
             if not m:
                 sys.stderr.write(
-                    "Unexpected output from mecab. Perhaps your Windows username contains non-Latin text?: {}\n".
-                        format(repr(expr)))
+                    "Unexpected output from mecab. Perhaps your Windows username contains non-Latin text?: {}\n".format(
+                        repr(expr)
+                    )
+                )
                 return ""
 
             (kanji, reading) = m.groups()
@@ -119,48 +142,60 @@ class MecabController(object):
             # reading should always be at least as long as the kanji
             placeL = 0
             placeR = 0
-            for i in range(1,len(kanji)):
+            for i in range(1, len(kanji)):
                 if kanji[-i] != reading[-i]:
                     break
                 placeR = i
-            for i in range(0,len(kanji)-1):
+            for i in range(0, len(kanji) - 1):
                 if kanji[i] != reading[i]:
                     break
-                placeL = i+1
+                placeL = i + 1
             if placeL == 0:
                 if placeR == 0:
                     out.append(" %s[%s]" % (kanji, reading))
                 else:
-                    out.append(" %s[%s]%s" % (
-                        kanji[:-placeR], reading[:-placeR], reading[-placeR:]))
+                    out.append(
+                        " %s[%s]%s"
+                        % (kanji[:-placeR], reading[:-placeR], reading[-placeR:])
+                    )
             else:
                 if placeR == 0:
-                    out.append("%s %s[%s]" % (
-                        reading[:placeL], kanji[placeL:], reading[placeL:]))
+                    out.append(
+                        "%s %s[%s]"
+                        % (reading[:placeL], kanji[placeL:], reading[placeL:])
+                    )
                 else:
-                    out.append("%s %s[%s]%s" % (
-                        reading[:placeL], kanji[placeL:-placeR],
-                        reading[placeL:-placeR], reading[-placeR:]))
+                    out.append(
+                        "%s %s[%s]%s"
+                        % (
+                            reading[:placeL],
+                            kanji[placeL:-placeR],
+                            reading[placeL:-placeR],
+                            reading[-placeR:],
+                        )
+                    )
         fin = u""
         for c, s in enumerate(out):
-            if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c+1]):
+            if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c + 1]):
                 s += " "
             fin += s
         return fin.strip().replace("< br>", "<br>")
 
+
 # Kakasi
 ##########################################################################
 
-class KakasiController(object):
 
+class KakasiController(object):
     def __init__(self):
         self.kakasi = None
 
     def setup(self):
         self.kakasiCmd = mungeForPlatform(
-            [os.path.join(supportDir, "kakasi")] + kakasiArgs)
-        os.environ['ITAIJIDICT'] = os.path.join(supportDir, "itaijidict")
-        os.environ['KANWADICT'] = os.path.join(supportDir, "kanwadict")
+            [os.path.join(supportDir, "kakasi")] + kakasiArgs
+        )
+        os.environ["ITAIJIDICT"] = os.path.join(supportDir, "itaijidict")
+        os.environ["KANWADICT"] = os.path.join(supportDir, "kanwadict")
         if not isWin:
             os.chmod(self.kakasiCmd[0], 0o755)
 
@@ -169,34 +204,41 @@ class KakasiController(object):
             self.setup()
             try:
                 self.kakasi = subprocess.Popen(
-                    self.kakasiCmd, bufsize=-1, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    startupinfo=si)
+                    self.kakasiCmd,
+                    bufsize=-1,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    startupinfo=si,
+                )
             except OSError:
                 raise Exception("Please install kakasi")
 
     def reading(self, expr):
         self.ensureOpen()
         expr = escapeText(expr)
-        self.kakasi.stdin.write(expr.encode("sjis", "ignore") + b'\n')
+        self.kakasi.stdin.write(expr.encode("sjis", "ignore") + b"\n")
         self.kakasi.stdin.flush()
-        res = self.kakasi.stdout.readline().rstrip(b'\r\n').decode("sjis", "replace")
+        res = self.kakasi.stdout.readline().rstrip(b"\r\n").decode("sjis", "replace")
         return res
+
 
 # Focus lost hook
 ##########################################################################
 
 mecab = None
 
+
 def onFocusLost(flag, n, fidx):
     # japanese model?
-    if not isJapaneseNoteType(n.model()['name']):
+    if not isJapaneseNoteType(n.model()["name"]):
         return flag
     fields = mw.col.models.fieldNames(n.model())
     src = fields[fidx]
     if not regenerateReading(n, src):
         return flag
     return True
+
 
 def regenerateReading(n, src):
     global mecab
@@ -229,13 +271,14 @@ def regenerateReading(n, src):
         raise
     return True
 
+
 # Init
 ##########################################################################
 
 kakasi = KakasiController()
 mecab = MecabController()
 
-addHook('editFocusLost', onFocusLost)
+addHook("editFocusLost", onFocusLost)
 
 # Tests
 ##########################################################################

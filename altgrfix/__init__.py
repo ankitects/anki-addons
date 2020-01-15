@@ -2,6 +2,8 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 from aqt.qt import *
+from aqt.webview import AnkiWebView
+
 
 def _runJavaScriptSync(page, js, timeout=500):
     result = None
@@ -24,7 +26,7 @@ def _runJavaScriptSync(page, js, timeout=500):
         eventLoop.exec_()
 
     if not called:
-        print('runJavaScriptSync() timed out')
+        print("runJavaScriptSync() timed out")
     return result
 
 
@@ -33,14 +35,14 @@ def event(self, evt):
         # alt-gr bug workaround
         exceptChars = (str(num) for num in range(1, 10))
         if evt.text() not in exceptChars:
-            js = '''
+            js = """
 var e=document.activeElement;
 (e.tagName === "DIV" && e.contentEditable) ||
-["INPUT", "TEXTAREA"].indexOf(document.activeElement.tagName) !== -1'''
+["INPUT", "TEXTAREA"].indexOf(document.activeElement.tagName) !== -1"""
             if _runJavaScriptSync(self.page(), js, timeout=100):
                 evt.accept()
                 return True
     return QWebEngineView.event(self, evt)
 
-from aqt.webview import AnkiWebView
+
 AnkiWebView.event = event

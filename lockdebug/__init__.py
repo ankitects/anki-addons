@@ -17,7 +17,9 @@ def closeReplacement(self, save=True):
                     # try roll back first
                     self.db.rollback()
                     self.db.execute("pragma journal_mode = delete")
-                    raise Exception("lockdebug: please let support know that attempt 1 succeeded.")
+                    raise Exception(
+                        "lockdebug: please let support know that attempt 1 succeeded."
+                    )
                 except Exception as e:
                     if "database is locked" not in str(e):
                         raise
@@ -28,12 +30,16 @@ def closeReplacement(self, save=True):
                         self.db = None
                         self.reopen()
                         self.db.execute("pragma journal_mode = delete")
-                        raise Exception("lockdebug: please let support know that attempt 2 succeeded.")
+                        raise Exception(
+                            "lockdebug: please let support know that attempt 2 succeeded."
+                        )
                     except Exception as e:
                         if "database is locked" not in str(e):
                             raise
 
-                        raise Exception("lockdebug: please let support know both attempts failed")
+                        raise Exception(
+                            "lockdebug: please let support know both attempts failed"
+                        )
 
             self.db.setAutocommit(False)
         self.db.close()
@@ -41,5 +47,7 @@ def closeReplacement(self, save=True):
         self.media.close()
         self._closeLog()
 
+
 from anki.collection import _Collection
-_Collection.close=closeReplacement
+
+_Collection.close = closeReplacement

@@ -8,10 +8,11 @@
 import re
 import time
 
+from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
-from anki.hooks import addHook
 from aqt.utils import showInfo
+
 
 def onLocalize(browser):
     nids = browser.selectedNotes()
@@ -32,22 +33,29 @@ def onLocalize(browser):
     if success:
         showInfo("Checked %d notes" % len(nids), parent=browser)
 
+
 def _localizeNids(browser, nids):
     for c, nid in enumerate(nids):
         note = mw.col.getNote(nid)
         if not _localizeNote(browser, note):
             mw.progress.finish()
-            showInfo("Aborted after processing %d notes. Any media already downloaded has been saved." % (c))
+            showInfo(
+                "Aborted after processing %d notes. Any media already downloaded has been saved."
+                % (c)
+            )
             return
 
-        mw.progress.update(label="Successfully processed %d/%d notes" % (c+1, len(nids)))
+        mw.progress.update(
+            label="Successfully processed %d/%d notes" % (c + 1, len(nids))
+        )
     return True
+
 
 # true on success
 def _localizeNote(browser, note):
     for fld, val in note.items():
         # any remote links?
-        files = mw.col.media.filesInStr(note.model()['id'], val, includeRemote=True)
+        files = mw.col.media.filesInStr(note.model()["id"], val, includeRemote=True)
         found = False
         for file in files:
             if file.startswith("http://") or file.startswith("https://"):
@@ -74,11 +82,14 @@ def _localizeNote(browser, note):
                     # don't overburden the server(s)
                     time.sleep(1)
                 elif fname.startswith("data:image"):
-                    val = val.replace(fname, browser.editor.inlinedImageToFilename(fname))
+                    val = val.replace(
+                        fname, browser.editor.inlinedImageToFilename(fname)
+                    )
 
         note[fld] = val
         note.flush()
     return True
+
 
 def onMenuSetup(browser):
     act = QAction(browser)
@@ -87,5 +98,6 @@ def onMenuSetup(browser):
     mn.addSeparator()
     mn.addAction(act)
     act.triggered.connect(lambda b=browser: onLocalize(browser))
+
 
 addHook("browser.setupMenus", onMenuSetup)

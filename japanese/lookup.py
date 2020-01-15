@@ -6,6 +6,7 @@
 #
 
 import re
+
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -16,12 +17,12 @@ try:
 except ImportError:
     from urllib.parse import quote  # Python 3+
 try:
-    setUrl = QUrl.setEncodedUrl # Python 2.X
+    setUrl = QUrl.setEncodedUrl  # Python 2.X
 except AttributeError:
-    setUrl = QUrl.setUrl # Python 3+
+    setUrl = QUrl.setUrl  # Python 3+
+
 
 class Lookup(object):
-
     def __init__(self):
         pass
 
@@ -43,10 +44,10 @@ class Lookup(object):
     def edict(self, text, kanji=False):
         "Look up TEXT with edict."
         if kanji:
-            x="M"
+            x = "M"
         else:
-            x="U"
-        baseUrl="http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
+            x = "U"
+        baseUrl = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
         if self.isJapaneseText(text):
             baseUrl += "J"
         else:
@@ -62,13 +63,13 @@ class Lookup(object):
     def jisho(self, text, kanji=False):
         "Look up TEXT with jisho."
         if kanji:
-            baseUrl="http://jisho.org/kanji/details/"
+            baseUrl = "http://jisho.org/kanji/details/"
         else:
-            baseUrl="http://jisho.org/words?"
+            baseUrl = "http://jisho.org/words?"
             if self.isJapaneseText(text):
-                baseUrl+="jap="
+                baseUrl += "jap="
             else:
-                baseUrl+="eng="
+                baseUrl += "eng="
         url = baseUrl + quote(text.encode("utf-8"))
         qurl = QUrl()
         setUrl(qurl, url)
@@ -77,10 +78,7 @@ class Lookup(object):
     def alc(self, text):
         "Look up TEXT with ALC."
         newText = quote(text.encode("utf-8"))
-        url = (
-            "http://eow.alc.co.jp/" +
-            newText +
-            "/UTF-8/?ref=sa")
+        url = "http://eow.alc.co.jp/" + newText + "/UTF-8/?ref=sa"
         qurl = QUrl()
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
@@ -101,15 +99,18 @@ class Lookup(object):
             return False
         return ((jp + 1) / float(en + 1)) >= 1.0
 
+
 def initLookup():
     if not getattr(mw, "lookup", None):
         mw.lookup = Lookup()
+
 
 def _field(name):
     try:
         return mw.reviewer.card.note()[name]
     except:
         return
+
 
 def onLookupExpression(name="Expression"):
     initLookup()
@@ -118,28 +119,35 @@ def onLookupExpression(name="Expression"):
         return showInfo("No %s in current note." % name)
     mw.lookup.alc(txt)
 
+
 def onLookupMeaning():
     onLookupExpression("Meaning")
+
 
 def onLookupEdictSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.edict)
 
+
 def onLookupEdictKanjiSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.edictKanji)
+
 
 def onLookupJishoSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.jisho)
 
+
 def onLookupJishoKanjiSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.jishoKanji)
 
+
 def onLookupAlcSelection():
     initLookup()
     mw.lookup.selection(mw.lookup.alc)
+
 
 def createMenu():
     # pylint: disable=unnecessary-lambda
@@ -187,6 +195,7 @@ def createMenu():
     a.setShortcut("Ctrl+Shift+7")
     ml.addAction(a)
     a.triggered.connect(onLookupJishoKanjiSelection)
+
 
 # def disableMenu():
 #     mw.mainWin.menuLookup.setEnabled(False)
