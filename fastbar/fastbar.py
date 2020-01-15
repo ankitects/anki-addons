@@ -109,7 +109,7 @@ class Fastbar:
         if bur:
             self.col.sched.buryCards(c)
         else:
-            self.col.sched.unburiedCards(c)
+            self.col.sched.unburyCards(c)
         self.model.reset()
         self.mw.requireReset()
 
