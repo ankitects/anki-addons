@@ -3,7 +3,7 @@ import json
 import os
 import subprocess
 
-build_dir = "_build"
+build_dir = "../build"
 
 
 def addons():

@@ -1,15 +1,15 @@
-all: prepare buildall
+all: buildall
 
 prepare:
 	find . -name '*.pyc' -delete
 	find . -name __pycache__ -delete
 
-buildall:
-	test -d _build || mkdir _build
-	python3 build.py
+buildall: check prepare
+	test -d build || mkdir build
+	(cd code && python3 ../build.py)
 
 clean:
-	rm -rf _build
+	rm -rf build
 
 fix:
 	../dtop/pyenv/bin/black code
