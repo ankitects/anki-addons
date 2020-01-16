@@ -12,10 +12,10 @@ clean:
 	rm -rf build
 
 fix:
-	../dtop/pyenv/bin/black code
-	../dtop/pyenv/bin/isort code
+	../dtop/pyenv/bin/black code demos
+	../dtop/pyenv/bin/isort code demos
 
 check:
-	../dtop/pyenv/bin/mypy code
+	../dtop/pyenv/bin/mypy code demos
 	../dtop/pyenv/bin/pylint -j 0 --rcfile=../dtop/pylib/.pylintrc -f colorized \
-	--extension-pkg-whitelist=ankirspy,PyQt5 code/*
+	--extension-pkg-whitelist=ankirspy,PyQt5 code/* demos/*

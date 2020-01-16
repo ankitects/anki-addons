@@ -46,6 +46,7 @@ import time
 from anki import hooks
 from anki.template import TemplateRenderContext
 
+
 # called each time a custom filter is encountered
 def my_field_filter(
     field_text: str, field_name: str, filter_name: str, context: TemplateRenderContext,
@@ -86,6 +87,7 @@ def note_creation(ctx: TemplateRenderContext) -> str:
     note_creation_unix_timestamp = ctx.note().id // 1000
     # convert timestamp to a human years-months-days
     return time.strftime("%Y-%m-%d", time.localtime(note_creation_unix_timestamp))
+
 
 # register our function to be called when the hook fires
 hooks.field_filter.append(my_field_filter)
