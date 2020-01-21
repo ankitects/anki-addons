@@ -12,7 +12,7 @@ clean:
 	rm -rf build
 
 fix:
-	../dtop/pyenv/bin/black code demos
+	../dtop/pyenv/bin/black --exclude=vendor/ code demos
 	../dtop/pyenv/bin/isort code demos
 
 check:
