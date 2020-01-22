@@ -26,7 +26,7 @@ from aqt.tts import TTSProcessPlayer, TTSVoice
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 
-from gtts import gTTS  # isort:skip
+from gtts import gTTS  # isort:skip pylint: disable=import-error
 
 # this is the language map that gtts.lang.tts_langs() outputs
 orig_langs = {
@@ -132,7 +132,7 @@ class GTTSPlayer(TTSProcessPlayer):
 
             # add the voice using the name "gtts"
             voices.append(GTTSVoice(name="gtts", lang=std_code, gtts_lang=code))
-        return voices
+        return voices  # type: ignore
 
     # this is called on a background thread, and will not block the UI
     def _play(self, tag: AVTag) -> None:
@@ -160,8 +160,6 @@ class GTTSPlayer(TTSProcessPlayer):
             return
 
         # inject file into the top of the audio queue
-        from aqt.sound import av_player
-
         av_player.insert_file(self._tmpfile)
 
         # then tell player to advance, which will cause the file to be played
