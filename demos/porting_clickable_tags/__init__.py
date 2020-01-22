@@ -14,36 +14,51 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from re import sub
+"""
+An example of porting old template/wrapping code to Anki 2.1.20.
 
-from anki.cards import Card
-from anki.hooks import wrap
-from anki.template import Template
-from aqt import dialogs
+The add-on now looks for {{clickable:Tags}} instead of just {{Tags}}
+on the template.
+"""
+
+
+from anki import hooks
+from anki.template import TemplateRenderContext
+from aqt import dialogs, gui_hooks, mw
 from aqt.qt import Qt
-from aqt.reviewer import Reviewer
+
+# Responding to clicks
+############################
 
 
-def linkHandler(self, url, _old):
-    if url.startswith('ct_click_'):
-        tag = url.replace('ct_click_', '')
-        browser = dialogs.open('Browser', self.mw)
+def on_js_message(handled, msg, context):
+    if context == "card_layout":
+        # avoid the card layout screen, as it's a modal dialog
+        return handled
+
+    if msg.startswith("ct_click_"):
+        tag = msg.replace("ct_click_", "")
+        browser = dialogs.open("Browser", mw)
         browser.setFilter('"tag:%s"' % tag)
-    elif url.startswith('ct_dblclick_'):
-        tag, deck = url.replace('ct_dblclick_', '').split('|')
-        browser = dialogs.open('Browser', self.mw)
+        return True, None
+    elif msg.startswith("ct_dblclick_"):
+        tag, deck = msg.replace("ct_dblclick_", "").split("|")
+        browser = dialogs.open("Browser", mw)
         browser.setFilter('"tag:%s" "deck:%s"' % (tag, deck))
         browser.setWindowState(
             browser.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
         )
-    else:
-        return _old(self, url)
+        return True, None
+
+    return handled
 
 
-def css(self, _old):
-    return (
-        _old(self)
-        + """
+gui_hooks.webview_did_receive_js_message.append(on_js_message)
+
+# Adding CSS/JS to card
+############################
+
+add_to_card = """
 <style>
   kbd {
     box-shadow: inset 0 1px 0 0 white;
@@ -70,39 +85,45 @@ def css(self, _old):
     cursor: hand;
   }
 </style>
-"""
-    )
-
-
-def render(self, template, context, encoding, _old):
-    js = """
 <script type="text/javascript">
-  function ct_click(tag) {
+function ct_click(tag) {
     pycmd("ct_click_" + tag)
-  }
-  function ct_dblclick(tag, deck) {
+}
+function ct_dblclick(tag, deck) {
     pycmd("ct_dblclick_" + tag + "|" + deck)
-  }
+}
 </script>
 """
+
+
+def on_card_render(text, context):
+    qtext, atext = text
+
+    return qtext + add_to_card, atext + add_to_card
+
+
+hooks.card_did_render.append(on_card_render)
+
+# Handling {{clickable:Tags}}
+################################
+
+
+def on_field_filter(text, field, filter, context: TemplateRenderContext):
+    if filter != "clickable" or field != "Tags":
+        return text
+
     kbd = """
 <kbd onclick="ct_click('{tag}')" ondblclick="ct_dblclick('{tag}', '{deck}')">
   {tag}
 </kbd>
 """
-    template = template or self.template
-    context = context or self.context
-    if context is not None:
-        s = ''.join(
-            [
-                kbd.format(tag=tag, deck=context['Deck'])
-                for tag in context['Tags'].split()
-            ]
-        )
-        template = sub('{{Tags}}', s + js, template)
-    return _old(self, template, context, encoding)
+
+    return "".join(
+        [
+            kbd.format(tag=tag, deck=context.fields()["Deck"])
+            for tag in context.fields()["Tags"].split()
+        ]
+    )
 
 
-Card.css = wrap(Card.css, css, 'around')
-Reviewer._linkHandler = wrap(Reviewer._linkHandler, linkHandler, 'around')
-Template.render = wrap(Template.render, render, 'around')
+hooks.field_filter.append(on_field_filter)
