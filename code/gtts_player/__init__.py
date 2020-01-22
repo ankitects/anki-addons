@@ -4,12 +4,12 @@
 """
 An example of how other TTS services can be added to Anki.
 
-This add-on registers all voices with the name 'gtts', meaning if the user
+This add-on registers all voices with the name 'gTTS', meaning if the user
 wishes to use it in preference to any other TTS drivers that are registered,
 they can use the following in their template, changing en_US to another language
 as necessary:
 
-{{tts en_US voices=gtts:Field}}
+{{tts en_US voices=gTTS:Field}}
 """
 
 import os
@@ -131,7 +131,7 @@ class GTTSPlayer(TTSProcessPlayer):
                 std_code = compatMap.get(code, "unknown")
 
             # add the voice using the name "gtts"
-            voices.append(GTTSVoice(name="gtts", lang=std_code, gtts_lang=code))
+            voices.append(GTTSVoice(name="gTTS", lang=std_code, gtts_lang=code))
         return voices  # type: ignore
 
     # this is called on a background thread, and will not block the UI
