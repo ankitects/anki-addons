@@ -118,7 +118,7 @@ class GTTSVoice(TTSVoice):
 
 
 class GTTSPlayer(TTSProcessPlayer):
-    # this is called at program startup to get a list of all available voices
+    # this is called the first time Anki tries to play a TTS file
     def get_available_voices(self) -> List[TTSVoice]:
         voices = []
         for code, name in orig_langs.items():
@@ -141,6 +141,10 @@ class GTTSPlayer(TTSProcessPlayer):
         match = self.voice_for_tag(tag)
         assert match
         voice = cast(GTTSVoice, match.voice)
+
+        # is the field blank?
+        if not tag.field_text.strip():
+            return
 
         # get filename, and skip if already generated
         self._tmpfile = self.temp_file_for_tag_and_voice(tag, match.voice) + ".mp3"
