@@ -28,25 +28,34 @@ https://ankiweb.net/shared/info/441235634
 "_Young_Mature_Card_Fields" which from
   https://ankiweb.net/shared/info/1751807495
   https://github.com/ankitest/anki-musthave-addons-by-ankitest
+
+Updated for Anki 2.1.20. The template syntax has changed from
+
+{{info::LastReview}}
+
+to
+
+{{info-LastReview:}}
+
+The latter syntax will not display errors on Anki 2.1.20 or
+AnkiMobile 2.0.56.
 """
 
-import collections
-import copy
-import re
 import time
+from typing import Any, Dict
 
-from anki import version as ankiversion
-from anki.collection import _Collection
-from anki.hooks import wrap
+from anki import hooks
 from anki.stats import CardStats
-from anki.template.template import *
+from anki.template import TemplateRenderContext
 from anki.utils import fmtTimeSpan, isWin, stripHTML
 from aqt import mw
-from aqt.utils import tooltip
 
 
 def gc(arg, fail=False):
-    return mw.addonManager.getConfig(__name__).get(arg, fail)
+    conf = mw.addonManager.getConfig(__name__)
+    if conf:
+        return conf.get(arg, fail)
+    return fail
 
 
 # this is function timefn is from anki from anki/stats.py which is at
@@ -94,8 +103,8 @@ def external_file_link(card, model):
             if f["name"] == field_for_page:
                 page = note.fields[i]
         try:
-            file
-            page
+            file  # pylint: disable=pointless-statement
+            page  # pylint: disable=pointless-statement
         except:
             return ""
         f = stripHTML(file)
@@ -109,32 +118,29 @@ def external_file_link(card, model):
         return out
 
 
-# this is a modification of a function from anki/collection.py
-def _renderQA(self, data, qfmt=None, afmt=None, _old=None):
-    """
-    this function overwrites a function from collection.py
-    The beginning of this function reads:
-        "Returns hash of id, question, answer."
-        # data is [cid, nid, mid, did, ord, tags, flds]
-        # unpack fields and create dict
-    """
-    data = list(data)
-    origFieldMap = self.models.fieldMap
-    model = self.models.get(data[2])
-    if data[0] is None:
-        card = None
-    elif data[0] == 1:
-        card = None
-    else:
-        try:
-            card = self.getCard(data[0])
-        except:
-            card = None
+def on_field_filter(
+    text: str, field: str, filter: str, context: TemplateRenderContext
+) -> str:
+    if not filter.startswith("info-"):
+        return text
 
-    origdata = copy.copy(data)
-    data[6] += "\x1f"
+    # generate fields if not yet generated
+    if "info_fields" not in context.extra_state:
+        context.extra_state["info_fields"] = get_all_fields(context)
+    info_fields: Dict[str, Any] = context.extra_state["info_fields"]
 
-    addInfo = collections.OrderedDict()
+    # extract the requested field
+    info, field = filter.split("-", maxsplit=1)
+
+    return str(info_fields.get(field, f"Unknown field: {field}"))
+
+
+hooks.field_filter.append(on_field_filter)
+
+
+def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
+    addInfo: Dict[str, Any] = {}
+    card = context.card()
 
     if card is not None:
         r = mw.reviewer
@@ -146,7 +152,7 @@ def _renderQA(self, data, qfmt=None, afmt=None, _old=None):
         else:
             conf = d.decks.confForDid(card.did)
 
-        (first, last, cnt, total) = self.db.first(
+        (first, last, cnt, total) = mw.col.db.first(
             "select min(id), max(id), count(), sum(time)/1000 from revlog where cid = :id",
             id=card.id,
         )
@@ -170,10 +176,9 @@ def _renderQA(self, data, qfmt=None, afmt=None, _old=None):
                 )
                 addInfo["overdue_days"] = str(cOverdueIvl)
 
-        model = self.models.get(data[2])
-        addInfo["external_file_link"] = external_file_link(card, model)
+        addInfo["external_file_link"] = external_file_link(card, context.note_type())
 
-        addInfo["Ord"] = data[4]
+        addInfo["Ord"] = context.card_ord()
         addInfo["Did"] = card.did
         addInfo["Due"] = card.due
         addInfo["Id"] = card.id
@@ -234,98 +239,14 @@ def _renderQA(self, data, qfmt=None, afmt=None, _old=None):
 
         # add your additional fields here
 
-    # for debugging quickly add all values to template
+    # for debugging quickly
     tt = " <table>" + "\n"
-    for k in addInfo.keys():
-        tt += (
-            '<tr><td align="left">%s </td><td align="left">  {{info::%s}}  </td></tr> +\n'
-            % (k, k)
+    for k in sorted(addInfo.keys()):
+        tt += '<tr><td align="left">%s </td><td align="left">  %s  </td></tr> +\n' % (
+            k,
+            addInfo[k],
         )
     tt += " </table>" + "\n"
     addInfo["allfields"] = tt
 
-    additionalFields = [""] * len(addInfo)
-
-    for i, v in enumerate(addInfo.values()):
-        additionalFields[i] = str(v)
-
-    data[6] += "\x1f".join(additionalFields)  # \x1f is used as a field separator
-
-    def tmpFieldMap(m):
-        "Mapping of field name -> (ord, field)."
-        d = dict((f["name"], (f["ord"], f)) for f in m["flds"])
-
-        newFields = []
-        for k in addInfo.keys():
-            newFields.append("info::" + k)
-
-        for i, f in enumerate(newFields):
-            d[f] = (len(m["flds"]) + i, 0)
-        return d
-
-    self.models.fieldMap = tmpFieldMap
-
-    data = tuple(data)
-    result = _old(self, data, qfmt, afmt)
-    data = origdata
-    self.models.fieldMap = origFieldMap
-    return result
-
-
-# this is a modification of a function from anki/collection.py
-def previewCards(self, note, type=0, did=None):
-    existingTemplates = {c.template()["name"]: c for c in note.cards()}
-    if type == 0:
-        cms = self.findTemplates(note)
-    elif type == 1:
-        cms = [c.template().name() for c in note.cards()]
-    else:
-        cms = note.model()["tmpls"]
-    if not cms:
-        return []
-    cards = []
-    for template in cms:
-        if template["name"] in existingTemplates:
-            card = existingTemplates[template["name"]]
-        else:
-            # compatibility for 2.1.9+, see https://github.com/ijgnd/anki21__additional_card_fields_during_review/pull/1
-            # because of https://github.com/dae/anki/commit/d8f059b570a8f2e99348a8b6c2b521f46bf141ef
-            if ankiversion in ["2.1.%d " % d for d in range(0, 9)]:
-                card = self._newCard(note, template, 1, flush=False, did=did)
-            else:
-                card = self._newCard(note, template, 1, flush=False)
-        cards.append(card)
-    return cards
-
-
-# maybe need to increase repCount?
-# this function is from anki/template/template.py
-def render_tags(self, template, context):
-    """Renders all the tags in a template for a context."""
-    repCount = 0
-    while 1:
-        if repCount > 200:  # mod
-            print("too many replacements")
-            break
-        repCount += 1
-
-        match = self.tag_re.search(template)
-        if match is None:
-            break
-
-        tag, tag_type, tag_name = match.group(0, 1, 2)
-        tag_name = tag_name.strip()
-        try:
-            func = modifiers[tag_type]
-            replacement = func(self, tag_name, context)
-            template = template.replace(tag, replacement)
-        except (SyntaxError, KeyError):
-            return "{{invalid template}}"
-
-    return template
-
-
-if gc("increase_repCount", False):
-    Template.render_tags = render_tags
-_Collection._renderQA = wrap(_Collection._renderQA, _renderQA, "around")
-_Collection.previewCards = previewCards
+    return addInfo
