@@ -51,6 +51,7 @@ img { max-width: 100%; }
 tr { page-break-inside:avoid; page-break-after:auto }
 td { page-break-after:auto; }
 td { border: 1px solid #ccc; padding: 1em; }
+.playImage { display: none; }
 </style><table cellspacing=10 width=100%>"""
     )
     first = True
@@ -64,8 +65,8 @@ td { border: 1px solid #ccc; padding: 1em; }
                 first = False
             buf.write("<tr>")
         c = mw.col.getCard(cid)
-        qatxt = c._getQA(True, False)["a"]
-        qatxt = mungeQA(mw.col, qatxt)
+        qatxt = c.render_output(True, False).answer_text
+        qatxt = mw.prepare_card_text_for_display(qatxt)
         cont = u'<td width="{1}%"><center>{0}</center></td>'.format(
             esc(qatxt), 100 / config["cardsPerRow"]
         )
