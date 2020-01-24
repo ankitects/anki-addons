@@ -61,10 +61,6 @@ def my_field_filter(
     except ValueError:
         return invalid_name(filter_name)
 
-    # if in the adding screen, the card hasn't been saved to DB yet
-    if rest.startswith("card-") and not context.card():
-        return "(n/a)"
-
     # call the appropriate function
     if rest == "card-interval":
         return card_interval(context)
