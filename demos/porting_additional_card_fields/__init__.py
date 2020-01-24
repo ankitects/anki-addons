@@ -142,6 +142,7 @@ def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
     addInfo: Dict[str, Any] = {}
     card = context.card()
 
+    # note: card will no longer be none, and this if statement can be removed
     if card is not None:
         r = mw.reviewer
         d = mw.col
@@ -178,7 +179,7 @@ def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
 
         addInfo["external_file_link"] = external_file_link(card, context.note_type())
 
-        addInfo["Ord"] = context.card_ord()
+        addInfo["Ord"] = card.ord
         addInfo["Did"] = card.did
         addInfo["Due"] = card.due
         addInfo["Id"] = card.id
