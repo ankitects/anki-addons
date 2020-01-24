@@ -84,6 +84,8 @@ add_to_card = """
     cursor: pointer;
     cursor: hand;
   }
+  
+  .nightMode kbd { color: black; }
 </style>
 <script type="text/javascript">
 function ct_click(tag) {
@@ -96,10 +98,9 @@ function ct_dblclick(tag, deck) {
 """
 
 
-def on_card_render(text, context):
-    qtext, atext = text
-
-    return qtext + add_to_card, atext + add_to_card
+def on_card_render(output, context):
+    output.question_text += add_to_card
+    output.answer_text += add_to_card
 
 
 hooks.card_did_render.append(on_card_render)
