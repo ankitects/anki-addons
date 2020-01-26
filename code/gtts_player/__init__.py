@@ -128,7 +128,10 @@ class GTTSPlayer(TTSProcessPlayer):
                 std_code = f"{head}_{tail.upper()}"
             else:
                 # get a standard code like cs_CZ from gtts code cs
-                std_code = compatMap.get(code, "unknown")
+                std_code = compatMap.get(code)
+                # skip languages we don't understand
+                if not std_code:
+                    continue
 
             # add the voice using the name "gtts"
             voices.append(GTTSVoice(name="gTTS", lang=std_code, gtts_lang=code))
