@@ -154,8 +154,9 @@ class GTTSPlayer(TTSProcessPlayer):
         slow = tag.speed < 1
 
         # call gtts to save an mp3 file to the path
-        tts = gTTS(text=tag.field_text, lang=voice.gtts_lang, lang_check=False,
-                   slow=slow)
+        tts = gTTS(
+            text=tag.field_text, lang=voice.gtts_lang, lang_check=False, slow=slow
+        )
         tts.save(self._tmpfile)
 
     # this is called on the main thread, after _play finishes

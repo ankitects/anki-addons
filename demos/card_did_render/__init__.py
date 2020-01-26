@@ -11,9 +11,7 @@ from anki import hooks
 from anki.template import TemplateRenderContext, TemplateRenderOutput
 
 
-def on_card_did_render(
-    output: TemplateRenderOutput, context: TemplateRenderContext
-):
+def on_card_did_render(output: TemplateRenderOutput, context: TemplateRenderContext):
     # let's uppercase the characters of the front text
     output.question_text = output.question_text.upper()
 
