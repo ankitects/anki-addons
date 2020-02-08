@@ -25,15 +25,24 @@ on the template.
 from anki import hooks
 from anki.template import TemplateRenderContext
 from aqt import dialogs, gui_hooks, mw
+from aqt.browser import PreviewDialog
+from aqt.clayout import CardLayout
 from aqt.qt import Qt
+from aqt.reviewer import Reviewer
 
 # Responding to clicks
 ############################
+from aqt.utils import tooltip
 
 
 def on_js_message(handled, msg, context):
-    if context == "card_layout":
-        # avoid the card layout screen, as it's a modal dialog
+    if isinstance(context, CardLayout):
+        # card layout is a modal dialog, so we can't display there
+        tooltip("Can't be used in card layout screen.")
+        return handled
+
+    if not isinstance(context, Reviewer) and not isinstance(context, PreviewDialog):
+        # only function in review and preview screens
         return handled
 
     if msg.startswith("ct_click_"):
