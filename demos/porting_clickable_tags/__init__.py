@@ -36,7 +36,9 @@ from aqt.utils import tooltip
 
 
 def on_js_message(handled, msg, context):
-    if isinstance(context, CardLayout):
+    if isinstance(context, CardLayout) and (
+        msg.startswith("ct_click_") or msg.startswith("ct_dblclick_")
+    ):
         # card layout is a modal dialog, so we can't display there
         tooltip("Can't be used in card layout screen.")
         return handled
