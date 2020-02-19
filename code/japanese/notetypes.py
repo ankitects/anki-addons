@@ -11,11 +11,11 @@ Support plugin here
 from aqt import mw
 
 config = mw.addonManager.getConfig(__name__)
-
+noteTypes = [noteType.lower() for noteType in config["noteTypes"]]
 
 def isJapaneseNoteType(noteName):
     noteName = noteName.lower()
-    for allowedString in config["noteTypes"]:
+    for allowedString in noteTypes:
         if allowedString in noteName:
             return True
 
