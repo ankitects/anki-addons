@@ -47,7 +47,7 @@ from typing import Any, Dict
 from anki import hooks
 from anki.stats import CardStats
 from anki.template import TemplateRenderContext
-from anki.utils import fmtTimeSpan, isWin, stripHTML
+from anki.utils import isWin, stripHTML
 from aqt import mw
 
 
@@ -56,17 +56,6 @@ def gc(arg, fail=False):
     if conf:
         return conf.get(arg, fail)
     return fail
-
-
-# this is function timefn is from anki from anki/stats.py which is at
-# https://github.com/dae/anki/blob/master/anki/stats.py#L77 and
-def timefn(tm):
-    str = ""
-    if tm >= 60:
-        str = fmtTimeSpan((tm / 60) * 60, short=True, point=-1, unit=1)
-    if tm % 60 != 0 or not str:
-        str += fmtTimeSpan(tm % 60, point=2 if not str else -1, short=True)
-    return str
 
 
 # from Advanced Browser - overdue_days
@@ -167,8 +156,8 @@ def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
             )
 
             # https://docs.python.org/2/library/datetime.html  #todo
-            addInfo["TimeAvg"] = timefn(total / float(cnt))
-            addInfo["TimeTotal"] = timefn(total)
+            addInfo["TimeAvg"] = cs.time(total / float(cnt))
+            addInfo["TimeTotal"] = cs.time(total)
 
             cOverdueIvl = valueForOverdue(card.odid, card.queue, card.type, card.due, d)
             if cOverdueIvl:
