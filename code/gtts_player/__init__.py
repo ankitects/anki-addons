@@ -21,7 +21,7 @@ from typing import List, cast
 from anki.lang import compatMap
 from anki.sound import AVTag, TTSTag
 from aqt import mw
-from aqt.sound import OnDoneCallback, PlayerInterrupted, av_player
+from aqt.sound import OnDoneCallback, av_player
 from aqt.tts import TTSProcessPlayer, TTSVoice
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
@@ -161,11 +161,7 @@ class GTTSPlayer(TTSProcessPlayer):
 
     # this is called on the main thread, after _play finishes
     def _on_done(self, ret: Future, cb: OnDoneCallback) -> None:
-        try:
-            ret.result()
-        except PlayerInterrupted:
-            # don't fire done callback when interrupted
-            return
+        ret.result()
 
         # inject file into the top of the audio queue
         av_player.insert_file(self._tmpfile)
