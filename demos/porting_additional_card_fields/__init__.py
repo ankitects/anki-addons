@@ -143,8 +143,8 @@ def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
             conf = d.decks.confForDid(card.did)
 
         (first, last, cnt, total) = mw.col.db.first(
-            "select min(id), max(id), count(), sum(time)/1000 from revlog where cid = :id",
-            id=card.id,
+            "select min(id), max(id), count(), sum(time)/1000 from revlog where cid = ?",
+            card.id,
         )
 
         if cnt:
