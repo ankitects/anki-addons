@@ -45,4 +45,4 @@ var e=document.activeElement;
     return QWebEngineView.event(self, evt)
 
 
-AnkiWebView.event = event
+AnkiWebView.event = event  # type: ignore
