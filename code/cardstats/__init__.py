@@ -9,6 +9,7 @@
 from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
+from aqt.theme import theme_manager
 from aqt.webview import AnkiWebView
 
 
@@ -94,11 +95,11 @@ class CardStats(object):
         )
 
     def _style(self):
-        from anki import version
-
-        if version.startswith("2.0."):
-            return ""
-        return "td { font-size: 80%; }"
+        buf = "td { font-size: 80%; }\n"
+        buf += "td, h3, center {{ color: {} }}".format(
+            theme_manager.str_color("text-fg")
+        )
+        return buf
 
 
 _cs = CardStats(mw)
