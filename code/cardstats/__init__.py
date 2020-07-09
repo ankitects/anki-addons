@@ -95,12 +95,15 @@ class CardStats(object):
         )
 
     def _style(self):
-        buf = "td { font-size: 80%; }\n"
-        buf += "td, h3, center {{ color: {} }}".format(
-            theme_manager.str_color("text-fg")
-        )
-        return buf
-
+        return f"""
+td {{
+    font-size: 80%; }}
+body {{
+    background: {theme_manager.str_color("window-bg")} }}
+td, h3, center {{ 
+    color: {theme_manager.str_color("text-fg")}
+}}
+"""
 
 _cs = CardStats(mw)
 
