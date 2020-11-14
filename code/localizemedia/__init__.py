@@ -20,12 +20,7 @@ def onLocalize(browser):
         showInfo("Please select some notes.")
         return
 
-    mw.progress.start(immediate=True)
-    success = False
-    try:
-        success = _localizeNids(browser, nids)
-    finally:
-        mw.progress.finish()
+    success = _localizeNids(browser, nids)
 
     browser.model.reset()
     mw.requireReset()
@@ -38,16 +33,12 @@ def _localizeNids(browser, nids):
     for c, nid in enumerate(nids):
         note = mw.col.getNote(nid)
         if not _localizeNote(browser, note):
-            mw.progress.finish()
             showInfo(
                 "Aborted after processing %d notes. Any media already downloaded has been saved."
                 % (c)
             )
             return
 
-        mw.progress.update(
-            label="Successfully processed %d/%d notes" % (c + 1, len(nids))
-        )
     return True
 
 
