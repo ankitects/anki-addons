@@ -7,7 +7,7 @@
 #
 
 from anki.hooks import addHook
-from aqt import mw
+from aqt import mw, colors
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.webview import AnkiWebView
@@ -99,11 +99,12 @@ class CardStats(object):
 td {{
     font-size: 80%; }}
 body {{
-    background: {theme_manager.str_color("window-bg")} }}
+    background: {theme_manager.color(colors.WINDOW_BG)} }}
 td, h3, center {{ 
-    color: {theme_manager.str_color("text-fg")}
+    color: {theme_manager.color(colors.TEXT_FG)}
 }}
 """
+
 
 _cs = CardStats(mw)
 
