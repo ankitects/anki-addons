@@ -29,14 +29,14 @@
 
 <SpinBox
   label="my number"
-  subLabel="extra help"
+  tooltip="extra help"
   defaultValue={defaults.myNumber}
   bind:value={data.myNumber}
 />
 
 <SpinBoxFloat
   label="my float"
-  subLabel="tooltip"
+  tooltip="tooltip"
   min={2}
   max={5}
   defaultValue={defaults.myFloat}
@@ -48,14 +48,14 @@
 
 <EnumSelector
   label="select something"
-  subLabel="tooltip"
+  tooltip="tooltip"
   choices={["choice 1", "choice 2", "choice 3"]}
   defaultValue={defaults.myEnum}
   bind:value={data.myEnum}
 />
 
 <CheckBox
-  subLabel="my checkbox"
+  label="my checkbox"
   defaultValue={true}
   bind:value={data["myBool"]}
 />
