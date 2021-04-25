@@ -15,7 +15,7 @@ from aqt.utils import showInfo
 
 
 def onLocalize(browser):
-    nids = browser.selectedNotes()
+    nids = browser.selected_notes()
     if not nids:
         showInfo("Please select some notes.")
         return

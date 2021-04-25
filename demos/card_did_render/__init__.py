@@ -17,7 +17,7 @@ def on_card_did_render(output: TemplateRenderOutput, context: TemplateRenderCont
 
     # if the note is tagged "easy", show the answer in green
     # otherwise, in red
-    if context.note().hasTag("easy"):
+    if context.note().has_tag("easy"):
         colour = "green"
     else:
         colour = "red"

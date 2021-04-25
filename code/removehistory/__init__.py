@@ -10,7 +10,7 @@ from aqt.utils import askUser, showInfo
 
 
 def onRemoveHistory(browser):
-    cids = browser.selectedCards()
+    cids = browser.selected_cards()
     if not cids:
         showInfo("No cards selected.")
         return

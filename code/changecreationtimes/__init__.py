@@ -175,7 +175,7 @@ def onResetTimes(browser):
         return
 
     # Preprocess cards, collecting note IDs.
-    (card_cnt, nids) = identifyNotes(browser.selectedCards())
+    (card_cnt, nids) = identifyNotes(browser.selected_cards())
 
     # debug
     # showInfo(("Processed %s cards leading to %s notes") % (card_cnt, len(nids)))

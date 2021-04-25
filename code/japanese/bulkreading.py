@@ -39,7 +39,7 @@ def setupMenu(browser):
 
 
 def onRegenerate(browser):
-    regenerateReadings(browser.selectedNotes())
+    regenerateReadings(browser.selected_notes())
 
 
 addHook("browser.setupMenus", setupMenu)
