@@ -19,7 +19,7 @@ def onRemoveHistory(browser):
     ):
         return
 
-    mw.col.modSchema(check=True)
+    mw.col.mod_schema(check=True)
 
     mw.progress.start(immediate=True)
     mw.col.db.execute("delete from revlog where cid in " + ids2str(cids))
@@ -27,7 +27,7 @@ def onRemoveHistory(browser):
     mw.col.save()
     mw.progress.finish()
 
-    browser.model.reset()
+    browser.note_type.reset()
     mw.requireReset()
 
     showInfo("Removed history of %d cards" % len(cids))

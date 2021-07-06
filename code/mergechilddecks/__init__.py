@@ -188,7 +188,7 @@ def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
 def performDeckChange(changes):
     # process in reverse order, leaves first
     changes = reversed(changes)
-    nameMap = mw.col.decks.nameMap()
+    nameMap = mw.col.decks.name_map()
 
     mw.progress.start(immediate=True)
     try:
@@ -227,7 +227,7 @@ update cards set did=?, usn=?, mod=? where did=?""",
     )
 
     # remove the deck
-    mw.col.decks.rem(oldDid)
+    mw.col.decks.remove([oldDid])
 
 
 def setupMenu():

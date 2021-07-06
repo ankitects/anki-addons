@@ -60,7 +60,7 @@ class KanjiStats(object):
                 continue
 
             idxs = []
-            for c, name in enumerate(self.col.models.fieldNames(m)):
+            for c, name in enumerate(self.col.models.field_names(m)):
                 for f in config["srcFields"]:
                     if name == f:
                         idxs.append(c)

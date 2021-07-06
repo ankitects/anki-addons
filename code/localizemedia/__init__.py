@@ -22,7 +22,7 @@ def onLocalize(browser):
 
     success = _localizeNids(browser, nids)
 
-    browser.model.reset()
+    browser.note_type.reset()
     mw.requireReset()
 
     if success:
@@ -46,7 +46,7 @@ def _localizeNids(browser, nids):
 def _localizeNote(browser, note):
     for fld, val in note.items():
         # any remote links?
-        files = mw.col.media.filesInStr(note.model()["id"], val, includeRemote=True)
+        files = mw.col.media.filesInStr(note.note_type()["id"], val, includeRemote=True)
         found = False
         for file in files:
             if file.startswith("http://") or file.startswith("https://"):

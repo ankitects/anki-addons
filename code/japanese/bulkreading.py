@@ -21,9 +21,9 @@ def regenerateReadings(nids):
     mw.progress.start()
     for nid in nids:
         note = mw.col.getNote(nid)
-        if not isJapaneseNoteType(note.model()["name"]):
+        if not isJapaneseNoteType(note.note_type()["name"]):
             continue
-        fields = mw.col.models.fieldNames(note.model())
+        fields = mw.col.models.field_names(note.note_type())
         for src in fields:
             regenerateReading(note, src)
         note.flush()

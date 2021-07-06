@@ -1,8 +1,7 @@
 from unittest import TestCase
 
-from mock import MagicMock
-
 from japanese.stats import KanjiStats
+from mock import MagicMock
 
 
 class TestKanjiStats(TestCase):

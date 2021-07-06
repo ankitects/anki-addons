@@ -49,7 +49,10 @@ from anki.template import TemplateRenderContext
 
 # called each time a custom filter is encountered
 def my_field_filter(
-    field_text: str, field_name: str, filter_name: str, context: TemplateRenderContext,
+    field_text: str,
+    field_name: str,
+    filter_name: str,
+    context: TemplateRenderContext,
 ) -> str:
     if not filter_name.startswith("info-"):
         # not our filter, return string unchanged

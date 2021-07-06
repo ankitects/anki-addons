@@ -5,12 +5,11 @@
 # Feed field HTML through BeautifulSoup to fix things like unbalanced div tags.
 #
 
-from bs4 import BeautifulSoup
-
 from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
+from bs4 import BeautifulSoup
 
 
 def onFixHTML(browser):
@@ -27,7 +26,7 @@ def onFixHTML(browser):
     finally:
         mw.progress.finish()
 
-    browser.model.reset()
+    browser.note_type.reset()
     mw.requireReset()
 
     showInfo("Updated %d/%d notes." % (changed, len(nids)), parent=browser)

@@ -86,7 +86,7 @@ def external_file_link(card, model):
         return ""
     if all([field_for_filename, field_for_page]):
         note = mw.col.getNote(card.nid)
-        for i, f in enumerate(note.model()["flds"]):
+        for i, f in enumerate(note.note_type()["flds"]):
             if f["name"] == field_for_filename:
                 file = note.fields[i]
             if f["name"] == field_for_page:
@@ -138,9 +138,9 @@ def get_all_fields(context: TemplateRenderContext) -> Dict[str, Any]:
         cs = CardStats(d, r.card)
 
         if card.odid:
-            conf = d.decks.confForDid(card.odid)
+            conf = d.decks.config_dict_for_deck_id(card.odid)
         else:
-            conf = d.decks.confForDid(card.did)
+            conf = d.decks.config_dict_for_deck_id(card.did)
 
         (first, last, cnt, total) = mw.col.db.first(
             "select min(id), max(id), count(), sum(time)/1000 from revlog where cid = ?",

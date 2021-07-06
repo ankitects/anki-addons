@@ -7,7 +7,7 @@
 #
 
 from anki.hooks import addHook
-from aqt import mw, colors
+from aqt import colors, mw
 from aqt.qt import *
 from aqt.theme import theme_manager
 from aqt.webview import AnkiWebView

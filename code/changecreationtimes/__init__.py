@@ -62,8 +62,8 @@ def resetCreationTimes(note_ids, desttime):
 
         # Update the note row
         mw.col.db.execute(
-            """update notes 
-            set id=? 
+            """update notes
+            set id=?
             where id = ?""",
             desttime,
             note_id,
@@ -71,8 +71,8 @@ def resetCreationTimes(note_ids, desttime):
 
         # Update the cards row(s)
         mw.col.db.execute(
-            """update cards 
-               set nid=? 
+            """update cards
+               set nid=?
                where nid = ?""",
             desttime,
             note_id,
@@ -229,7 +229,7 @@ def onResetTimes(browser):
     # Force a full sync if collection isn't already marked for one. This is
     # apparently because we are changing the key column of the table.
     # (Per Damien on 2013/01/07: http://groups.google.com/group/anki-users/msg/3c8910e10f6fd0ac?hl=en )
-    mw.col.modSchema(check=True)
+    mw.col.mod_schema(check=True)
 
     # Do it.
     resetCreationTimes(nids, desttime)

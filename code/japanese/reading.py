@@ -95,10 +95,10 @@ class MecabController(object):
                     stderr=subprocess.STDOUT,
                     startupinfo=si,
                 )
-            except OSError:
+            except OSError as exc:
                 raise Exception(
                     "Please ensure your Linux system has 64 bit binary support."
-                )
+                ) from exc
 
     def reading(self, expr):
         self.ensureOpen()
@@ -211,8 +211,8 @@ class KakasiController(object):
                     stderr=subprocess.STDOUT,
                     startupinfo=si,
                 )
-            except OSError:
-                raise Exception("Please install kakasi")
+            except OSError as exc:
+                raise Exception("Please install kakasi") from exc
 
     def reading(self, expr):
         self.ensureOpen()
@@ -231,9 +231,9 @@ mecab = None
 
 def onFocusLost(flag, n, fidx):
     # japanese model?
-    if not isJapaneseNoteType(n.model()["name"]):
+    if not isJapaneseNoteType(n.note_type()["name"]):
         return flag
-    fields = mw.col.models.fieldNames(n.model())
+    fields = mw.col.models.field_names(n.note_type())
     src = fields[fidx]
     if not regenerateReading(n, src):
         return flag
