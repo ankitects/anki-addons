@@ -23,7 +23,7 @@ def _runJavaScriptSync(page, js, timeout=500):
         timer.setSingleShot(True)
         timer.timeout.connect(eventLoop.quit)
         timer.start(timeout)
-        eventLoop.exec_()
+        eventLoop.exec()
 
     if not called:
         print("runJavaScriptSync() timed out")

@@ -240,7 +240,7 @@ def onKanjiStats():
     d.resize(500, 400)
     restoreGeom(d, "kanjistats")
     mw.progress.finish()
-    d.exec_()
+    d.exec()
     saveGeom(d, "kanjistats")
 
 
