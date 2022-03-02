@@ -82,6 +82,6 @@ td { border: 1px solid #ccc; padding: 1em; }
 
 q = QAction(mw)
 q.setText("Print")
-q.setShortcut(QKeySequence("Ctrl+P"))
+q.setShortcut(QKeySequence("Shift+P"))
 mw.form.menuTools.addAction(q)
 q.triggered.connect(onPrint)  # type: ignore
