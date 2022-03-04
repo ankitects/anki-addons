@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import json
 import os
+from pathlib import Path
 import subprocess
 
-build_dir = "../build"
+build_dir = Path("~/.cache/anki-addons").expanduser()
+if not build_dir.exists():
+    build_dir.mkdir()
 
 
 def addons():
