@@ -7,7 +7,7 @@
 #
 
 import sys, os, platform, re, subprocess, aqt.utils
-from anki.utils import stripHTML, isWin, isMac
+from anki.utils import stripHTML, is_win, is_mac
 from anki.hooks import addHook
 from .notetypes import isJapaneseNoteType
 
@@ -41,10 +41,10 @@ else:
 ##########################################################################
 
 def mungeForPlatform(popen):
-    if isWin:
+    if is_win:
         popen = [os.path.normpath(x) for x in popen]
         popen[0] += ".exe"
-    elif not isMac:
+    elif not is_mac:
         popen[0] += ".lin"
     return popen
 
@@ -60,7 +60,7 @@ class MecabController(object):
                 '-d', base, '-r', base + "mecabrc"])
         os.environ['DYLD_LIBRARY_PATH'] = base
         os.environ['LD_LIBRARY_PATH'] = base
-        if not isWin:
+        if not is_win:
             os.chmod(self.mecabCmd[0], 0o755)
 
     def ensureOpen(self):
@@ -150,7 +150,7 @@ class KakasiController(object):
             [base + "kakasi"] + kakasiArgs)
         os.environ['ITAIJIDICT'] = base + "itaijidict"
         os.environ['KANWADICT'] = base + "kanwadict"
-        if not isWin:
+        if not is_win:
             os.chmod(self.kakasiCmd[0], 0o755)
 
     def ensureOpen(self):
