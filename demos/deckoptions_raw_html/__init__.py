@@ -9,9 +9,9 @@ from aqt import gui_hooks, mw
 
 file = Path(__file__)
 
-with open(file.with_name("raw.html")) as f:
+with open(file.with_name("raw.html"), encoding="utf8") as f:
     html = f.read()
-with open(file.with_name("raw.js")) as f:
+with open(file.with_name("raw.js"), encoding="utf8") as f:
     script = f.read()
 
 

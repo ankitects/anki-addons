@@ -219,7 +219,7 @@ def onResetTimes(browser):
             )
             return
 
-    # This mimics anki/utils.py timestampID function (which calls intTime for
+    # This mimics anki/utils.py timestampID function (which calls int_time for
     # seconds since epoch and multiplies those seconds by 1000).
     desttime = desttime * 1000
 

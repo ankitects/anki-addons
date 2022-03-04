@@ -67,7 +67,7 @@ td { border: 1px solid #ccc; padding: 1em; }
         c = mw.col.getCard(cid)
         qatxt = c.render_output(True, False).answer_text
         qatxt = mw.prepare_card_text_for_display(qatxt)
-        cont = u'<td width="{1}%"><center>{0}</center></td>'.format(
+        cont = '<td width="{1}%"><center>{0}</center></td>'.format(
             esc(qatxt), 100 / config["cardsPerRow"]
         )
         buf.write(cont)

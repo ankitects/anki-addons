@@ -5,7 +5,7 @@
 import re
 from typing import Dict, List
 
-from anki.utils import ids2str, intTime
+from anki.utils import ids2str, int_time
 from aqt import mw
 from aqt.qt import *
 
@@ -215,7 +215,7 @@ def changeDeck(nameMap, change):
             mw.col.tags.bulkAdd(nids, change["tag"])
 
     # move cards
-    mod = intTime()
+    mod = int_time()
     usn = mw.col.usn()
     mw.col.db.execute(
         """

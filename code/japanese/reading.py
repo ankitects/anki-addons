@@ -11,7 +11,7 @@ import subprocess
 import sys
 
 from anki.hooks import addHook
-from anki.utils import is_mac, is_win, stripHTML
+from anki.utils import is_mac, is_win, strip_html
 from aqt import mw
 
 from .notetypes import isJapaneseNoteType
@@ -31,9 +31,9 @@ supportDir = os.path.join(os.path.dirname(__file__), "support")
 def escapeText(text):
     # strip characters that trip up kakasi/mecab
     text = text.replace("\n", " ")
-    text = text.replace(u"\uff5e", "~")
+    text = text.replace("\uff5e", "~")
     text = re.sub("<br( /)?>", "---newline---", text)
-    text = stripHTML(text)
+    text = strip_html(text)
     text = text.replace("---newline---", "<br>")
     return text
 
@@ -135,7 +135,7 @@ class MecabController(object):
                 out.append(kanji)
                 continue
             # don't add readings of numbers
-            if kanji in u"一二三四五六七八九十０１２３４５６７８９":
+            if kanji in "一二三四五六七八九十０１２３４５６７８９":
                 out.append(kanji)
                 continue
             # strip matching characters and beginning and end of reading and kanji
@@ -174,7 +174,7 @@ class MecabController(object):
                             reading[-placeR:],
                         )
                     )
-        fin = u""
+        fin = ""
         for c, s in enumerate(out):
             if c < len(out) - 1 and re.match("^[A-Za-z0-9]+$", out[c + 1]):
                 s += " "
@@ -284,15 +284,15 @@ addHook("editFocusLost", onFocusLost)
 ##########################################################################
 
 if __name__ == "__main__":
-    expr = u"カリン、自分でまいた種は自分で刈り取れ"
+    expr = "カリン、自分でまいた種は自分で刈り取れ"
     print(mecab.reading(expr).encode("utf-8"))
-    expr = u"昨日、林檎を2個買った。"
+    expr = "昨日、林檎を2個買った。"
     print(mecab.reading(expr).encode("utf-8"))
-    expr = u"真莉、大好きだよん＾＾"
+    expr = "真莉、大好きだよん＾＾"
     print(mecab.reading(expr).encode("utf-8"))
-    expr = u"彼２０００万も使った。"
+    expr = "彼２０００万も使った。"
     print(mecab.reading(expr).encode("utf-8"))
-    expr = u"彼二千三百六十円も使った。"
+    expr = "彼二千三百六十円も使った。"
     print(mecab.reading(expr).encode("utf-8"))
-    expr = u"千葉"
+    expr = "千葉"
     print(mecab.reading(expr).encode("utf-8"))

@@ -31,7 +31,9 @@ class CardStats(object):
 
         dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
-        dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea)
+        dock.setAllowedAreas(
+            Qt.DockWidgetArea.LeftDockWidgetArea | Qt.DockWidgetArea.RightDockWidgetArea
+        )
         dock.setFeatures(QDockWidget.DockWidgetFeature.DockWidgetClosable)
         dock.setWidget(w)
         if mw.width() < 600:

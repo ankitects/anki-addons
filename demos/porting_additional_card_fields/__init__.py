@@ -47,7 +47,7 @@ from typing import Any, Dict
 from anki import hooks
 from anki.stats import CardStats
 from anki.template import TemplateRenderContext
-from anki.utils import is_win, stripHTML
+from anki.utils import is_win, strip_html
 from aqt import mw
 
 
@@ -96,8 +96,8 @@ def external_file_link(card, model):
             page  # pylint: disable=pointless-statement
         except:
             return ""
-        f = stripHTML(file)
-        p = stripHTML(page)
+        f = strip_html(file)
+        p = strip_html(page)
         pycmd = f"open_external_filesüöäüöä{f}üöäüöä{p}"
         if p:
             text = f"{f} , {p}"
