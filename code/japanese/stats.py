@@ -5,8 +5,10 @@
 
 import unicodedata
 
+import aqt
 from anki.utils import ids2str, split_fields
 from aqt import mw
+from aqt.operations import QueryOp
 from aqt.qt import *
 from aqt.utils import restoreGeom, saveGeom
 from aqt.webview import AnkiWebView
@@ -225,23 +227,29 @@ def genKanjiStats():
 
 
 def onKanjiStats():
-    mw.progress.start(immediate=True)
-    rep = genKanjiStats()
-    d = QDialog(mw)
-    l = QVBoxLayout()
-    l.setContentsMargins(0, 0, 0, 0)
-    w = AnkiWebView()
-    l.addWidget(w)
-    w.stdHtml(rep)
-    bb = QDialogButtonBox(QDialogButtonBox.Close)
-    l.addWidget(bb)
-    bb.rejected.connect(d.reject)
-    d.setLayout(l)
-    d.resize(500, 400)
-    restoreGeom(d, "kanjistats")
-    mw.progress.finish()
-    d.exec()
-    saveGeom(d, "kanjistats")
+    def show(stats: str) -> None:
+        diag = QDialog(mw)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        web = AnkiWebView()
+        layout.addWidget(web)
+        button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        layout.addWidget(button_box)
+        diag.setLayout(layout)
+        diag.resize(500, 400)
+        restoreGeom(diag, "kanjistats")
+        web.stdHtml(stats)
+        diag.open()
+
+        def close():
+            saveGeom(diag, "kanjistats")
+            diag.reject()
+
+        qconnect(button_box.rejected, close)
+
+    QueryOp(
+        parent=aqt.mw, op=lambda _: genKanjiStats(), success=show
+    ).with_progress().run_in_background()
 
 
 def createMenu():
