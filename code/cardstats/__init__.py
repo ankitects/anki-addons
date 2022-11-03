@@ -76,14 +76,10 @@ class CardStats(object):
             return
         r = self.mw.reviewer
         id = r.card.id if r.card else "null"
-        self.web.eval(
-            f"current.then(s => s.$set({{ cardId: {id}, includeRevlog: false }}));"
-        )
+        self.web.eval(f"current.then(s => s.updateStats({id}));")
         lc = r.lastCard()
         id = lc.id if lc else "null"
-        self.web.eval(
-            f"previous.then(s => s.$set({{ cardId: {id}, includeRevlog: false }}));"
-        )
+        self.web.eval(f"previous.then(s => s.updateStats({id}));")
 
     def _load_html(self):
         self.web.setHtml(
@@ -101,8 +97,8 @@ class CardStats(object):
 <h3>Previous</h3>
 <div id=previous></div>
 <script>
-const current = anki.setupCardInfo(document.getElementById("current"));
-const previous = anki.setupCardInfo(document.getElementById("previous"));
+const current = anki.setupCardInfo(document.getElementById("current"), {includeRevlog:false});
+const previous = anki.setupCardInfo(document.getElementById("previous"), {includeRevlog:false});
 </script>
 </center></body></html>"""
             % self._style()
