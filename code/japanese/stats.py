@@ -17,9 +17,6 @@ from .notetypes import isJapaneseNoteType
 
 config = mw.addonManager.getConfig(__name__)
 
-# Backwards compatibility
-unicode = lambda *s: str(s)
-
 
 def isKanji(unichar):
     try:
@@ -129,7 +126,10 @@ where c.nid = n.id and mid = ? and c.queue > 0
 
     def missingReport(self, check=None):
         if not check:
-            check = lambda x, y: x not in y
+
+            def check(x, y):
+                return x not in y
+
             out = "<h1>Missing</h1>"
         else:
             out = "<h1>Seen</h1>"
