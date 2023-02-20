@@ -38,7 +38,6 @@ from aqt.utils import getText, showWarning, tooltip
 
 
 def resetCreationTimes(note_ids, desttime):
-
     mw.progress.start(label="Reset Creation Times: updating...", max=len(note_ids))
     mw.checkpoint("Reset Creation Times")
 
@@ -46,7 +45,6 @@ def resetCreationTimes(note_ids, desttime):
     # showInfo(("Called reset with %s notes") % len(note_ids))
 
     for note_cnt, note_id in enumerate(note_ids):
-
         # debug
         # showInfo(("Loop: Processing note id %s") % note_id)
 
@@ -92,7 +90,6 @@ def resetCreationTimes(note_ids, desttime):
 # and ensuring there are no surprises (such as the same note referenced by
 # cards in different sort locations in the browser).
 def identifyNotes(card_ids):
-
     mw.progress.start(
         label="Reset Creation Times: collecting notes...", max=len(card_ids)
     )
@@ -107,7 +104,6 @@ def identifyNotes(card_ids):
     # note IDs for driving the DB update.
     card_cnt = 0
     for card_cnt, card_id in enumerate(card_ids):
-
         # debug
         # showInfo(("Loop: Processing card id %s") % card_id)
 
@@ -125,7 +121,6 @@ def identifyNotes(card_ids):
         # We expect sibling cards (of a note) to be grouped together. When a new
         # note is encountered, save it for later processing.
         if card.nid != last_nid:
-
             # I don't think this could ever happen:
             # This is a precaution that a note's sibling cards are grouped
             # together. If it were possible for them to be sorted in the browser
@@ -166,7 +161,6 @@ def setupMenu(browser):
 
 
 def onResetTimes(browser):
-
     # Make sure user selected something.
     if not browser.form.tableView.selectionModel().hasSelection():
         showWarning(

@@ -11,7 +11,6 @@ from aqt.qt import *
 
 
 class Wizard(QWizard):
-
     changes: List[Dict[str, str]] = []
 
     def __init__(self):

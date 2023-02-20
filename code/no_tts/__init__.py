@@ -98,6 +98,7 @@ orig_langs = {
 class DummyVoice(TTSVoice):
     pass
 
+
 class DummyPlayer(TTSProcessPlayer):
     # this is called the first time Anki tries to play a TTS file
     def get_available_voices(self) -> List[TTSVoice]:
@@ -119,6 +120,7 @@ class DummyPlayer(TTSProcessPlayer):
 
     def _play(self, tag: AVTag) -> None:
         return
+
 
 # register our handler
 av_player.players.append(DummyPlayer(mw.taskman))
