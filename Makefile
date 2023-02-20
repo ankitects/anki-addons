@@ -12,6 +12,10 @@ check_format: venv
 	~/Local/python/addons/bin/black --exclude=vendor/ --check code demos
 	~/Local/python/addons/bin/isort --check code demos
 
+format: venv
+	~/Local/python/addons/bin/black --exclude=vendor/ code demos
+	~/Local/python/addons/bin/isort code demos
+
 mypy: venv
 	~/Local/python/addons/bin/mypy code demos
 
