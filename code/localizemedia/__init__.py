@@ -5,13 +5,19 @@
 # Changes remote image links in selected cards to local ones.
 #
 
+from __future__ import annotations
+
+import os
 import re
 import time
+import urllib.parse
 
 from anki.hooks import addHook
+from anki.httpclient import HttpClient
 from aqt import mw
+from aqt.operations import CollectionOp, OpChanges
 from aqt.qt import *
-from aqt.utils import showInfo
+from aqt.utils import showInfo, showWarning, tr
 
 
 def onLocalize(browser):
@@ -20,33 +26,57 @@ def onLocalize(browser):
         showInfo("Please select some notes.")
         return
 
-    success = _localizeNids(browser, nids)
+    def on_failure(exc):
+        showInfo(
+            f"An error occurred. Any media already downloaded has been saved. Error: {exc}"
+        )
 
-    browser.note_type.reset()
-    mw.requireReset()
-
-    if success:
-        showInfo("Checked %d notes" % len(nids), parent=browser)
+    CollectionOp(parent=browser, op=lambda _col: _localizeNids(browser, nids)).success(
+        lambda _: showInfo("Success")
+    ).failure(on_failure).run_in_background()
 
 
-def _localizeNids(browser, nids):
-    for c, nid in enumerate(nids):
-        note = mw.col.getNote(nid)
-        if not _localizeNote(browser, note):
-            showInfo(
-                "Aborted after processing %d notes. Any media already downloaded has been saved."
-                % (c)
+def _localizeNids(browser, nids) -> OpChanges:
+    undo_start = mw.col.add_custom_undo_entry("Localize Media")
+    with HttpClient() as client:
+        client.timeout = 30
+        for c, nid in enumerate(nids):
+            note = mw.col.get_note(nid)
+            if not _localizeNote(browser, note, undo_start, client):
+                raise Exception("aborted")
+            mw.taskman.run_on_main(
+                lambda c=c: mw.progress.update(f"Processed {c+1}/{len(nids)}...")  # type: ignore
             )
-            return
-
-    return True
+    return mw.col.merge_undo_entries(undo_start)
 
 
-# true on success
-def _localizeNote(browser, note):
+def _retrieveURL(url: str, client: HttpClient) -> str:
+    content_type = None
+    url = urllib.parse.unquote(url)
+    with client.get(url) as response:
+        if response.status_code != 200:
+            raise Exception(
+                f"got http code {response.status_code} while fetching {url}"
+            )
+        filecontents = response.content
+        content_type = response.headers.get("content-type")
+    # strip off any query string
+    url = re.sub(r"\?.*?$", "", url)
+    fname = os.path.basename(urllib.parse.unquote(url))
+    if not fname.strip():
+        fname = "paste"
+    if content_type:
+        fname = mw.col.media.add_extension_based_on_mime(fname, content_type)
+
+    return mw.col.media.write_data(fname, filecontents)
+
+
+def _localizeNote(browser, note, undo_start: int, client: HttpClient):
     for fld, val in note.items():
         # any remote links?
-        files = mw.col.media.filesInStr(note.note_type()["id"], val, includeRemote=True)
+        files = mw.col.media.files_in_str(
+            note.note_type()["id"], val, include_remote=True
+        )
         found = False
         for file in files:
             if file.startswith("http://") or file.startswith("https://"):
@@ -65,9 +95,7 @@ def _localizeNote(browser, note):
                 fname = match.group("fname")
                 remote = re.match("(https?)://", fname.lower())
                 if remote:
-                    newName = browser.editor._retrieveURL(fname)
-                    if not newName:
-                        return
+                    newName = _retrieveURL(fname, client)
                     val = val.replace(fname, newName)
 
                     # don't overburden the server(s)
@@ -78,7 +106,8 @@ def _localizeNote(browser, note):
                     )
 
         note[fld] = val
-        note.flush()
+        mw.col.update_note(note)
+    mw.col.merge_undo_entries(undo_start)
     return True
 
 
