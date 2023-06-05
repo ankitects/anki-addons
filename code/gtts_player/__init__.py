@@ -27,84 +27,7 @@ from aqt.tts import TTSProcessPlayer, TTSVoice
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 
 from gtts import gTTS  # isort:skip pylint: disable=import-error
-
-# this is the language map that gtts.lang.tts_langs() outputs
-orig_langs = {
-    "af": "Afrikaans",
-    "ar": "Arabic",
-    "bn": "Bengali",
-    "bs": "Bosnian",
-    "ca": "Catalan",
-    "cs": "Czech",
-    "cy": "Welsh",
-    "da": "Danish",
-    "de": "German",
-    "el": "Greek",
-    "en-au": "English (Australia)",
-    "en-ca": "English (Canada)",
-    "en-gb": "English (UK)",
-    "en-gh": "English (Ghana)",
-    "en-ie": "English (Ireland)",
-    "en-in": "English (India)",
-    "en-ng": "English (Nigeria)",
-    "en-nz": "English (New Zealand)",
-    "en-ph": "English (Philippines)",
-    "en-tz": "English (Tanzania)",
-    "en-uk": "English (UK)",
-    "en-us": "English (US)",
-    "en-za": "English (South Africa)",
-    "eo": "Esperanto",
-    "es-es": "Spanish (Spain)",
-    "es-us": "Spanish (United States)",
-    "et": "Estonian",
-    "fi": "Finnish",
-    "fr-ca": "French (Canada)",
-    "fr-fr": "French (France)",
-    "gu": "Gujarati",
-    "hi": "Hindi",
-    "hr": "Croatian",
-    "hu": "Hungarian",
-    "hy": "Armenian",
-    "id": "Indonesian",
-    "is": "Icelandic",
-    "it": "Italian",
-    "ja": "Japanese",
-    "jw": "Javanese",
-    "km": "Khmer",
-    "kn": "Kannada",
-    "ko": "Korean",
-    "la": "Latin",
-    "lv": "Latvian",
-    "mk": "Macedonian",
-    "ml": "Malayalam",
-    "mr": "Marathi",
-    "my": "Myanmar (Burmese)",
-    "ne": "Nepali",
-    "nl": "Dutch",
-    "no": "Norwegian",
-    "pl": "Polish",
-    "pt-br": "Portuguese (Brazil)",
-    "pt-pt": "Portuguese (Portugal)",
-    "ro": "Romanian",
-    "ru": "Russian",
-    "si": "Sinhala",
-    "sk": "Slovak",
-    "sq": "Albanian",
-    "sr": "Serbian",
-    "su": "Sundanese",
-    "sv": "Swedish",
-    "sw": "Swahili",
-    "ta": "Tamil",
-    "te": "Telugu",
-    "th": "Thai",
-    "tl": "Filipino",
-    "tr": "Turkish",
-    "uk": "Ukrainian",
-    "ur": "Urdu",
-    "vi": "Vietnamese",
-    "zh-cn": "Chinese (Mandarin/China)",
-    "zh-tw": "Chinese (Mandarin/Taiwan)",
-}
+from gtts.lang import tts_langs
 
 
 # we subclass the default voice object to store the gtts language code
@@ -117,7 +40,7 @@ class GTTSPlayer(TTSProcessPlayer):
     # this is called the first time Anki tries to play a TTS file
     def get_available_voices(self) -> List[TTSVoice]:
         voices = []
-        for code, name in orig_langs.items():
+        for code, name in tts_langs().items():
             if "-" in code:
                 # get a standard code like en_US from the gtts code en-us
                 head, tail = code.split("-")

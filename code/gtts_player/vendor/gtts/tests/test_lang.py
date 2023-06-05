@@ -1,33 +1,23 @@
 # -*- coding: utf-8 -*-
 import pytest
-from gtts.lang import tts_langs, _fetch_langs, _extra_langs
+from gtts.lang import tts_langs, _extra_langs, _fallback_deprecated_lang
+from gtts.langs import _main_langs
+
+"""Test language list"""
 
 
-"""Test language list downloading"""
-
-
-def test_fetch_langs():
+def test_main_langs():
     """Fetch languages successfully"""
-    # Downloaded Languages
-    # Safe to assume 'en' (english) will always be there
-    scraped_langs = _fetch_langs()
-    assert 'en' in scraped_langs
-
-    # Scraping garbage
-    assert 'Detect language' not in scraped_langs
-    assert '—' not in scraped_langs
-
-    # Add-in Languages
-    all_langs = tts_langs()
-    extra_langs = _extra_langs()
-    assert len(all_langs) == len(scraped_langs) + len(extra_langs)
+    # Safe to assume 'en' (English) will always be there
+    scraped_langs = _main_langs()
+    assert "en" in scraped_langs
 
 
-def test_fetch_langs_exception():
-    """Raise RuntimeError on language fetch exception"""
-    with pytest.raises(RuntimeError):
-        tts_langs(tld="invalid")
+def test_deprecated_lang():
+    """Test language deprecation fallback"""
+    with pytest.deprecated_call():
+        assert _fallback_deprecated_lang("en-gb") == "en"
 
 
-if __name__ == '__main__':
-    pytest.main(['-x', __file__])
+if __name__ == "__main__":
+    pytest.main(["-x", __file__])
