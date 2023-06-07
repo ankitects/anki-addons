@@ -2,8 +2,8 @@
 import re
 
 
-class RegexBuilder():
-    """Builds regex using arguments passed into a pattern template.
+class RegexBuilder:
+    r"""Builds regex using arguments passed into a pattern template.
 
     Builds a regex object for which the pattern is made from an argument
     passed into a template. If more than one argument is passed (iterable),
@@ -63,15 +63,15 @@ class RegexBuilder():
             alt = self.pattern_func(arg)
             alts.append(alt)
 
-        pattern = '|'.join(alts)
+        pattern = "|".join(alts)
         return re.compile(pattern, self.flags)
 
     def __repr__(self):  # pragma: no cover
         return str(self.regex)
 
 
-class PreProcessorRegex():
-    """Regex-based substitution text pre-processor.
+class PreProcessorRegex:
+    r"""Regex-based substitution text pre-processor.
 
     Runs a series of regex substitutions (``re.sub``) from each ``regex`` of a
     :class:`gtts.tokenizer.core.RegexBuilder` with an extra ``repl``
@@ -146,8 +146,8 @@ class PreProcessorRegex():
         return ", ".join(subs_strs)
 
 
-class PreProcessorSub():
-    """Simple substitution text preprocessor.
+class PreProcessorSub:
+    r"""Simple substitution text preprocessor.
 
     Performs string-for-string substitution from list a find/replace pairs.
     It abstracts :class:`gtts.tokenizer.core.PreProcessorRegex` with a default
@@ -212,8 +212,8 @@ class PreProcessorSub():
         return ", ".join([str(pp) for pp in self.pre_processors])
 
 
-class Tokenizer():
-    """An extensible but simple generic rule-based tokenizer.
+class Tokenizer:
+    r"""An extensible but simple generic rule-based tokenizer.
 
     A generic and simple string tokenizer that takes a list of functions
     (called `tokenizer cases`) returning ``regex`` objects and joins them by
@@ -297,14 +297,15 @@ class Tokenizer():
         except (TypeError, AttributeError) as e:  # pragma: no cover
             raise TypeError(
                 "Tokenizer() expects a list of functions returning "
-                "regular expression objects (i.e. re.compile). " + str(e))
+                "regular expression objects (i.e. re.compile). " + str(e)
+            )
 
     def _combine_regex(self):
         alts = []
         for func in self.regex_funcs:
             alts.append(func())
 
-        pattern = '|'.join(alt.pattern for alt in alts)
+        pattern = "|".join(alt.pattern for alt in alts)
         return re.compile(pattern, self.flags)
 
     def run(self, text):
