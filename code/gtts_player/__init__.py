@@ -27,7 +27,7 @@ from aqt.tts import TTSProcessPlayer, TTSVoice
 sys.path.append(os.path.join(os.path.dirname(__file__), "vendor"))
 
 from gtts import gTTS  # isort:skip pylint: disable=import-error
-from gtts.lang import tts_langs
+from gtts.lang import tts_langs  # pylint: disable=import-error
 
 
 # we subclass the default voice object to store the gtts language code
