@@ -5,8 +5,11 @@
 # Bulk update of readings.
 #
 
-from anki.hooks import addHook
+from typing import Sequence
+
+from anki.notes import NoteId
 from aqt import mw
+from aqt.browser.browser import Browser
 from aqt.qt import *
 
 from .notetypes import isJapaneseNoteType
@@ -16,7 +19,7 @@ from .reading import regenerateReading
 ##########################################################################
 
 
-def regenerateReadings(nids):
+def regenerateReadings(nids: Sequence[NoteId]) -> None:
     mw.progress.start()
     for nid in nids:
         note = mw.col.get_note(nid)
@@ -30,15 +33,17 @@ def regenerateReadings(nids):
     mw.reset()
 
 
-def setupMenu(browser):
+def setupMenu(browser: Browser) -> None:
     a = QAction("Bulk-add Readings", browser)
     a.triggered.connect(lambda: onRegenerate(browser))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
 
 
-def onRegenerate(browser):
+def onRegenerate(browser: Browser) -> None:
     regenerateReadings(browser.selected_notes())
 
 
-addHook("browser.setupMenus", setupMenu)
+from aqt import gui_hooks
+
+gui_hooks.browser_will_show.append(setupMenu)

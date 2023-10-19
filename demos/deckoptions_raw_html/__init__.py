@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from aqt import gui_hooks, mw
+from aqt.deckoptions import DeckOptionsDialog
 
 file = Path(__file__)
 
@@ -15,7 +16,7 @@ with open(file.with_name("raw.js"), encoding="utf8") as f:
     script = f.read()
 
 
-def on_mount(dialog):
+def on_mount(dialog: DeckOptionsDialog) -> None:
     dialog.web.eval(script.replace("HTML_CONTENT", json.dumps(html)))
 
 

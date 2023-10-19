@@ -6,16 +6,17 @@
 #
 
 import warnings
+from typing import Sequence
 
-from anki.hooks import addHook
-from aqt import mw
+from anki.notes import Note, NoteId
+from aqt import gui_hooks, mw
 from aqt.browser.browser import Browser
 from aqt.qt import *
 from aqt.utils import showInfo
 from bs4 import BeautifulSoup
 
 
-def onFixHTML(browser: Browser):
+def onFixHTML(browser: Browser) -> None:
     nids = browser.selected_notes()
     if not nids:
         showInfo("Please select some notes.")
@@ -32,7 +33,7 @@ def onFixHTML(browser: Browser):
     showInfo("Updated %d/%d notes." % (changed, len(nids)), parent=browser)
 
 
-def _onFixHTML(browser, nids):
+def _onFixHTML(browser: Browser, nids: Sequence[NoteId]) -> int:
     changed = 0
     for c, nid in enumerate(nids):
         note = mw.col.get_note(nid)
@@ -43,7 +44,7 @@ def _onFixHTML(browser, nids):
 
 
 # true on change
-def _fixNoteHTML(note):
+def _fixNoteHTML(note: Note) -> bool:
     changed = False
     for fld, val in note.items():
         with warnings.catch_warnings():
@@ -59,7 +60,7 @@ def _fixNoteHTML(note):
     return changed
 
 
-def onMenuSetup(browser):
+def onMenuSetup(browser: Browser) -> None:
     act = QAction(browser)
     act.setText("Fix Invalid HTML")
     mn = browser.form.menu_Notes
@@ -68,4 +69,4 @@ def onMenuSetup(browser):
     act.triggered.connect(lambda b=browser: onFixHTML(browser))
 
 
-addHook("browser.setupMenus", onMenuSetup)
+gui_hooks.browser_will_show.append(onMenuSetup)

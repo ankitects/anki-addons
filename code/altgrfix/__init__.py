@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+from typing import Any
+
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
 
-def _runJavaScriptSync(page, js, timeout=500):
+def _runJavaScriptSync(page: QWebEnginePage, js: str, timeout: int = 500) -> Any:
     result = None
     eventLoop = QEventLoop()
     called = False
 
-    def callback(val):
+    def callback(val: Any) -> None:
         nonlocal result, called
         result = val
         called = True
@@ -30,11 +32,11 @@ def _runJavaScriptSync(page, js, timeout=500):
     return result
 
 
-def event(self, evt):
+def event(self: QWebEngineView, evt: QEvent) -> bool:
     if evt.type() == QEvent.Type.ShortcutOverride:
         # alt-gr bug workaround
         exceptChars = (str(num) for num in range(1, 10))
-        if evt.text() not in exceptChars:
+        if evt.text() not in exceptChars:  # type: ignore
             js = """
 var e=document.activeElement;
 (e.tagName === "DIV" && e.contentEditable) ||

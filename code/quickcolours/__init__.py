@@ -3,22 +3,24 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 #
 
-from anki.hooks import addHook
-from aqt import mw
+from typing import Callable
+
+from aqt import gui_hooks, mw
+from aqt.editor import Editor
 
 config = mw.addonManager.getConfig(__name__)
 
 
-def updateColour(editor, colour):
+def updateColour(editor: Editor, colour: str) -> None:
     editor.fcolour = colour
     editor.onColourChanged()
     editor._wrapWithColour(editor.fcolour)
 
 
-def onSetupShortcuts(cuts, editor):
+def onSetupShortcuts(cuts: list[tuple], editor: Editor) -> None:
     # add colours
     for code, key in config["keys"]:
         cuts.append((key, lambda c=code: updateColour(editor, c)))
 
 
-addHook("setupEditorShortcuts", onSetupShortcuts)
+gui_hooks.editor_did_init_shortcuts.append(onSetupShortcuts)

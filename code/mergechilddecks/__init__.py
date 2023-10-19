@@ -5,17 +5,19 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from typing import Dict, List
 
+from anki.decks import DeckId
 from anki.utils import ids2str, int_time
 from aqt import mw
 from aqt.qt import *
 
 
 class Wizard(QWizard):
-    changes: List[Dict[str, str]] = []
+    changes: list[Change] = []
 
-    def __init__(self):
+    def __init__(self) -> None:
         QWizard.__init__(self)
         self.setWizardStyle(QWizard.WizardStyle.ClassicStyle)
         self.setWindowTitle("Merge Child Decks")
@@ -25,10 +27,10 @@ class Wizard(QWizard):
 
 
 class OptionsPage(QWizardPage):
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         self.setTitle("Options")
 
         vbox = QVBoxLayout()
@@ -82,10 +84,10 @@ class OptionsPage(QWizardPage):
 
 
 class PreviewPage(QWizardPage):
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         self.setCommitPage(True)
         self.setTitle("Preview")
 
@@ -115,18 +117,18 @@ class PreviewPage(QWizardPage):
             sip.delete(self.layout())
         self.setLayout(vbox)
 
-    def isComplete(self):
+    def isComplete(self) -> bool:
         return bool(self.get_wizard().changes)
 
-    def _renderChange(self, change):
+    def _renderChange(self, change: Change) -> str:
         return """\
 From: %s
   To: %s
  Tag: %s  
 """ % (
-            change["oldname"],
-            change["newname"],
-            change["tag"] or "[no tag added]",
+            change.oldname,
+            change.newname,
+            change.tag or "[no tag added]",
         )
 
     def get_wizard(self) -> Wizard:
@@ -134,10 +136,10 @@ From: %s
 
 
 class CommitPage(QWizardPage):
-    def __init__(self):
+    def __init__(self) -> None:
         QWizardPage.__init__(self)
 
-    def initializePage(self):
+    def initializePage(self) -> None:
         self.changeDecks()
 
         self.setTitle("Done!")
@@ -151,7 +153,7 @@ class CommitPage(QWizardPage):
         self.setLayout(vbox)
         print("done!")
 
-    def changeDecks(self):
+    def changeDecks(self) -> None:
         changes = self.get_wizard().changes
         performDeckChange(changes)
 
@@ -159,7 +161,14 @@ class CommitPage(QWizardPage):
         return self.wizard()  # type: ignore
 
 
-def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
+@dataclass
+class Change:
+    oldname: str
+    newname: str
+    tag: str
+
+
+def buildChanges(depth: int, deckprefix: str, tag: str) -> list[Change]:
     changes = []
     for deck in sorted(mw.col.decks.all(), key=lambda x: x["name"].lower()):
         # ignore if prefix doesn't match
@@ -184,7 +193,7 @@ def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
             tag = ""
 
         changes.append(
-            dict(
+            Change(
                 oldname=deck["name"], newname="::".join(newcomponents), tag=tag.lower()
             )
         )
@@ -192,23 +201,23 @@ def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
     return changes
 
 
-def performDeckChange(changes):
+def performDeckChange(changes: list[Change]) -> None:
     # process in reverse order, leaves first
-    changes = reversed(changes)
-    nameMap = mw.col.decks.name_map()
+    changes2 = reversed(changes)
+    nameMap = {d.name: DeckId(d.id) for d in mw.col.decks.all_names_and_ids()}
 
     mw.progress.start(immediate=True)
     try:
-        for change in changes:
+        for change in changes2:
             changeDeck(nameMap, change)
             mw.progress.update()
     finally:
         mw.progress.finish()
 
 
-def changeDeck(nameMap, change):
-    oldDid = nameMap[change["oldname"]]["id"]
-    newDid = nameMap[change["newname"]]["id"]
+def changeDeck(nameMap: dict[str, DeckId], change: Change) -> None:
+    oldDid = nameMap[change.oldname]
+    newDid = nameMap[change.newname]
 
     # remove cards from any filtered decks
     cids = mw.col.db.list("select id from cards where odid=?", oldDid)
@@ -216,10 +225,10 @@ def changeDeck(nameMap, change):
         mw.col.sched.remFromDyn(cids)
 
     # tag the notes
-    if change["tag"]:
+    if change.tag:
         nids = mw.col.db.list("select distinct nid from cards where did=?", oldDid)
         if nids:
-            mw.col.tags.bulk_add(nids, change["tag"])
+            mw.col.tags.bulk_add(nids, change.tag)
 
     # move cards
     mod = int_time()
@@ -237,10 +246,10 @@ update cards set did=?, usn=?, mod=? where did=?""",
     mw.col.decks.remove([oldDid])
 
 
-def setupMenu():
+def setupMenu() -> None:
     action = QAction("Merge Child Decks...", mw)
 
-    def onMergeAction():
+    def onMergeAction() -> None:
         w = Wizard()
         w.exec()
         mw.reset()

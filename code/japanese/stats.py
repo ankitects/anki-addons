@@ -3,10 +3,13 @@
 # Used/unused kanji list code originally by 'LaC'
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+from __future__ import annotations
+
 import unicodedata
-from typing import Set
+from typing import Any, Set
 
 import aqt
+from anki.collection import Collection
 from anki.utils import ids2str, split_fields
 from aqt import mw
 from aqt.operations import QueryOp
@@ -19,7 +22,7 @@ from .notetypes import isJapaneseNoteType
 config = mw.addonManager.getConfig(__name__)
 
 
-def isKanji(unichar):
+def isKanji(unichar: str) -> bool:
     try:
         return unicodedata.name(unichar).find("CJK UNIFIED IDEOGRAPH") >= 0
     except ValueError:
@@ -28,7 +31,7 @@ def isKanji(unichar):
 
 
 class KanjiStats(object):
-    def __init__(self, col, wholeCollection):
+    def __init__(self, col: Collection, wholeCollection: bool) -> None:
         self.col = col
         if wholeCollection:
             self.lim = ""
@@ -39,10 +42,10 @@ class KanjiStats(object):
             for c in chars:
                 self._gradeHash[c] = grade
 
-    def kanjiGrade(self, unichar):
+    def kanjiGrade(self, unichar: str) -> int:
         return self._gradeHash.get(unichar, 0)
 
-    def kanjiCountStr(self, gradename, count, total=0):
+    def kanjiCountStr(self, gradename: str, count: int, total: int = 0) -> str:
         d = {"count": count, "gradename": gradename}
         if total:
             d["total"] = total
@@ -51,7 +54,7 @@ class KanjiStats(object):
         else:
             return ("%(count)s %(gradename)s kanji.") % d
 
-    def genKanjiSets(self):
+    def genKanjiSets(self) -> None:
         self.kanjiSets: list[set[str]] = [set([]) for g in self.kanjiGrades]
         chars: Set[str] = set()
         for m in self.col.models.all():
@@ -80,7 +83,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
             if isKanji(c2):
                 self.kanjiSets[self.kanjiGrade(c2)].add(c2)
 
-    def report(self):
+    def report(self) -> str:
         self.genKanjiSets()
         counts = [
             (name, len(found), len(all))
@@ -125,10 +128,10 @@ where c.nid = n.id and mid = ? and c.queue > 0
         out += "</ul>"
         return out
 
-    def missingReport(self, check=None):
+    def missingReport(self, check: Callable | None = None) -> str:
         if not check:
 
-            def check(x, y):
+            def check(x: Any, y: list) -> bool:
                 return x not in y
 
             out = "<h1>Missing</h1>"
@@ -144,7 +147,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
             out += "</font>"
         return out + "<br/>"
 
-    def mkEdict(self, kanji):
+    def mkEdict(self, kanji: str) -> str:
         out = "<font size=+2>"
         while 1:
             if not kanji:
@@ -154,20 +157,20 @@ where c.nid = n.id and mid = ? and c.queue > 0
             out += self.edictKanjiLink(kanji[0:10])
             kanji = kanji[10:]
 
-    def seenReport(self):
+    def seenReport(self) -> str:
         return self.missingReport(lambda x, y: x in y)
 
-    def nonJouyouReport(self):
+    def nonJouyouReport(self) -> str:
         out = "<h1>Non-Jouyou</h1>"
         out += self.mkEdict("".join(self.kanjiSets[0]))
         return out + "<br/>"
 
-    def edictKanjiLink(self, kanji):
+    def edictKanjiLink(self, kanji: str) -> str:
         base = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1MMJ"
         url = base + kanji
         return '<a href="%s">%s</a>' % (url, kanji)
 
-    def missingInGrade(self, gradeNum, check):
+    def missingInGrade(self, gradeNum: int, check: Callable) -> list[str]:
         existingKanji = self.kanjiSets[gradeNum]
         totalKanji = self.kanjiGrades[gradeNum][1]
         return [k for k in totalKanji if check(k, existingKanji)]
@@ -217,7 +220,7 @@ where c.nid = n.id and mid = ? and c.queue > 0
     ]
 
 
-def genKanjiStats():
+def genKanjiStats() -> str:
     wholeCollection = mw.state == "deckBrowser"
     s = KanjiStats(mw.col, wholeCollection)
     rep = s.report()
@@ -227,7 +230,7 @@ def genKanjiStats():
     return rep
 
 
-def onKanjiStats():
+def onKanjiStats() -> None:
     def show(stats: str) -> None:
         diag = QDialog(mw)
         layout = QVBoxLayout()
@@ -242,7 +245,7 @@ def onKanjiStats():
         web.stdHtml(stats)
         diag.open()
 
-        def close():
+        def close() -> None:
             saveGeom(diag, "kanjistats")
             diag.reject()
 
@@ -253,7 +256,7 @@ def onKanjiStats():
     ).with_progress().run_in_background()
 
 
-def createMenu():
+def createMenu() -> None:
     a = QAction(mw)
     a.setText("Kanji Stats")
     mw.form.menuTools.addAction(a)

@@ -5,6 +5,8 @@
 # Dictionary lookup support.
 #
 
+from __future__ import annotations
+
 import re
 from urllib.parse import quote
 
@@ -16,10 +18,10 @@ setUrl = QUrl.setUrl
 
 
 class Lookup(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def selection(self, function):
+    def selection(self, function: Callable) -> None:
         "Get the selected text and look it up with FUNCTION."
         text = mw.web.selectedText()
         text = text.strip()
@@ -31,10 +33,10 @@ class Lookup(object):
             return
         function(text)
 
-    def edictKanji(self, text):
+    def edictKanji(self, text: str) -> None:
         self.edict(text, True)
 
-    def edict(self, text, kanji=False):
+    def edict(self, text: str, kanji: bool = False) -> None:
         "Look up TEXT with edict."
         if kanji:
             x = "M"
@@ -50,10 +52,10 @@ class Lookup(object):
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
-    def jishoKanji(self, text):
+    def jishoKanji(self, text: str) -> None:
         self.jisho(text, True)
 
-    def jisho(self, text, kanji=False):
+    def jisho(self, text: str, kanji: bool = False) -> None:
         "Look up TEXT with jisho."
         if kanji:
             baseUrl = "http://jisho.org/kanji/details/"
@@ -68,7 +70,7 @@ class Lookup(object):
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
-    def alc(self, text):
+    def alc(self, text: str) -> None:
         "Look up TEXT with ALC."
         newText = quote(text.encode("utf-8"))
         url = "http://eow.alc.co.jp/" + newText + "/UTF-8/?ref=sa"
@@ -76,7 +78,7 @@ class Lookup(object):
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
 
-    def isJapaneseText(self, text):
+    def isJapaneseText(self, text: str) -> bool:
         "True if 70% of text is a Japanese character."
         total = len(text)
         if total == 0:
@@ -99,45 +101,46 @@ def lookup() -> Lookup:
     return mw.lookup  # type: ignore
 
 
-def _field(name):
+def _field(name: str) -> str | None:
     try:
         return mw.reviewer.card.note()[name]
     except:
-        return
+        return None
 
 
-def onLookupExpression(name="Expression"):
+def onLookupExpression(name: str = "Expression") -> None:
     txt = _field(name)
     if not txt:
-        return showInfo("No %s in current note." % name)
+        showInfo("No %s in current note." % name)
+        return
     lookup().alc(txt)
 
 
-def onLookupMeaning():
+def onLookupMeaning() -> None:
     onLookupExpression("Meaning")
 
 
-def onLookupEdictSelection():
+def onLookupEdictSelection() -> None:
     lookup().selection(lookup().edict)
 
 
-def onLookupEdictKanjiSelection():
+def onLookupEdictKanjiSelection() -> None:
     lookup().selection(lookup().edictKanji)
 
 
-def onLookupJishoSelection():
+def onLookupJishoSelection() -> None:
     lookup().selection(lookup().jisho)
 
 
-def onLookupJishoKanjiSelection():
+def onLookupJishoKanjiSelection() -> None:
     lookup().selection(lookup().jishoKanji)
 
 
-def onLookupAlcSelection():
+def onLookupAlcSelection() -> None:
     lookup().selection(lookup().alc)
 
 
-def createMenu():
+def createMenu() -> None:
     # pylint: disable=unnecessary-lambda
     ml = QMenu()
     ml.setTitle("Lookup")
@@ -184,14 +187,5 @@ def createMenu():
     ml.addAction(a)
     a.triggered.connect(onLookupJishoKanjiSelection)
 
-
-# def disableMenu():
-#     mw.mainWin.menuLookup.setEnabled(False)
-
-# def enableMenu():
-#     mw.mainWin.menuLookup.setEnabled(True)
-
-# addHook('disableCardMenuItems', disableMenu)
-# addHook('enableCardMenuItems', enableMenu)
 
 createMenu()

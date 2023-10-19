@@ -5,19 +5,22 @@
 # Standard Japanese model.
 #
 
+from __future__ import annotations
+
 import anki.stdmodels
+from anki.collection import Collection
 
 
-def addJapaneseModel(col):
+def addJapaneseModel(col: Collection) -> dict:
     mm = col.models
     m = mm.new(("Japanese (recognition)"))
-    fm = mm.newField(("Expression"))
+    fm = mm.new_field(("Expression"))
     mm.addField(m, fm)
-    fm = mm.newField(("Meaning"))
+    fm = mm.new_field(("Meaning"))
     mm.addField(m, fm)
-    fm = mm.newField(("Reading"))
+    fm = mm.new_field(("Reading"))
     mm.addField(m, fm)
-    t = mm.newTemplate(("Recognition"))
+    t = mm.new_template(("Recognition"))
     # css
     m[
         "css"
@@ -39,11 +42,11 @@ def addJapaneseModel(col):
     return m
 
 
-def addDoubleJapaneseModel(col):
+def addDoubleJapaneseModel(col: Collection) -> dict:
     mm = col.models
     m = addJapaneseModel(col)
     m["name"] = "Japanese (recognition&recall)"
-    rev = mm.newTemplate(("Recall"))
+    rev = mm.new_template(("Recall"))
     rev["qfmt"] = "{{Meaning}}"
     rev[
         "afmt"
@@ -57,13 +60,13 @@ def addDoubleJapaneseModel(col):
     return m
 
 
-def addOptionalJapaneseModel(col):
+def addOptionalJapaneseModel(col: Collection) -> dict:
     mm = col.models
     m = addDoubleJapaneseModel(col)
     m["name"] = "Japanese (optional recall)"
     rev = m["tmpls"][1]
     rev["qfmt"] = "{{#Add Recall}}\n" + rev["qfmt"] + "\n{{/Add Recall}}"
-    fm = mm.newField("Add Recall")
+    fm = mm.new_field("Add Recall")
     mm.addField(m, fm)
     return m
 

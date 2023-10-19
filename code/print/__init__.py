@@ -6,8 +6,12 @@
 # printed. Card styling is not included. Cards are printed in sort field
 # order.
 
+from __future__ import annotations
+
 import re
 
+from anki.cards import CardId
+from anki.decks import DeckId
 from anki.utils import ids2str
 from aqt import mw
 from aqt.qt import *
@@ -16,7 +20,7 @@ from aqt.utils import mungeQA, openLink
 config = mw.addonManager.getConfig(__name__)
 
 
-def sortFieldOrderCids(did):
+def sortFieldOrderCids(did: DeckId) -> list[CardId]:
     dids = [did]
     for name, id in mw.col.decks.children(did):
         dids.append(id)
@@ -28,7 +32,7 @@ and c.nid = n.id order by n.sfld"""
     )
 
 
-def onPrint():
+def onPrint() -> None:
     path = os.path.join(
         QStandardPaths.writableLocation(
             QStandardPaths.StandardLocation.DesktopLocation
@@ -37,7 +41,7 @@ def onPrint():
     )
     ids = sortFieldOrderCids(mw.col.decks.selected())
 
-    def esc(s):
+    def esc(s: str) -> str:
         # strip off the repeated question in answer if exists
         # s = re.sub("(?si)^.*<hr id=answer>\n*", "", s)
         # remove type answer

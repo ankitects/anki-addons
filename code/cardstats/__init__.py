@@ -8,8 +8,9 @@
 
 from __future__ import annotations
 
-from anki.hooks import addHook
+from anki.cards import Card
 from aqt import mw
+from aqt.main import AnkiQt
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
@@ -17,20 +18,21 @@ from aqt.webview import AnkiWebView
 class DockableWithClose(QDockWidget):
     closed = pyqtSignal()
 
-    def closeEvent(self, evt):
+    def closeEvent(self, evt: QCloseEvent) -> None:
         self.closed.emit()
         QDockWidget.closeEvent(self, evt)
 
 
 class CardStats(object):
-    def __init__(self, mw):
+    def __init__(self, mw: AnkiQt):
         self.mw = mw
         self.shown: DockableWithClose | None = None
-        addHook("showQuestion", self._update)
-        addHook("deckClosing", self.hide)
-        addHook("reviewCleanup", self.hide)
+        from aqt import gui_hooks
 
-    def _addDockable(self, title, w) -> DockableWithClose:
+        gui_hooks.reviewer_did_show_question.append(self._update)
+        gui_hooks.reviewer_will_end.append(self.hide)
+
+    def _addDockable(self, title: str, w: AnkiWebView) -> DockableWithClose:
         dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
         dock.setAllowedAreas(
@@ -43,38 +45,38 @@ class CardStats(object):
         mw.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, dock)
         return dock
 
-    def _remDockable(self, dock):
+    def _remDockable(self, dock: QDockWidget) -> None:
         mw.removeDockWidget(dock)
 
-    def show(self):
+    def show(self) -> None:
         if not self.shown:
 
             class ThinAnkiWebView(AnkiWebView):
-                def sizeHint(self):
+                def sizeHint(self) -> QSize:
                     return QSize(200, 100)
 
             self.web = ThinAnkiWebView()
             self.shown = self._addDockable(("Card Info"), self.web)
             self.shown.closed.connect(self._onClosed)
             self._load_html()
-        self._update()
+        self._update(None)
 
-    def hide(self):
+    def hide(self) -> None:
         if self.shown:
             self._remDockable(self.shown)
             self.shown = None
 
-    def toggle(self):
+    def toggle(self) -> None:
         if self.shown:
             self.hide()
         else:
             self.show()
 
-    def _onClosed(self):
+    def _onClosed(self) -> None:
         # schedule removal for after evt has finished
         self.mw.progress.timer(100, self.hide, False)
 
-    def _update(self):
+    def _update(self, card: Card | None) -> None:
         if not self.shown:
             return
         r = self.mw.reviewer
@@ -84,7 +86,7 @@ class CardStats(object):
         id = lc.id if lc else "null"
         self.web.eval(f"previous.then(s => s.updateStats({id}));")
 
-    def _load_html(self):
+    def _load_html(self) -> None:
         self.web.setHtml(
             """
 <html><head>
@@ -108,7 +110,7 @@ const previous = anki.setupCardInfo(document.getElementById("previous"), {includ
         )
         self.web.on_theme_did_change()
 
-    def _style(self):
+    def _style(self) -> str:
         return """
 td { font-size: 80%; }
 .card-info-placeholder { position: relative !important; }
@@ -118,7 +120,7 @@ td { font-size: 80%; }
 _cs = CardStats(mw)
 
 
-def cardStats(on):
+def cardStats(on: bool) -> None:
     _cs.toggle()
 
 

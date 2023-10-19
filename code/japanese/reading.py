@@ -5,14 +5,16 @@
 # Automatic reading generation with kakasi and mecab.
 #
 
+from __future__ import annotations
+
 import os
 import re
 import subprocess
 import sys
 
-from anki.hooks import addHook
+from anki.notes import Note
 from anki.utils import is_mac, is_win, strip_html
-from aqt import mw
+from aqt import gui_hooks, mw
 
 from .notetypes import isJapaneseNoteType
 
@@ -28,7 +30,7 @@ mecabArgs = ["--node-format=%m[%f[7]] ", "--eos-format=\n", "--unk-format=%m[] "
 supportDir = os.path.join(os.path.dirname(__file__), "support")
 
 
-def escapeText(text):
+def escapeText(text: str) -> str:
     # strip characters that trip up kakasi/mecab
     text = text.replace("\n", " ")
     text = text.replace("\uff5e", "~")
@@ -52,7 +54,7 @@ else:
 ##########################################################################
 
 
-def mungeForPlatform(popen):
+def mungeForPlatform(popen: list[str]) -> list[str]:
     if is_win:
         popen = [os.path.normpath(x) for x in popen]
         popen[0] += ".exe"
@@ -62,10 +64,10 @@ def mungeForPlatform(popen):
 
 
 class MecabController(object):
-    def __init__(self):
-        self.mecab = None
+    def __init__(self) -> None:
+        self.mecab: subprocess.Popen | None = None
 
-    def setup(self):
+    def setup(self) -> None:
         self.mecabCmd = mungeForPlatform(
             [os.path.join(supportDir, "mecab")]
             + mecabArgs
@@ -83,7 +85,7 @@ class MecabController(object):
         if not is_win:
             os.chmod(self.mecabCmd[0], 0o755)
 
-    def ensureOpen(self):
+    def ensureOpen(self) -> None:
         if not self.mecab:
             self.setup()
             try:
@@ -100,11 +102,12 @@ class MecabController(object):
                     "Please ensure your Linux system has 64 bit binary support."
                 ) from exc
 
-    def reading(self, expr):
+    def reading(self, expr: str) -> str:
         self.ensureOpen()
         expr = escapeText(expr)
         self.mecab.stdin.write(expr.encode("utf-8", "ignore") + b"\n")
         self.mecab.stdin.flush()
+        assert self.mecab
         expr = self.mecab.stdout.readline().rstrip(b"\r\n").decode("utf-8", "replace")
         out = []
         for node in expr.split(" "):
@@ -187,10 +190,10 @@ class MecabController(object):
 
 
 class KakasiController(object):
-    def __init__(self):
-        self.kakasi = None
+    def __init__(self) -> None:
+        self.kakasi: subprocess.Popen | None = None
 
-    def setup(self):
+    def setup(self) -> None:
         self.kakasiCmd = mungeForPlatform(
             [os.path.join(supportDir, "kakasi")] + kakasiArgs
         )
@@ -199,7 +202,7 @@ class KakasiController(object):
         if not is_win:
             os.chmod(self.kakasiCmd[0], 0o755)
 
-    def ensureOpen(self):
+    def ensureOpen(self) -> None:
         if not self.kakasi:
             self.setup()
             try:
@@ -214,7 +217,7 @@ class KakasiController(object):
             except OSError as exc:
                 raise Exception("Please install kakasi") from exc
 
-    def reading(self, expr):
+    def reading(self, expr: str) -> str:
         self.ensureOpen()
         expr = escapeText(expr)
         self.kakasi.stdin.write(expr.encode("sjis", "ignore") + b"\n")
@@ -229,18 +232,18 @@ class KakasiController(object):
 mecab = None
 
 
-def onFocusLost(flag, n, fidx):
+def onFocusLost(changed: bool, note: Note, current_field_index: int) -> bool:
     # japanese model?
-    if not isJapaneseNoteType(n.note_type()["name"]):
-        return flag
-    fields = mw.col.models.field_names(n.note_type())
-    src = fields[fidx]
-    if not regenerateReading(n, src):
-        return flag
+    if not isJapaneseNoteType(note.note_type()["name"]):
+        return changed
+    fields = mw.col.models.field_names(note.note_type())
+    src = fields[current_field_index]
+    if not regenerateReading(note, src):
+        return changed
     return True
 
 
-def regenerateReading(n, src):
+def regenerateReading(n: Note, src: str) -> bool:
     global mecab
     if not mecab:
         return False
@@ -278,7 +281,7 @@ def regenerateReading(n, src):
 kakasi = KakasiController()
 mecab = MecabController()
 
-addHook("editFocusLost", onFocusLost)
+gui_hooks.editor_did_unfocus_field.append(onFocusLost)
 
 # Tests
 ##########################################################################

@@ -14,7 +14,7 @@ config = mw.addonManager.getConfig(__name__)
 noteTypes = [noteType.lower() for noteType in config["noteTypes"]]
 
 
-def isJapaneseNoteType(noteName):
+def isJapaneseNoteType(noteName: str) -> bool:
     noteName = noteName.lower()
     for allowedString in noteTypes:
         if allowedString in noteName:

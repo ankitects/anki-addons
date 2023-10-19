@@ -11,22 +11,24 @@ import os
 import re
 import time
 import urllib.parse
+from typing import Sequence
 
-from anki.hooks import addHook
 from anki.httpclient import HttpClient
+from anki.notes import Note, NoteId
 from aqt import mw
+from aqt.browser.browser import Browser
 from aqt.operations import CollectionOp, OpChanges
 from aqt.qt import *
 from aqt.utils import showInfo, showWarning, tr
 
 
-def onLocalize(browser):
+def onLocalize(browser: Browser) -> None:
     nids = browser.selected_notes()
     if not nids:
         showInfo("Please select some notes.")
         return
 
-    def on_failure(exc):
+    def on_failure(exc: Exception) -> None:
         showInfo(
             f"An error occurred. Any media already downloaded has been saved. Error: {exc}"
         )
@@ -36,7 +38,7 @@ def onLocalize(browser):
     ).failure(on_failure).run_in_background()
 
 
-def _localizeNids(browser, nids) -> OpChanges:
+def _localizeNids(browser: Browser, nids: Sequence[NoteId]) -> OpChanges:
     undo_start = mw.col.add_custom_undo_entry("Localize Media")
     with HttpClient() as client:
         client.timeout = 30
@@ -71,7 +73,9 @@ def _retrieveURL(url: str, client: HttpClient) -> str:
     return mw.col.media.write_data(fname, filecontents)
 
 
-def _localizeNote(browser, note, undo_start: int, client: HttpClient):
+def _localizeNote(
+    browser: Browser, note: Note, undo_start: int, client: HttpClient
+) -> bool:
     for fld, val in note.items():
         # any remote links?
         files = mw.col.media.files_in_str(
@@ -111,7 +115,7 @@ def _localizeNote(browser, note, undo_start: int, client: HttpClient):
     return True
 
 
-def onMenuSetup(browser):
+def onMenuSetup(browser: Browser) -> None:
     act = QAction(browser)
     act.setText("Localize Media")
     mn = browser.form.menu_Notes
@@ -120,4 +124,6 @@ def onMenuSetup(browser):
     act.triggered.connect(lambda b=browser: onLocalize(browser))
 
 
-addHook("browser.setupMenus", onMenuSetup)
+from aqt import gui_hooks
+
+gui_hooks.browser_will_show.append(onMenuSetup)

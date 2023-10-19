@@ -25,11 +25,13 @@ from __future__ import annotations
 
 import random
 import time
+from typing import Sequence
 
-from anki.hooks import addHook
+from anki.cards import CardId
 from anki.lang import ngettext
 from anki.notes import NoteId
 from aqt import mw
+from aqt.browser.browser import Browser
 from aqt.qt import *
 from aqt.utils import getText, showWarning, tooltip
 
@@ -40,7 +42,7 @@ from aqt.utils import getText, showWarning, tooltip
 ##########################################################################
 
 
-def resetCreationTimes(note_ids, desttime):
+def resetCreationTimes(note_ids: Sequence[NoteId], desttime: int) -> None:
     mw.progress.start(label="Reset Creation Times: updating...", max=len(note_ids))
 
     # debug
@@ -91,7 +93,7 @@ def resetCreationTimes(note_ids, desttime):
 # simple, this addon preprocesses the cards, gathering the unique note IDs,
 # and ensuring there are no surprises (such as the same note referenced by
 # cards in different sort locations in the browser).
-def identifyNotes(card_ids):
+def identifyNotes(card_ids: Sequence[CardId]) -> tuple[int, list[NoteId]]:
     mw.progress.start(
         label="Reset Creation Times: collecting notes...", max=len(card_ids)
     )
@@ -155,14 +157,14 @@ def identifyNotes(card_ids):
     return card_cnt + 1, nids_ordered
 
 
-def setupMenu(browser):
+def setupMenu(browser: Browser) -> None:
     a = QAction("Reset Creation Times", browser)
     a.triggered.connect(lambda _, e=browser: onResetTimes(e))
     browser.form.menuEdit.addSeparator()
     browser.form.menuEdit.addAction(a)
 
 
-def onResetTimes(browser):
+def onResetTimes(browser: Browser) -> None:
     # Make sure user selected something.
     if not browser.form.tableView.selectionModel().hasSelection():
         showWarning(
@@ -228,7 +230,7 @@ def onResetTimes(browser):
     mw.col.mod_schema(check=True)
 
     # Do it.
-    resetCreationTimes(nids, desttime)
+    resetCreationTimes(nids, int(desttime))
 
     # Done.
     mw.reset()
@@ -242,4 +244,6 @@ def onResetTimes(browser):
     )
 
 
-addHook("browser.setupMenus", setupMenu)
+from aqt import gui_hooks
+
+gui_hooks.browser_will_show.append(setupMenu)
