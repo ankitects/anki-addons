@@ -30,7 +30,10 @@ and c.nid = n.id order by n.sfld"""
 
 def onPrint():
     path = os.path.join(
-        QStandardPaths.writableLocation(QStandardPaths.DesktopLocation), "print.html"
+        QStandardPaths.writableLocation(
+            QStandardPaths.StandardLocation.DesktopLocation
+        ),
+        "print.html",
     )
     ids = sortFieldOrderCids(mw.col.decks.selected())
 
@@ -64,7 +67,7 @@ td { border: 1px solid #ccc; padding: 1em; }
             else:
                 first = False
             buf.write("<tr>")
-        c = mw.col.getCard(cid)
+        c = mw.col.get_card(cid)
         qatxt = c.render_output(True, False).answer_text
         qatxt = mw.prepare_card_text_for_display(qatxt)
         cont = '<td width="{1}%"><center>{0}</center></td>'.format(

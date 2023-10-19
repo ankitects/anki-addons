@@ -5,20 +5,21 @@
 # Feed field HTML through BeautifulSoup to fix things like unbalanced div tags.
 #
 
+import warnings
+
 from anki.hooks import addHook
 from aqt import mw
+from aqt.browser.browser import Browser
 from aqt.qt import *
 from aqt.utils import showInfo
 from bs4 import BeautifulSoup
 
 
-def onFixHTML(browser):
+def onFixHTML(browser: Browser):
     nids = browser.selected_notes()
     if not nids:
         showInfo("Please select some notes.")
         return
-
-    mw.checkpoint("Fix Invalid HTML")
 
     mw.progress.start(immediate=True)
     try:
@@ -26,8 +27,7 @@ def onFixHTML(browser):
     finally:
         mw.progress.finish()
 
-    browser.note_type.reset()
-    mw.requireReset()
+    mw.reset()
 
     showInfo("Updated %d/%d notes." % (changed, len(nids)), parent=browser)
 
@@ -35,7 +35,7 @@ def onFixHTML(browser):
 def _onFixHTML(browser, nids):
     changed = 0
     for c, nid in enumerate(nids):
-        note = mw.col.getNote(nid)
+        note = mw.col.get_note(nid)
         if _fixNoteHTML(note):
             changed += 1
         mw.progress.update(label="Processed %d/%d notes" % (c + 1, len(nids)))
@@ -46,13 +46,15 @@ def _onFixHTML(browser, nids):
 def _fixNoteHTML(note):
     changed = False
     for fld, val in note.items():
-        parsed = str(BeautifulSoup(val, "html.parser"))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)
+            parsed = str(BeautifulSoup(val, "html.parser"))
         if parsed != val:
             note[fld] = parsed
             changed = True
 
     if changed:
-        note.flush()
+        mw.col.update_note(note)
 
     return changed
 

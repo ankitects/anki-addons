@@ -57,7 +57,8 @@ def on_js_message(handled, msg, context):
         browser = dialogs.open("Browser", mw)
         browser.setFilter('"tag:%s" "deck:%s"' % (tag, deck))
         browser.setWindowState(
-            browser.windowState() & ~Qt.WindowMinimized | Qt.WindowActive
+            browser.windowState() & ~Qt.WindowState.WindowMinimized
+            | Qt.WindowState.WindowActive
         )
         return True, None
 

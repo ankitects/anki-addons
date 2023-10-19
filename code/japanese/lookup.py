@@ -93,9 +93,10 @@ class Lookup(object):
         return ((jp + 1) / float(en + 1)) >= 1.0
 
 
-def initLookup():
+def lookup() -> Lookup:
     if not getattr(mw, "lookup", None):
-        mw.lookup = Lookup()
+        mw.lookup = Lookup()  # type: ignore
+    return mw.lookup  # type: ignore
 
 
 def _field(name):
@@ -106,11 +107,10 @@ def _field(name):
 
 
 def onLookupExpression(name="Expression"):
-    initLookup()
     txt = _field(name)
     if not txt:
         return showInfo("No %s in current note." % name)
-    mw.lookup.alc(txt)
+    lookup().alc(txt)
 
 
 def onLookupMeaning():
@@ -118,28 +118,23 @@ def onLookupMeaning():
 
 
 def onLookupEdictSelection():
-    initLookup()
-    mw.lookup.selection(mw.lookup.edict)
+    lookup().selection(lookup().edict)
 
 
 def onLookupEdictKanjiSelection():
-    initLookup()
-    mw.lookup.selection(mw.lookup.edictKanji)
+    lookup().selection(lookup().edictKanji)
 
 
 def onLookupJishoSelection():
-    initLookup()
-    mw.lookup.selection(mw.lookup.jisho)
+    lookup().selection(lookup().jisho)
 
 
 def onLookupJishoKanjiSelection():
-    initLookup()
-    mw.lookup.selection(mw.lookup.jishoKanji)
+    lookup().selection(lookup().jishoKanji)
 
 
 def onLookupAlcSelection():
-    initLookup()
-    mw.lookup.selection(mw.lookup.alc)
+    lookup().selection(lookup().alc)
 
 
 def createMenu():
@@ -148,7 +143,7 @@ def createMenu():
     ml.setTitle("Lookup")
     mw.form.menuTools.addAction(ml.menuAction())
     # make it easier for other plugins to add to the menu
-    mw.form.menuLookup = ml
+    mw.form.menuLookup = ml  # type: ignore
     # add actions
     a = QAction(mw)
     a.setText("...expression on alc")

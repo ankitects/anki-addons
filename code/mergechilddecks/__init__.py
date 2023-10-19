@@ -2,6 +2,8 @@
 # Copyright: Ankitects Pty Ltd and contributors
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
+from __future__ import annotations
+
 import re
 from typing import Dict, List
 
@@ -15,7 +17,7 @@ class Wizard(QWizard):
 
     def __init__(self):
         QWizard.__init__(self)
-        self.setWizardStyle(QWizard.ClassicStyle)
+        self.setWizardStyle(QWizard.WizardStyle.ClassicStyle)
         self.setWindowTitle("Merge Child Decks")
         self.addPage(OptionsPage())
         self.addPage(PreviewPage())
@@ -92,7 +94,7 @@ class PreviewPage(QWizardPage):
         edit = QPlainTextEdit()
         edit.setReadOnly(True)
         f = QFont("Courier")
-        f.setStyleHint(QFont.Monospace)
+        f.setStyleHint(QFont.StyleHint.Monospace)
         edit.setFont(f)
         vbox.addWidget(edit)
 
@@ -100,7 +102,7 @@ class PreviewPage(QWizardPage):
             self.field("depth"), self.field("deckprefix"), self.field("tag")
         )
 
-        self.wizard().changes = changes
+        self.get_wizard().changes = changes
 
         if not changes:
             edit.setPlainText("No changes to perform.")
@@ -114,7 +116,7 @@ class PreviewPage(QWizardPage):
         self.setLayout(vbox)
 
     def isComplete(self):
-        return bool(self.wizard().changes)
+        return bool(self.get_wizard().changes)
 
     def _renderChange(self, change):
         return """\
@@ -126,6 +128,9 @@ From: %s
             change["newname"],
             change["tag"] or "[no tag added]",
         )
+
+    def get_wizard(self) -> Wizard:
+        return self.wizard()  # type: ignore
 
 
 class CommitPage(QWizardPage):
@@ -147,8 +152,11 @@ class CommitPage(QWizardPage):
         print("done!")
 
     def changeDecks(self):
-        changes = self.wizard().changes
+        changes = self.get_wizard().changes
         performDeckChange(changes)
+
+    def get_wizard(self) -> Wizard:
+        return self.wizard()  # type: ignore
 
 
 def buildChanges(depth, deckprefix, tag) -> List[Dict[str, str]]:
@@ -211,7 +219,7 @@ def changeDeck(nameMap, change):
     if change["tag"]:
         nids = mw.col.db.list("select distinct nid from cards where did=?", oldDid)
         if nids:
-            mw.col.tags.bulkAdd(nids, change["tag"])
+            mw.col.tags.bulk_add(nids, change["tag"])
 
     # move cards
     mod = int_time()

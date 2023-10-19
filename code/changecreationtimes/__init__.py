@@ -21,11 +21,14 @@
 #   cards are foreign-keyed to the note's ID, we have to execute SQL to change
 #   the card table too.
 
+from __future__ import annotations
+
 import random
 import time
 
 from anki.hooks import addHook
 from anki.lang import ngettext
+from anki.notes import NoteId
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import getText, showWarning, tooltip
@@ -39,7 +42,6 @@ from aqt.utils import getText, showWarning, tooltip
 
 def resetCreationTimes(note_ids, desttime):
     mw.progress.start(label="Reset Creation Times: updating...", max=len(note_ids))
-    mw.checkpoint("Reset Creation Times")
 
     # debug
     # showInfo(("Called reset with %s notes") % len(note_ids))
@@ -93,7 +95,7 @@ def identifyNotes(card_ids):
     mw.progress.start(
         label="Reset Creation Times: collecting notes...", max=len(card_ids)
     )
-    last_nid = ""
+    last_nid: NoteId | None = None
     nids_ordered = []
     nids_lookup = {}
 
@@ -113,7 +115,7 @@ def identifyNotes(card_ids):
         )
 
         # Retrieve the selected card to get the note ID.
-        card = mw.col.getCard(card_id)
+        card = mw.col.get_card(card_id)
 
         # debug
         # showInfo(("retrieved card_id %s with note_id %s") % (card_id, card.nid))

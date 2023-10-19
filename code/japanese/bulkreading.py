@@ -17,16 +17,15 @@ from .reading import regenerateReading
 
 
 def regenerateReadings(nids):
-    mw.checkpoint("Bulk-add Readings")
     mw.progress.start()
     for nid in nids:
-        note = mw.col.getNote(nid)
+        note = mw.col.get_note(nid)
         if not isJapaneseNoteType(note.note_type()["name"]):
             continue
         fields = mw.col.models.field_names(note.note_type())
         for src in fields:
             regenerateReading(note, src)
-        note.flush()
+        mw.col.update_note(note)
     mw.progress.finish()
     mw.reset()
 

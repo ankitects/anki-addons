@@ -31,7 +31,7 @@ def _runJavaScriptSync(page, js, timeout=500):
 
 
 def event(self, evt):
-    if evt.type() == QEvent.ShortcutOverride:
+    if evt.type() == QEvent.Type.ShortcutOverride:
         # alt-gr bug workaround
         exceptChars = (str(num) for num in range(1, 10))
         if evt.text() not in exceptChars:

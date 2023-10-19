@@ -4,6 +4,7 @@
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 
 import unicodedata
+from typing import Set
 
 import aqt
 from anki.utils import ids2str, split_fields
@@ -51,8 +52,8 @@ class KanjiStats(object):
             return ("%(count)s %(gradename)s kanji.") % d
 
     def genKanjiSets(self):
-        self.kanjiSets = [set([]) for g in self.kanjiGrades]
-        chars = set()
+        self.kanjiSets: list[set[str]] = [set([]) for g in self.kanjiGrades]
+        chars: Set[str] = set()
         for m in self.col.models.all():
             _noteName = m["name"].lower()
             if not isJapaneseNoteType(_noteName):
@@ -75,9 +76,9 @@ where c.nid = n.id and mid = ? and c.queue > 0
                 flds = split_fields(row[0])
                 for idx in idxs:
                     chars.update(flds[idx])
-        for c in chars:
-            if isKanji(c):
-                self.kanjiSets[self.kanjiGrade(c)].add(c)
+        for c2 in chars:
+            if isKanji(c2):
+                self.kanjiSets[self.kanjiGrade(c2)].add(c2)
 
     def report(self):
         self.genKanjiSets()

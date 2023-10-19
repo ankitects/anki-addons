@@ -6,28 +6,31 @@
 # Activate from the tools menu.
 #
 
+from __future__ import annotations
+
 from anki.hooks import addHook
 from aqt import mw
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
 
+class DockableWithClose(QDockWidget):
+    closed = pyqtSignal()
+
+    def closeEvent(self, evt):
+        self.closed.emit()
+        QDockWidget.closeEvent(self, evt)
+
+
 class CardStats(object):
     def __init__(self, mw):
         self.mw = mw
-        self.shown = False
+        self.shown: DockableWithClose | None = None
         addHook("showQuestion", self._update)
         addHook("deckClosing", self.hide)
         addHook("reviewCleanup", self.hide)
 
-    def _addDockable(self, title, w):
-        class DockableWithClose(QDockWidget):
-            closed = pyqtSignal()
-
-            def closeEvent(self, evt):
-                self.closed.emit()
-                QDockWidget.closeEvent(self, evt)
-
+    def _addDockable(self, title, w) -> DockableWithClose:
         dock = DockableWithClose(title, mw)
         dock.setObjectName(title)
         dock.setAllowedAreas(

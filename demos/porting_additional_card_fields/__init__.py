@@ -85,7 +85,7 @@ def external_file_link(card, model):
     except:
         return ""
     if all([field_for_filename, field_for_page]):
-        note = mw.col.getNote(card.nid)
+        note = mw.col.get_note(card.nid)
         for i, f in enumerate(note.note_type()["flds"]):
             if f["name"] == field_for_filename:
                 file = note.fields[i]
