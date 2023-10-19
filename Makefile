@@ -3,8 +3,7 @@ MAKEFLAGS += -j
 all: build
 
 venv:
-	test -d ~/Local/python/addons || ./setup-venv.sh
-	~/Local/python/addons/bin/pip install --pre aqt[qt6]
+	@test -d ~/Local/python/addons || (./setup-venv.sh && ~/Local/python/addons/bin/pip install --pre aqt[qt6])
 
 check: check_format mypy pylint
 
@@ -17,7 +16,7 @@ format: venv
 	~/Local/python/addons/bin/isort code demos
 
 mypy: venv
-	~/Local/python/addons/bin/mypy code demos
+	MYPY_FORCE_COLOR=1 ~/Local/python/addons/bin/mypy code demos
 
 pylint: venv
 	~/Local/python/addons/bin/pylint -j 10 -f colorized \
