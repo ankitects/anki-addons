@@ -10,7 +10,6 @@ from typing import Any, Set
 
 import aqt
 from anki.collection import Collection
-from anki.utils import ids2str, split_fields
 from aqt import mw
 from aqt.operations import QueryOp
 from aqt.qt import *
@@ -36,7 +35,7 @@ class KanjiStats(object):
         if wholeCollection:
             self.lim = ""
         else:
-            self.lim = " and c.did in %s" % ids2str(self.col.decks.active())
+            self.lim = "deck:current"
         self._gradeHash = dict()
         for (name, chars), grade in zip(self.kanjiGrades, range(len(self.kanjiGrades))):
             for c in chars:
@@ -67,18 +66,13 @@ class KanjiStats(object):
                 for f in config["srcFields"]:
                     if name == f:
                         idxs.append(c)
-            for row in self.col.db.execute(
-                """
-select flds from notes where id in (
-select n.id from cards c, notes n
-where c.nid = n.id and mid = ? and c.queue > 0
-%s) """
-                % self.lim,
-                m["id"],
+            mid = m["id"]
+            for nid in mw.col.find_notes(
+                self.lim + f" mid:{mid} -is:new -is:suspended"
             ):
-                flds = split_fields(row[0])
+                note = mw.col.get_note(nid)
                 for idx in idxs:
-                    chars.update(flds[idx])
+                    chars.update(note.fields[idx])
         for c2 in chars:
             if isKanji(c2):
                 self.kanjiSets[self.kanjiGrade(c2)].add(c2)
