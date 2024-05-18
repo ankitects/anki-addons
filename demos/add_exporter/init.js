@@ -24,4 +24,4 @@ function updateExporters(exporters) {
     return exporters;
 }
 
-addEventListener("exportersDidInitialize", (event) => event.detail.exporters.update(updateExporters));
+requireAsync("anki/ExportPage").then(mod => mod.exporters.update(updateExporters));

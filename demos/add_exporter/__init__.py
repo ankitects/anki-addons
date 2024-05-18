@@ -1,5 +1,5 @@
 """
-An example of extending the deck options screen with raw HTML/JS.
+An example of adding an exporter to export page.
 """
 
 from pathlib import Path
