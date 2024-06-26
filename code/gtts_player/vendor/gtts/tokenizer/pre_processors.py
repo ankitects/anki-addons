@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from gtts.tokenizer import PreProcessorRegex, PreProcessorSub, symbols
 import re
 

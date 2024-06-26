@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Damien Elmes (http://help.ankiweb.net)
 # License: GNU GPL, version 3 or later; http://www.gnu.org/copyleft/gpl.html
 

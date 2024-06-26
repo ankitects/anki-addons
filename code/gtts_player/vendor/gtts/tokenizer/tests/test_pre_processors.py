@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 from gtts.tokenizer.pre_processors import (
     tone_marks,

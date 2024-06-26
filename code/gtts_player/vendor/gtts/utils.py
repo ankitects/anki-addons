@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from gtts.tokenizer.symbols import ALL_PUNC as punc
 from string import whitespace as ws
 import re
