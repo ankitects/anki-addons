@@ -63,7 +63,7 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
     return popen
 
 
-class MecabController(object):
+class MecabController:
     def __init__(self) -> None:
         self.mecab: subprocess.Popen | None = None
 
@@ -189,7 +189,7 @@ class MecabController(object):
 ##########################################################################
 
 
-class KakasiController(object):
+class KakasiController:
     def __init__(self) -> None:
         self.kakasi: subprocess.Popen | None = None
 
