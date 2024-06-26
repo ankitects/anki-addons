@@ -45,13 +45,11 @@ class KanjiStats(object):
         return self._gradeHash.get(unichar, 0)
 
     def kanjiCountStr(self, gradename: str, count: int, total: int = 0) -> str:
-        d = {"count": count, "gradename": gradename}
         if total:
-            d["total"] = total
-            d["percent"] = float(count) / total * 100
-            return ("%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%).") % d
+            percent = float(count) / total * 100
+            return f"{gradename}: {count} of {total} ({percent:.1f}%)."
         else:
-            return ("%(count)s %(gradename)s kanji.") % d
+            return f"{count} {gradename} kanji."
 
     def genKanjiSets(self) -> None:
         self.kanjiSets: list[set[str]] = [set([]) for g in self.kanjiGrades]
