@@ -46,8 +46,7 @@ class KanjiStats(object):
 
     def kanjiCountStr(self, gradename: str, count: int, total: int = 0) -> str:
         if total:
-            percent = float(count) / total * 100
-            return f"{gradename}: {count} of {total} ({percent:.1f}%)."
+            return f"{gradename}: {count} of {total} ({count/total:.1%})."
         else:
             return f"{count} {gradename} kanji."
 
