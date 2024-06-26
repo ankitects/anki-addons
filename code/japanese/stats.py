@@ -160,7 +160,7 @@ class KanjiStats(object):
     def edictKanjiLink(self, kanji: str) -> str:
         base = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1MMJ"
         url = base + kanji
-        return '<a href="%s">%s</a>' % (url, kanji)
+        return f'<a href="{url}">{kanji}</a>'
 
     def missingInGrade(self, gradeNum: int, check: Callable) -> list[str]:
         existingKanji = self.kanjiSets[gradeNum]
