@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from urllib.parse import quote
 
+from enum import Enum
+
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -46,15 +48,21 @@ class Lookup(object):
             text: The text to be looked up.
             kanji: An optional Boolean that specifies whether 'text' is a kanji or not.
         """
+        class KanjiSelectionType(str, Enum):
+            KANJIDIC = "M"
+            UNICODE = "U"
+            JIS = "J"
+            ENGLISH_MEANING = "E"
+
         if kanji:
-            x = "M"
+            x = KanjiSelectionType.KANJIDIC.value
         else:
-            x = "U"
+            x = KanjiSelectionType.UNICODE.value
         baseUrl = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
         if self.isJapaneseText(text):
-            baseUrl += "J"
+            baseUrl += KanjiSelectionType.JIS.value
         else:
-            baseUrl += "E"
+            baseUrl += KanjiSelectionType.ENGLISH_MEANING.value
         url = baseUrl + quote(text.encode("utf-8"))
         qurl = QUrl()
         setUrl(qurl, url)
