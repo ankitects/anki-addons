@@ -48,6 +48,8 @@ class Lookup(object):
             text: The text to be looked up.
             kanji: An optional Boolean that specifies whether 'text' is a kanji or not.
         """
+        baseUrl: str = "http://nihongo.monash.edu/cgi-bin/wwwjdic"
+
         class KanjiSelectionType(str, Enum):
             KANJIDIC = "M"
             UNICODE = "U"
@@ -58,12 +60,13 @@ class Lookup(object):
             x = KanjiSelectionType.KANJIDIC.value
         else:
             x = KanjiSelectionType.UNICODE.value
-        baseUrl = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
+        baseUrl = f"{baseUrl}?1M{x}"
         if self.isJapaneseText(text):
-            baseUrl += KanjiSelectionType.JIS.value
+            baseUrl = f"{baseUrl}{KanjiSelectionType.JIS.value}"
         else:
-            baseUrl += KanjiSelectionType.ENGLISH_MEANING.value
-        url = baseUrl + quote(text.encode("utf-8"))
+            baseUrl = f"{baseUrl}{KanjiSelectionType.ENGLISH_MEANING.value}"
+        search_key = quote(text.encode("utf-8"))
+        url = f"{baseUrl}{search_key}"
         qurl = QUrl()
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
