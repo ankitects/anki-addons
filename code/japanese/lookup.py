@@ -37,7 +37,15 @@ class Lookup(object):
         self.edict(text, True)
 
     def edict(self, text: str, kanji: bool = False) -> None:
-        "Look up TEXT with edict."
+        """Look up the given text in the Japanese–English dictionary EDICT.
+
+        Use Jim Breen's webservice WWWJDIC (Online Japanese Dictionary) to access the
+        EDICT file.
+
+        Args:
+            text: The text to be looked up.
+            kanji: An optional Boolean that specifies whether 'text' is a kanji or not.
+        """
         if kanji:
             x = "M"
         else:
