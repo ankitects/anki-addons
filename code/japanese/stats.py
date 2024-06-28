@@ -36,7 +36,7 @@ class KanjiStats:
         else:
             self.lim = "deck:current"
         self._gradeHash = dict()
-        for (name, chars), grade in zip(self.kanjiGrades, range(len(self.kanjiGrades))):
+        for grade, (name, chars) in enumerate(self.kanjiGrades):
             for c in chars:
                 self._gradeHash[c] = grade
 
