@@ -157,16 +157,23 @@ class MecabController:
                     out.append(f" {kanji}[{reading}]")
                 else:
                     out.append(
-                        f" {kanji[:-placeR]}[{reading[:-placeR]}]{reading[-placeR:]}"
+                        f" {kanji[:-placeR]}"
+                        f"[{reading[:-placeR]}]"
+                        f"{reading[-placeR:]}"
                     )
             else:
                 if not placeR:
                     out.append(
-                        f"{reading[:placeL]} {kanji[placeL:]}[{reading[placeL:]}]"
+                        f"{reading[:placeL]}"
+                        f" {kanji[placeL:]}"
+                        f"[{reading[placeL:]}]"
                     )
                 else:
                     out.append(
-                        f"{reading[:placeL]} {kanji[placeL:-placeR]}[{reading[placeL:-placeR]}]{reading[-placeR:]}"
+                        f"{reading[:placeL]}"
+                        f" {kanji[placeL:-placeR]}"
+                        f"[{reading[placeL:-placeR]}]"
+                        f"{reading[-placeR:]}"
                     )
         fin = ""
         for c, s in enumerate(out):
