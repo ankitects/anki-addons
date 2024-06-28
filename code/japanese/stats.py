@@ -44,13 +44,10 @@ class KanjiStats:
         return self._gradeHash.get(unichar, 0)
 
     def kanjiCountStr(self, gradename: str, count: int, total: int = 0) -> str:
-        d = {"count": count, "gradename": gradename}
         if total:
-            d["total"] = total
-            d["percent"] = float(count) / total * 100
-            return ("%(gradename)s: %(count)s of %(total)s (%(percent)0.1f%%).") % d
+            return f"{gradename}: {count} of {total} ({count/total:.1%})."
         else:
-            return ("%(count)s %(gradename)s kanji.") % d
+            return f"{count} {gradename} kanji."
 
     def genKanjiSets(self) -> None:
         self.kanjiSets: list[set[str]] = [set([]) for g in self.kanjiGrades]
@@ -161,7 +158,7 @@ class KanjiStats:
     def edictKanjiLink(self, kanji: str) -> str:
         base = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1MMJ"
         url = base + kanji
-        return '<a href="%s">%s</a>' % (url, kanji)
+        return f'<a href="{url}">{kanji}</a>'
 
     def missingInGrade(self, gradeNum: int, check: Callable) -> list[str]:
         existingKanji = self.kanjiSets[gradeNum]

@@ -154,7 +154,7 @@ class MecabController:
                 placeL = i + 1
             if placeL == 0:
                 if placeR == 0:
-                    out.append(" %s[%s]" % (kanji, reading))
+                    out.append(f" {kanji}[{reading}]")
                 else:
                     out.append(
                         " %s[%s]%s"
