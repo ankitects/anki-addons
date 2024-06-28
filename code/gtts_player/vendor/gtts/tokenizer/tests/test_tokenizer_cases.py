@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 from gtts.tokenizer.tokenizer_cases import (
     tone_marks,

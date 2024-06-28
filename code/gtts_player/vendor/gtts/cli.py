@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from gtts import gTTS, gTTSError, __version__
 from gtts.lang import tts_langs, _fallback_deprecated_lang
 import click

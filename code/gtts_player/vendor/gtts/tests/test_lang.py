@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from gtts.lang import tts_langs, _extra_langs, _fallback_deprecated_lang
 from gtts.langs import _main_langs

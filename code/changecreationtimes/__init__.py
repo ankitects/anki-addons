@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright: Matthew Duggan, mostly copied from bulk reading generator plugin
 #            by Damien Elmes.
 #

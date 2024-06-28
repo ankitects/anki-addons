@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import unittest
 import re
 from gtts.tokenizer.core import (

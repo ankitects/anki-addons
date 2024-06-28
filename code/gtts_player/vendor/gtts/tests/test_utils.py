@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 from gtts.utils import _minimize, _len, _clean_tokens, _translate_url
 
