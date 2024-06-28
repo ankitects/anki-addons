@@ -1,0 +1,6 @@
+black
+isort
+mypy
+pylint
+mock
+types-mock
