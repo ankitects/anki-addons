@@ -9,6 +9,8 @@ from __future__ import annotations
 import re
 from urllib.parse import quote
 
+from enum import Enum
+
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import showInfo
@@ -36,17 +38,34 @@ class Lookup:
         self.edict(text, True)
 
     def edict(self, text: str, kanji: bool = False) -> None:
-        "Look up TEXT with edict."
+        """Look up the given text in the Japanese–English dictionary EDICT.
+
+        Use Jim Breen's webservice WWWJDIC (Online Japanese Dictionary) to access the
+        EDICT file.
+
+        Args:
+            text: The text to be looked up.
+            kanji: An optional Boolean that specifies whether 'text' is a kanji or not.
+        """
+        baseUrl: str = "http://nihongo.monash.edu/cgi-bin/wwwjdic"
+
+        class KanjiSelectionType(str, Enum):
+            KANJIDIC = "M"
+            UNICODE = "U"
+            JIS = "J"
+            ENGLISH_MEANING = "E"
+
         if kanji:
-            x = "M"
+            x = KanjiSelectionType.KANJIDIC.value
         else:
-            x = "U"
-        baseUrl = "http://nihongo.monash.edu/cgi-bin/wwwjdic?1M" + x
+            x = KanjiSelectionType.UNICODE.value
+        baseUrl = f"{baseUrl}?1M{x}"
         if self.isJapaneseText(text):
-            baseUrl += "J"
+            baseUrl = f"{baseUrl}{KanjiSelectionType.JIS.value}"
         else:
-            baseUrl += "E"
-        url = baseUrl + quote(text.encode("utf-8"))
+            baseUrl = f"{baseUrl}{KanjiSelectionType.ENGLISH_MEANING.value}"
+        search_key = quote(text.encode("utf-8"))
+        url = f"{baseUrl}{search_key}"
         qurl = QUrl()
         setUrl(qurl, url)
         QDesktopServices.openUrl(qurl)
