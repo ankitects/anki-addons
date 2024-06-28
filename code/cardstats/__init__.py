@@ -23,7 +23,7 @@ class DockableWithClose(QDockWidget):
         QDockWidget.closeEvent(self, evt)
 
 
-class CardStats(object):
+class CardStats:
     def __init__(self, mw: AnkiQt):
         self.mw = mw
         self.shown: DockableWithClose | None = None

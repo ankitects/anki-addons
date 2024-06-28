@@ -29,7 +29,7 @@ def isKanji(unichar: str) -> bool:
         return False
 
 
-class KanjiStats(object):
+class KanjiStats:
     def __init__(self, col: Collection, wholeCollection: bool) -> None:
         self.col = col
         if wholeCollection:

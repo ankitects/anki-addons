@@ -17,7 +17,7 @@ from aqt.utils import showInfo
 setUrl = QUrl.setUrl
 
 
-class Lookup(object):
+class Lookup:
     def __init__(self) -> None:
         pass
 
