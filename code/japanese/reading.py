@@ -152,8 +152,8 @@ class MecabController:
                 if kanji[i] != reading[i]:
                     break
                 placeL = i + 1
-            if placeL == 0:
-                if placeR == 0:
+            if not placeL:
+                if not placeR:
                     out.append(f" {kanji}[{reading}]")
                 else:
                     out.append(
@@ -161,7 +161,7 @@ class MecabController:
                         % (kanji[:-placeR], reading[:-placeR], reading[-placeR:])
                     )
             else:
-                if placeR == 0:
+                if not placeR:
                     out.append(
                         "%s %s[%s]"
                         % (reading[:placeL], kanji[placeL:], reading[placeL:])
