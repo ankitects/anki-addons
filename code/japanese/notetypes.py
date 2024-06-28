@@ -16,8 +16,4 @@ noteTypes = [noteType.lower() for noteType in config["noteTypes"]]
 
 def isJapaneseNoteType(noteName: str) -> bool:
     noteName = noteName.lower()
-    for allowedString in noteTypes:
-        if allowedString in noteName:
-            return True
-
-    return False
+    return any(allowedString in noteName for allowedString in noteTypes)
