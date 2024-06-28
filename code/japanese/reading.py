@@ -62,6 +62,29 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
     return popen
 
 
+def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
+    """Get index of first mismatch between Kanji and reading, from left to right."""
+    largest_index = len(kanji) - 1
+
+    def remove_rightmost_element(elements):
+        return elements[:-1]
+
+    kanji_reading_pairs = zip(
+        remove_rightmost_element(kanji),
+        remove_rightmost_element(reading),
+    )
+
+    index_of_first_mismatch_from_left_to_right = next(
+        (
+            index
+            for index, (kanji, reading) in enumerate(kanji_reading_pairs)
+            if kanji != reading
+        ),
+        largest_index,
+    )
+    return index_of_first_mismatch_from_left_to_right
+
+
 def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
     """Get index of first mismatch between Kanji and reading, from right to left."""
     largest_index = len(kanji) - 1
@@ -166,11 +189,7 @@ class MecabController:
                 continue
             # strip matching characters and beginning and end of reading and kanji
             # reading should always be at least as long as the kanji
-            placeL = 0
-            for i in range(0, len(kanji) - 1):
-                if kanji[i] != reading[i]:
-                    break
-                placeL = i + 1
+            placeL = get_index_of_first_mismatch_from_left_to_right(kanji, reading)
             placeR = get_index_of_first_mismatch_from_right_to_left(kanji, reading)
             if placeL == 0:
                 if placeR == 0:
