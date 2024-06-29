@@ -165,14 +165,14 @@ class MecabController:
                 if not placeR:
                     out.append(
                         f"{reading[:placeL]}"
-                        f" "
+                        " "
                         f"{kanji[placeL:]}"
                         f"[{reading[placeL:]}]"
                     )
                 else:
                     out.append(
                         f"{reading[:placeL]}"
-                        f" "
+                        " "
                         f"{kanji[placeL:-placeR]}"
                         f"[{reading[placeL:-placeR]}]"
                         f"{reading[-placeR:]}"
