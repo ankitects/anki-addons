@@ -88,7 +88,7 @@ def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
 
         >>> kanji = "9876543210"
         >>> reading = "987654x210"
-        >>> get_index_of_first_mismatch_from_left_to_right(kanji, reading)
+        >>> get_index_of_first_mismatch_from_right_to_left(kanji, reading)
     """
     index_of_first_mismatch_from_right_to_left = 0
     for i in range(1, len(kanji)):
