@@ -64,48 +64,21 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
 
 def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
     """Get index of first mismatch between Kanji and reading, from left to right."""
-    largest_index = len(kanji) - 1
-
-    def remove_rightmost_element(elements):
-        return elements[:-1]
-
-    kanji_reading_pairs = zip(
-        remove_rightmost_element(kanji),
-        remove_rightmost_element(reading),
-    )
-
-    index_of_first_mismatch_from_left_to_right = next(
-        (
-            index
-            for index, (kanji, reading) in enumerate(kanji_reading_pairs)
-            if kanji != reading
-        ),
-        largest_index,
-    )
+    index_of_first_mismatch_from_left_to_right = 0
+    for i in range(0, len(kanji) - 1):
+        if kanji[i] != reading[i]:
+            break
+        index_of_first_mismatch_from_left_to_right = i + 1
     return index_of_first_mismatch_from_left_to_right
 
 
 def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
     """Get index of first mismatch between Kanji and reading, from right to left."""
-    largest_index = len(kanji) - 1
-
-    def get_rightmost_to_secondleftmost(elements):
-        second_element_up_to_last_element = elements[1:]
-        return reversed(second_element_up_to_last_element)
-
-    kanji_reading_pairs = zip(
-        get_rightmost_to_secondleftmost(kanji),
-        get_rightmost_to_secondleftmost(reading),
-    )
-
-    index_of_first_mismatch_from_right_to_left = next(
-        (
-            index
-            for index, (kanji, reading) in enumerate(kanji_reading_pairs)
-            if kanji != reading
-        ),
-        largest_index,
-    )
+    index_of_first_mismatch_from_right_to_left = 0
+    for i in range(1, len(kanji)):
+        if kanji[-i] != reading[-i]:
+            break
+        index_of_first_mismatch_from_right_to_left = i
     return index_of_first_mismatch_from_right_to_left
 
 
