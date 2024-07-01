@@ -65,11 +65,21 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
 def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
     """Get index of first mismatch between Kanji and reading, from left to right.
 
-    Example:
-        This would return 3.
+    Returns:
+        - The index of the first mismatch if there is one, starting at the left end.
+        - The largest index if the two lists are identical (there's no mismatch).
+
+    Examples:
+        This would return 3 because the leftmost mismatch is at index 3.
 
         >>> kanji = "0123456789"
         >>> reading = "012x456789"
+        >>> get_index_of_first_mismatch_from_left_to_right(kanji, reading)
+
+        This would return 9 (the largest index) because the lists are identical.
+
+        >>> kanji = "0123456789"
+        >>> reading = "0123456789"
         >>> get_index_of_first_mismatch_from_left_to_right(kanji, reading)
     """
     index_of_first_mismatch_from_left_to_right = 0
@@ -83,11 +93,21 @@ def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
 def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
     """Get index of first mismatch between Kanji and reading, from right to left.
 
-    Example:
-        This would return 3.
+    Returns:
+        - The index of the first mismatch if there is one, starting at the right end.
+        - The largest index if the two lists are identical (there's no mismatch).
+
+    Examples:
+        This would return 3 because the rightmost mismatch is at index 3.
 
         >>> kanji = "9876543210"
         >>> reading = "987654x210"
+        >>> get_index_of_first_mismatch_from_right_to_left(kanji, reading)
+
+        This would return 9 (the largest index) because the lists are identical.
+
+        >>> kanji = "9876543210"
+        >>> reading = "9876543210"
         >>> get_index_of_first_mismatch_from_right_to_left(kanji, reading)
     """
     index_of_first_mismatch_from_right_to_left = 0
