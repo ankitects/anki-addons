@@ -121,10 +121,10 @@ class PreviewPage(QWizardPage):
 
     def _renderChange(self, change: Change) -> str:
         return """\
-From: %s
-  To: %s
- Tag: %s  
-""" % (
+From: {}
+  To: {}
+ Tag: {}
+""".format(
             change.oldname,
             change.newname,
             change.tag or "[no tag added]",

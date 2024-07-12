@@ -8,7 +8,7 @@ def tone_marks():
     not be any space after a tone-modifying punctuation mark.
     """
     return RegexBuilder(
-        pattern_args=symbols.TONE_MARKS, pattern_func=lambda x: u"(?<={}).".format(x)
+        pattern_args=symbols.TONE_MARKS, pattern_func=lambda x: f"(?<={x})."
     ).regex
 
 
@@ -27,7 +27,7 @@ def period_comma():
     """
     return RegexBuilder(
         pattern_args=symbols.PERIOD_COMMA,
-        pattern_func=lambda x: r"(?<!\.[a-z]){} ".format(x),
+        pattern_func=lambda x: fr"(?<!\.[a-z]){x} ",
     ).regex
 
 
@@ -39,7 +39,7 @@ def colon():
 
     """
     return RegexBuilder(
-        pattern_args=symbols.COLON, pattern_func=lambda x: r"(?<!\d){}".format(x)
+        pattern_args=symbols.COLON, pattern_func=lambda x: fr"(?<!\d){x}"
     ).regex
 
 
@@ -56,7 +56,7 @@ def other_punctuation():
         - set(symbols.PERIOD_COMMA)
         - set(symbols.COLON)
     )
-    return RegexBuilder(pattern_args=punc, pattern_func=lambda x: u"{}".format(x)).regex
+    return RegexBuilder(pattern_args=punc, pattern_func=lambda x: f"{x}").regex
 
 
 def legacy_all_punctuation():  # pragma: no cover b/c tested but Coveralls: ¯\_(ツ)_/¯
@@ -65,4 +65,4 @@ def legacy_all_punctuation():  # pragma: no cover b/c tested but Coveralls: ¯\_
     Use as only tokenizer case to mimic gTTS 1.x tokenization.
     """
     punc = symbols.ALL_PUNC
-    return RegexBuilder(pattern_args=punc, pattern_func=lambda x: u"{}".format(x)).regex
+    return RegexBuilder(pattern_args=punc, pattern_func=lambda x: f"{x}").regex

@@ -226,7 +226,7 @@ class gTTS:
 
         rpc = [[[self.GOOGLE_TTS_RPC, escaped_parameter, None, "generic"]]]
         espaced_rpc = json.dumps(rpc, separators=(",", ":"))
-        return "f.req={}&".format(urllib.parse.quote(espaced_rpc))
+        return f"f.req={urllib.parse.quote(espaced_rpc)}&"
 
     def get_bodies(self):
         """Get TTS API request bodies(s) that would be sent to the TTS API.
@@ -351,7 +351,7 @@ class gTTSError(Exception):
 
             if tts.tld != "com":
                 host = _translate_url(tld=tts.tld)
-                cause = "Host '{}' is not reachable".format(host)
+                cause = f"Host '{host}' is not reachable"
 
         else:
             # rsp should be <requests.Response>
@@ -359,12 +359,12 @@ class gTTSError(Exception):
             status = rsp.status_code
             reason = rsp.reason
 
-            premise = "{:d} ({}) from TTS API".format(status, reason)
+            premise = f"{status:d} ({reason}) from TTS API"
 
             if status == 403:
                 cause = "Bad token or upstream API changes"
             elif status == 404 and tts.tld != "com":
-                cause = "Unsupported tld '{}'".format(tts.tld)
+                cause = f"Unsupported tld '{tts.tld}'"
             elif status == 200 and not tts.lang_check:
                 cause = (
                     "No audio stream in response. Unsupported language '%s'"
@@ -373,4 +373,4 @@ class gTTSError(Exception):
             elif status >= 500:
                 cause = "Uptream API error. Try again later."
 
-        return "{}. Probable cause: {}".format(premise, cause)
+        return f"{premise}. Probable cause: {cause}"
