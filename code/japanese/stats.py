@@ -52,7 +52,7 @@ class KanjiStats:
 
     def genKanjiSets(self) -> None:
         self.kanjiSets: list[set[str]] = [set([]) for g in self.kanjiGrades]
-        chars: Set[str] = set()
+        chars: set[str] = set()
         for m in self.col.models.all():
             _noteName = m["name"].lower()
             if not isJapaneseNoteType(_noteName):
