@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import unicodedata
+from collections.abc import Callable
 from typing import Any, Set
 
 import aqt
