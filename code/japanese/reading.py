@@ -62,62 +62,6 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
     return popen
 
 
-def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
-    """Get index of first mismatch between Kanji and reading, from left to right.
-
-    Returns:
-        - The index of the first mismatch if there is one, starting at the left end.
-        - The largest index if the two lists are identical (there's no mismatch).
-
-    Examples:
-        This would return 3 because the leftmost mismatch is at index 3.
-
-        >>> kanji = "0123456789"
-        >>> reading = "012x456789"
-        >>> get_index_of_first_mismatch_from_left_to_right(kanji, reading)
-
-        This would return 9 (the largest index) because the lists are identical.
-
-        >>> kanji = "0123456789"
-        >>> reading = "0123456789"
-        >>> get_index_of_first_mismatch_from_left_to_right(kanji, reading)
-    """
-    index_of_first_mismatch_from_left_to_right = 0
-    for i in range(0, len(kanji) - 1):
-        if kanji[i] != reading[i]:
-            break
-        index_of_first_mismatch_from_left_to_right = i + 1
-    return index_of_first_mismatch_from_left_to_right
-
-
-def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
-    """Get index of first mismatch between Kanji and reading, from right to left.
-
-    Returns:
-        - The index of the first mismatch if there is one, starting at the right end.
-        - The largest index if the two lists are identical (there's no mismatch).
-
-    Examples:
-        This would return 3 because the rightmost mismatch is at index 3.
-
-        >>> kanji = "9876543210"
-        >>> reading = "987654x210"
-        >>> get_index_of_first_mismatch_from_right_to_left(kanji, reading)
-
-        This would return 9 (the largest index) because the lists are identical.
-
-        >>> kanji = "9876543210"
-        >>> reading = "9876543210"
-        >>> get_index_of_first_mismatch_from_right_to_left(kanji, reading)
-    """
-    index_of_first_mismatch_from_right_to_left = 0
-    for i in range(1, len(kanji)):
-        if kanji[-i] != reading[-i]:
-            break
-        index_of_first_mismatch_from_right_to_left = i
-    return index_of_first_mismatch_from_right_to_left
-
-
 class MecabController:
     def __init__(self) -> None:
         self.mecab: subprocess.Popen | None = None
@@ -198,8 +142,16 @@ class MecabController:
                 continue
             # strip matching characters and beginning and end of reading and kanji
             # reading should always be at least as long as the kanji
-            placeL = get_index_of_first_mismatch_from_left_to_right(kanji, reading)
-            placeR = get_index_of_first_mismatch_from_right_to_left(kanji, reading)
+            placeL = 0
+            placeR = 0
+            for i in range(1, len(kanji)):
+                if kanji[-i] != reading[-i]:
+                    break
+                placeR = i
+            for i in range(0, len(kanji) - 1):
+                if kanji[i] != reading[i]:
+                    break
+                placeL = i + 1
             if placeL == 0:
                 if placeR == 0:
                     out.append(f" {kanji}[{reading}]")
