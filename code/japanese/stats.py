@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import unicodedata
 from collections.abc import Callable
-from typing import Any, Set
+from typing import Any
 
 import aqt
 from anki.collection import Collection
