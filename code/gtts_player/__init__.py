@@ -38,7 +38,7 @@ class GTTSVoice(TTSVoice):
 
 class GTTSPlayer(TTSProcessPlayer):
     # this is called the first time Anki tries to play a TTS file
-    def get_available_voices(self) -> List[TTSVoice]:
+    def get_available_voices(self) -> list[TTSVoice]:
         voices = []
         for code, name in tts_langs().items():
             if "-" in code:

@@ -10,7 +10,7 @@ import os
 import re
 import time
 import urllib.parse
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.httpclient import HttpClient
 from anki.notes import Note, NoteId

@@ -5,7 +5,7 @@
 #
 
 import warnings
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.notes import Note, NoteId
 from aqt import gui_hooks, mw
