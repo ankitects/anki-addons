@@ -7,9 +7,9 @@
 from __future__ import annotations
 
 import re
-from urllib.parse import quote
-
+from collections.abc import Callable
 from enum import Enum
+from urllib.parse import quote
 
 from aqt import mw
 from aqt.qt import *

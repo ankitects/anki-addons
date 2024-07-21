@@ -4,7 +4,7 @@
 # Bulk update of readings.
 #
 
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.notes import NoteId
 from aqt import mw
