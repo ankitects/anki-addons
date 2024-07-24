@@ -11,6 +11,7 @@ from anki.decks import DeckId
 from anki.utils import ids2str, int_time
 from aqt import mw
 from aqt.qt import *
+from aqt.qt import sip
 
 
 class Wizard(QWizard):

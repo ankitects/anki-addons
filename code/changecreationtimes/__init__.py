@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import random
 import time
-from typing import Sequence
+from collections.abc import Sequence
 
 from anki.cards import CardId
 from anki.lang import ngettext
