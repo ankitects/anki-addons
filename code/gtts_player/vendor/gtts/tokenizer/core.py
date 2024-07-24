@@ -141,7 +141,7 @@ class PreProcessorRegex:
     def __repr__(self):  # pragma: no cover
         subs_strs = []
         for r in self.regexes:
-            subs_strs.append(f"({r}, repl='{self.repl}')")
+            subs_strs.append("({}, repl='{}')".format(r, self.repl))
         return ", ".join(subs_strs)
 
 
@@ -181,7 +181,7 @@ class PreProcessorSub:
 
     def __init__(self, sub_pairs, ignore_case=True):
         def search_func(x):
-            return f"{x}"
+            return u"{}".format(x)
 
         flags = re.I if ignore_case else 0
 

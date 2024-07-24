@@ -44,7 +44,7 @@ def test_TTS(tmp_path, lang):
     text = "This is a test"
     """Create output .mp3 file successfully"""
     for slow in (False, True):
-        filename = tmp_path / f"test_{lang}_.mp3"
+        filename = tmp_path / "test_{}_.mp3".format(lang)
         # Create gTTS and save
         tts = gTTS(text=text, lang=lang, slow=slow, lang_check=False)
         tts.save(filename)
