@@ -62,7 +62,7 @@ def mungeForPlatform(popen: list[str]) -> list[str]:
     return popen
 
 
-def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
+def get_index_of_first_mismatch_from_left_to_right(kanji: str, reading: str) -> int:
     """Get index of first mismatch between Kanji and reading, from left to right.
 
     Returns:
@@ -90,7 +90,7 @@ def get_index_of_first_mismatch_from_left_to_right(kanji, reading) -> int:
     return index_of_first_mismatch_from_left_to_right
 
 
-def get_index_of_first_mismatch_from_right_to_left(kanji, reading) -> int:
+def get_index_of_first_mismatch_from_right_to_left(kanji: str, reading: str) -> int:
     """Get index of first mismatch between Kanji and reading, from right to left.
 
     Returns:
