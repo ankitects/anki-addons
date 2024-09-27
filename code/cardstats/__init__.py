@@ -10,6 +10,7 @@ from __future__ import annotations
 from anki.cards import Card
 from aqt import mw
 from aqt.main import AnkiQt
+from aqt.mediasrv import PageContext
 from aqt.qt import *
 from aqt.webview import AnkiWebView
 
@@ -105,7 +106,8 @@ const current = anki.setupCardInfo(document.getElementById("current"), {includeR
 const previous = anki.setupCardInfo(document.getElementById("previous"), {includeRevlog:false});
 </script>
 </center></body></html>"""
-            % self._style()
+            % self._style(),
+            PageContext.ADDON_PAGE,
         )
         self.web.on_theme_did_change()
 
