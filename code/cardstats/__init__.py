@@ -74,48 +74,28 @@ class CardStats:
 
     def _onClosed(self) -> None:
         # schedule removal for after evt has finished
-        self.mw.progress.timer(100, self.hide, False)
+        self.mw.progress.single_shot(100, self.hide, False)
 
     def _update(self, card: Card | None) -> None:
         if not self.shown:
             return
+        self.web.eval(f"anki.updateCardInfos('{self._get_ids()}');")
+
+    def _get_ids(self) -> str:
         r = self.mw.reviewer
-        id = r.card.id if r.card else "null"
-        self.web.eval(f"current.then(s => s.updateStats({id}));")
-        lc = r.lastCard()
-        id = lc.id if lc else "null"
-        self.web.eval(f"previous.then(s => s.updateStats({id}));")
+        current_id = r.card.id if r.card else "null"
+        previous = r.lastCard()
+        previous_id = previous.id if previous else "null"
+        return f"{current_id}/{previous_id}"
+
+    def _revlog_as_number(self) -> str:
+        config = mw.addonManager.getConfig(__name__)
+        return "1" if config.get("revlog") else "0"
 
     def _load_html(self) -> None:
-        self.web.setHtml(
-            """
-<html><head>
-<script src="js/vendor/bootstrap.bundle.min.js"></script>
-<link href="pages/card-info-base.css" rel="stylesheet" />
-<link href="pages/card-info.css" rel="stylesheet" />
-</head><style>%s</style>
-<body>
-<script src="pages/card-info.js"></script>
-<center>
-<h3>Current</h3>
-<div id=current></div>
-<h3>Previous</h3>
-<div id=previous></div>
-<script>
-const current = anki.setupCardInfo(document.getElementById("current"), {includeRevlog:false});
-const previous = anki.setupCardInfo(document.getElementById("previous"), {includeRevlog:false});
-</script>
-</center></body></html>"""
-            % self._style(),
-            PageContext.ADDON_PAGE,
+        self.web.load_sveltekit_page(
+            f"card-info/{self._get_ids()}?revlog={self._revlog_as_number()}"
         )
-        self.web.on_theme_did_change()
-
-    def _style(self) -> str:
-        return """
-td { font-size: 80%; }
-.card-info-placeholder { position: relative !important; }
-"""
 
 
 _cs = CardStats(mw)
