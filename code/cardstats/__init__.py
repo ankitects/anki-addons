@@ -59,7 +59,8 @@ class CardStats:
             self.shown = self._addDockable(("Card Info"), self.web)
             self.shown.closed.connect(self._onClosed)
             self._load_html()
-        self._update(None)
+        else:
+            self._update(None)
 
     def hide(self) -> None:
         if self.shown:
