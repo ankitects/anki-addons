@@ -1,1 +1,2 @@
-**revlog**: set to true to show the review history
+- **revlog**: set to true to show the review history
+- **curve**: set to true to show the forgetting curve

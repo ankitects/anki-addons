@@ -1,3 +1,4 @@
 { 
-    "revlog": false
+    "revlog": false,
+    "curve": false
 }

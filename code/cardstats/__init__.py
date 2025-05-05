@@ -92,9 +92,13 @@ class CardStats:
         config = mw.addonManager.getConfig(__name__)
         return "1" if config.get("revlog") else "0"
 
+    def _curve_as_number(self) -> str:
+        config = mw.addonManager.getConfig(__name__)
+        return "1" if config.get("curve") else "0"
+
     def _load_html(self) -> None:
         self.web.load_sveltekit_page(
-            f"card-info/{self._get_ids()}?revlog={self._revlog_as_number()}"
+            f"card-info/{self._get_ids()}?revlog={self._revlog_as_number()}&curve={self._curve_as_number()}"
         )
 
 
