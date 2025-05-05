@@ -12,7 +12,7 @@ from aqt import mw
 from aqt.main import AnkiQt
 from aqt.mediasrv import PageContext
 from aqt.qt import *
-from aqt.webview import AnkiWebView
+from aqt.webview import AnkiWebView, AnkiWebViewKind
 
 
 class DockableWithClose(QDockWidget):
@@ -55,7 +55,7 @@ class CardStats:
                 def sizeHint(self) -> QSize:
                     return QSize(200, 100)
 
-            self.web = ThinAnkiWebView()
+            self.web = ThinAnkiWebView(kind=AnkiWebViewKind.BROWSER_CARD_INFO)
             self.shown = self._addDockable(("Card Info"), self.web)
             self.shown.closed.connect(self._onClosed)
             self._load_html()
