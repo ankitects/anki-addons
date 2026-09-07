@@ -20,7 +20,7 @@ from typing import List, cast
 
 from anki.lang import compatMap
 from anki.sound import AVTag, TTSTag
-from aqt import mw
+from aqt import gui_hooks, mw
 from aqt.sound import OnDoneCallback, av_player
 from aqt.tts import TTSProcessPlayer, TTSVoice
 
@@ -97,5 +97,12 @@ class GTTSPlayer(TTSProcessPlayer):
         pass
 
 
-# register our handler
-av_player.players.append(GTTSPlayer(mw.taskman))
+def register_player() -> None:
+    # Closing a profile clears Anki's players, but does not reload add-ons.
+    if not any(isinstance(player, GTTSPlayer) for player in av_player.players):
+        av_player.players.append(GTTSPlayer(mw.taskman))
+
+
+# Restore our handler whenever a profile opens, without registering duplicates.
+gui_hooks.profile_did_open.append(register_player)
+register_player()
